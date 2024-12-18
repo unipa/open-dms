@@ -1,0 +1,462 @@
+﻿@page
+@model NewDocumentModel
+@using OpenDMS.Domain.Entities;
+@using OpenDMS.Domain.Enumerators;
+@{
+    ViewData["Title"] = "Nuovo Documento";
+}
+
+<script>
+
+    function CollectFields() {
+
+        var FieldGuidArray = $("[FieldIndex]");
+        var fields = [];
+        FieldGuidArray.each((i, FieldIdentifier) => {
+
+            var $F = $(FieldIdentifier);
+            if ($F != undefined && $F.length > 0) {
+                var FieldIndex = $F.attr("FieldIndex");
+                var FieldTypeId = $F.attr("FieldType");
+                var FieldGUID = $F.attr("FieldName");
+                var FieldValue = $F.val();
+                fields.push({
+                    FieldIndex: FieldIndex,
+                    FieldIdentifier: FieldGUID,
+                    FieldTypeId: FieldTypeId,
+                    Value: FieldValue
+                })
+            }
+
+        })
+        return fields;
+    }
+
+    function UpdateAndClose(docid) {
+        window.parent.postMessage({ op: "newdocument", data: docid, type: "@Model.Document.DocumentType.Id" }, "*");
+        var IsFolder = @(Model.Document.DocumentType.ContentType == ContentType.Folder ? "true" : "false");
+
+        if (IsFolder) {
+            CloseWindow();
+        }
+        else {
+            window.location = '/?ModalView=S&Id=' + docid;
+        }
+    }
+
+    var IgnoreUniqueId = false;
+
+    function SaveDocument() 
+    {
+        //raccolgo i dati degli input , secondo la struttura CreateOrUpdateDocument
+        var bodyObj = getFormValues("htmlform");
+        //raccolgo i metadati, secondo la struttura  AddOrUpdateDocumentField
+        bodyObj['fieldList'] = CollectFields();
+        //aggiungo dati aggiuntivi
+        bodyObj["contentType"] = @((int)Model.Document.ContentType);
+        bodyObj["documentTypeId"] = "@(Model.Document.DocumentType?.Id)";
+        bodyObj["folderId"] = @(Model.Document.FolderId);
+        bodyObj["documentStatus"] = @((int)Model.Document.DocumentType.InitialStatus);
+        bodyObj["reserved"] = bodyObj["reserved"] == "1";
+        bodyObj["personalData"] = bodyObj["personalData"] == "1";
+        if (!bodyObj["documentDate"])  bodyObj["documentDate"] = null;
+        if (!bodyObj["expirationDate"])  bodyObj["expirationDate"] = null;
+        if (bodyObj["iconColor"] == "#000000") bodyObj["iconColor"] = null;
+
+        var VerificationCode = "";
+        var RequestVerificationCode = document.getElementsByName("__RequestVerificationToken");
+        if (RequestVerificationCode.length > 0) 
+        {
+            VerificationCode = RequestVerificationCode[0].value;
+            var body = JSON.stringify(bodyObj);
+            ShowRequiredPopupJS("htmlform");//faccio comparire i popup manualmente in caso di campi non validi
+            if (document.forms["htmlform"].reportValidity()) 
+            { //controllo la validità dei campi
+                $.ajax({
+                    url: "/internalapi/document",
+                    type: "POST",
+                    headers: {
+                        RequestVerificationToken: VerificationCode,
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                    },
+                    data: body
+                })
+                .done(function (doc) {
+                        if (doc.id < 0) {
+                            if (!IgnoreUniqueId) {
+                                if (confirm(doc.description + "\n\nVuoi forzare l'archiviazione creando un duplicato ?")) {
+                                    if (confirm("Sei sicuro di voler archiviare questo documento con le stesse informazioni di un altro ?")) {
+                                        IgnoreUniqueId = true;
+                                        SaveDocument();
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                ShowMessage("alert", doc.description, 'Message_Target', "/?Type=" + "@Model.Document.DocumentType?.Id");
+                            }
+                            return false;
+                        }
+
+                    //TODO: Il passo successivo dipendente dal tipo di documento e di strategia di archiviazione
+                    UpdateAndClose(doc.id);
+                    //window.addEventListener("message", (event) => {
+                    //    if (event.data.op == "create" && event.data.data == "@Model.Document.DocumentType?.Id") {
+                    //        window.location.reload();
+                    //    }
+                    //})
+
+                    // Il form deve ritornare il contenuto da archiviare che puo essere:
+                    // - l'html dello stesso
+                    // - un file esterno (template)
+                    // - un file firmato
+                    // - nulla (contenuto vuoto)
+                    // il file viene passato attraverso il campo "Content"
+                    // il campo "NextStep" può essere:
+                    // - vuoto = comportamento di default
+                    // - URL = url della pagina da richiamare
+                    // 
+
+                    //TODO: Dopo il salvataggio devo:
+                        // - fornire feedback sull'avvenuta registrazione e mostrare:
+                        // - pulsante per aprire scheda
+                        // - pulsante per upload (se documento senza immagine)
+                        // - pulsante per fascicolazione
+                        // - segnalazione nuovo task sul documento
+
+                })
+                .fail(function (err) {
+                        try {
+                            var e = JSON.parse(err.responseText);
+                            ShowMessage("alert", e.title + "\n\n" + e.errors.document[0], 'Message_Target', "/?Type=" + "@Model.Document.DocumentType?.Id");
+                        }
+                        catch {
+                            ShowMessage("alert", err.responseText, 'Message_Target', "/?Type=" + "@Model.Document.DocumentType?.Id");
+                        }
+                });
+            }
+        }
+        return false;
+    }
+
+    function SetIcon (target)
+    {
+        var icon = $("#Icon");
+        icon.val(target.className);
+        UpdateIcon();
+    }
+
+    function UpdateIcon() {
+        var icon = $("#Icon").val();
+        var iconSpan = $("#IconSpan")[0];
+        iconSpan.className = icon;
+    }
+
+
+</script>
+
+
+<div class="MainWindow">
+    <div class="Header">
+        <i class="fa fa-file"></i>
+        <h1>
+            <small>
+                Crea un nuovo documento
+            </small>
+            <span>@Model.Document.DocumentType.Name</span>
+        </h1>
+        <div class="right-header">
+            <a href="#" class="btn btn-link" onclick="return CloseWindow()"><i class="fa fa-times"></i></a>
+        </div>
+    </div>
+    <div id="Message_Target"></div>
+
+    <form id="htmlform" class="MainPanel" onsubmit="return SaveDocument()">
+        <container class="Panel">
+            @if (!String.IsNullOrEmpty(@Model.Document.DocumentType?.DescriptionLabel))
+            {
+                <div>
+                    <label for="Description"><strong>@Model.Document.DocumentType?.DescriptionLabel</strong></label>
+                    <input type="textbox"
+                           rows="3"
+                           maxlength="4096"
+                           name="Description"
+                           id="Description"
+                           tableId="$$p"
+                           tag="false"
+                           visible="true"
+                           value="@Model.Document.Description"
+                           @Html.Raw(Model.Document.DocumentType.DescriptionMandatory ? "required" : "") />
+                </div>
+            }
+
+            <div style="display:flex;flex-direction:row;justify-content:space-between;gap:10px;">
+
+                @if (!String.IsNullOrEmpty(Model.Document.DocumentType?.DocumentNumberLabel))
+                {
+                    <div style="flex-grow:1">
+                        <label for="DocumentNumber"><strong>@Model.Document.DocumentType?.DocumentNumberLabel</strong></label>
+                        <input @Html.Raw(Model.Document.DocumentType.DocumentNumberMandatory ? "required" : "")
+                               id="DocumentNumber"
+                               name="DocumentNumber"
+                               customProperties="@Html.Raw(Model.Document.DocumentNumberFieldType.CustomProperties)"
+                               type="@(Model.Document.DocumentNumberFieldType?.ControlType ?? "textbox")"
+                               tableId="@(Model.Document.DocumentNumberFieldType?.Id ?? "")"
+                               tag="@(Model.Document.DocumentNumberFieldType?.Tag ?? false)"
+                               visible="true"
+                               value="@Model.Document.DocumentNumber">
+                    </div>
+                }
+                @if (!String.IsNullOrEmpty(@Model.Document.DocumentType?.DocumentDateLabel))
+                {
+                    <div style="width:200px;">
+                        <label for="DocumentDate"><strong>@Model.Document.DocumentType?.DocumentDateLabel</strong></label>
+                        <input type="date" required id="DocumentDate" name="DocumentDate" value="@Model.Document.DocumentDate?.ToString("yyyy-MM-dd")">
+                    </div>
+                }
+                @if (Model.Document.DocumentType?.ExpirationStrategy != ExpirationStrategy.None)
+                {
+                    <div style="width:200px">
+                        <label for="ExpirationDate"><strong>Data Scadenza</strong></label>
+                        <input type="date" required id="ExpirationDate" name="ExpirationDate" value="@Model.Document.ExpirationDate?.ToString("yyyy-MM-dd")">
+                    </div>
+                }
+                @if (Model.Document.DocumentType?.ContentType == ContentType.Folder)
+                {
+
+                    <div>
+                        <label for="Icon"><strong>Icona</strong></label>
+                        <a class="lookup-control dropdown-toggle" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <input type="hidden" id="Icon" name="Icon" onchange="UpdateIcon()" />
+                            <i type="text" id="IconSpan" name="IconSpan" style="height:36px;padding-top:12px;width:48px;text-align:center"></i>
+                            <span class="fa fa-caret-down" style="height:36px;padding-top:12px;width:24px;"></span>
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="width:128px;max-height:128px;overflow-y:auto;margin-top:0">
+                            <ul class="nav nav-list">
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-image"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-paperclip"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-inbox"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-send"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-rocket"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-print"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-hdd-o"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-retweet"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-sitemap"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-table"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-code"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-search"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-envelope"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-envelope-o"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-plane"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-book"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-truck"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-ambulance"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-user"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-automobile"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-code-fork"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-database"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-cogs"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-eye-slash"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-edit"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-money"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-stethoscope"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-folder"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-folder-o"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="tbFolder00"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="tbFolder01"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="tbFolder02"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="tbFolder03"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="tbFolder04"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="tbFolder05"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="tbFolder06"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="tbFolder07"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="tbFolder08"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="tbFolder09"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="tbFolder10"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="tbFolder11"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="tbFolder12"></a> </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="IconColor"><strong>Colore</strong></label>
+                        <input type="color" name="IconColor" id="IconColor" style="width: 40px;height: 37px;" value="" />
+                    </div>
+
+                }
+
+            </div>
+
+            @if (Model.Document.DocumentType?.Fields != null && Model.Document.DocumentType?.Fields.Where(mt => mt.Mandatory == true).Count() > 0)
+            {
+                <h3>Informazioni Obbligatorie</h3>
+
+                @foreach (var mt in Model.Document.DocumentType?.Fields.Where(mt => mt.Mandatory == true))
+                {
+                    <div>
+                        <label for="@mt.Title"><strong>@mt.Title</strong></label>
+                        <input required
+                               FieldIndex="@mt.FieldIndex"
+                               FieldGUID="@mt.FieldName"
+                               FieldType="@mt.FieldType"
+                               id="meta_@mt.FieldName"
+                               name="meta_@mt.FieldName"
+                               customProperties="@Html.Raw(Model.Document.FieldList.FirstOrDefault(x => @mt.FieldName == x.FieldIdentifier)?.CustomProperties)"
+                               type="@(Model.Document.FieldList.FirstOrDefault(x => @mt.FieldName == x.FieldIdentifier)?.ControlType ?? "textbox")"
+                               tableId="@(Model.Document.FieldList.FirstOrDefault(x => @mt.FieldName == x.FieldIdentifier)?.FieldTypeId ?? "")"
+                               tag="@(Model.Document.FieldList.FirstOrDefault(x => @mt.FieldName == x.FieldIdentifier)?.Tag ?? mt.Tag)"
+                               visible="true"
+                               width="@mt.Width"
+                               value="@(Model.Document.FieldList.FirstOrDefault(x => @mt.FieldName == x.FieldIdentifier)?.Value ?? mt.DefaultValue)">
+                    </div>
+                }
+            }
+            @if (Model.Document.DocumentType?.Fields != null && Model.Document.DocumentType?.Fields.Where(mt => mt.Mandatory == false).Count() > 0)
+            {
+                <h3>Informazioni Facoltative</h3>
+                @foreach (var mt in Model.Document.DocumentType.Fields.Where(mt => mt.Mandatory == false))
+                {
+                    <div>
+                        <label for="@mt.Title"><strong>@mt.Title</strong></label>
+                        <input FieldIndex="@mt.FieldIndex"
+                               FieldGUID="@mt.FieldName"
+                               FieldType="@mt.FieldType"
+                               id="meta_@mt.FieldName"
+                               name="meta_@mt.FieldName"
+                               customProperties="@Html.Raw(Model.Document.FieldList.FirstOrDefault(x => @mt.FieldName == x.FieldIdentifier)?.CustomProperties)"
+                               type="@(Model.Document.FieldList.FirstOrDefault(x => @mt.FieldName == x.FieldIdentifier)?.ControlType ?? "textbox")"
+                               tableId="@Model.Document.FieldList.FirstOrDefault(x => @mt.FieldName == x.FieldIdentifier)?.FieldTypeId"
+                               tag="@(Model.Document.FieldList.FirstOrDefault(x => @mt.FieldName == x.FieldIdentifier)?.Tag ?? mt.Tag)"
+                               width="@mt.Width"
+                               visible="true"
+                               value="@(Model.Document.FieldList.FirstOrDefault(x => @mt.FieldName == x.FieldIdentifier)?.Value ?? mt.DefaultValue)">
+                    </div>
+                }
+            }
+ 
+            <a class="accordion" href="#" onclick="$('.visibilita').toggleClass('hidden')">
+                <h3>
+                    <i class="fa fa-eye-slash"></i> Riservatezza
+                    <i class="visibilita hidden fa fa-caret-up pull-right"></i>
+                    <i class="visibilita fa fa-caret-down pull-right"></i>
+                </h3>
+            </a>
+            <div class="visibilita hidden">
+                <div class="CheckRow">
+                    <h4>
+                        Dati Personali
+                        <small>Scegliere <b>Si</b> per proteggere il contenuto e i metadati del documento da occhi indiscreti</small>
+                    </h4>
+                    <select name="personalData" id="personalData">
+                        <option value=0>No</option>
+                        <option value=1>Si</option>
+                    </select>
+                </div>
+                <div class="CheckRow">
+                    <h4>
+                        Documento Riservato
+                        <small>Scegliere <b>Si</b> per rendere privato il documento e impedirne l'accesso agli altri utenti</small>
+                    </h4>
+                    <select name="reserved" id="reserved">
+                        <option value=0>No</option>
+                        <option value=1>Si</option>
+                    </select>
+                </div>
+            </div>
+
+            <a class="accordion" href="#" onclick="$('.responsabili').toggleClass('hidden')">
+                <h3>
+                    <i class="fa fa-bell"></i> Notifiche Automatiche
+                    <i class="responsabili hidden fa fa-caret-up pull-right"></i>
+                    <i class="responsabili fa fa-caret-down pull-right"></i>
+                </h3>
+            </a>
+            <div class="responsabili hidden">
+                <div>
+                    <label><strong>Responsabili</strong></label>
+                    <input id="referentList"
+                           name="referentList"
+                           type="lookup"
+                           placeholder="utenti / ruoli / gruppi..."
+                           tableId="$ug"
+                           tag="true"
+                           visible="true"
+                           value="@(string.Join(",",Model.Document.ReferentList.Select(r=>r.Id).ToArray()))">
+                </div>
+
+                <div>
+                    <label><strong>Referenti C.C.</strong></label>
+                    <input id="ReferentListCC"
+                           name="ReferentListCC"
+                           tag="true"
+                           type="lookup"
+                           placeholder="utenti / ruoli / gruppi..."
+                           tableId="$ug"
+                           visible="true"
+                           value="@(string.Join(",",Model.Document.ReferentListCC.Select(r=>r.Id).ToArray()))">
+                </div>
+            </div>
+
+            <a class="accordion" href="#" onclick="$('.condivisione').toggleClass('hidden')">
+                <h3>
+                    <i class="fa fa-share"></i> Condivisione
+                    <i class="condivisione hidden fa fa-caret-up pull-right"></i>
+                    <i class="condivisione fa fa-caret-down pull-right"></i>
+                </h3>
+            </a>
+            <div class="condivisione hidden">
+                <div>
+                    <label><strong>Destinatari</strong></label>
+                    <input id="notifyTo"
+                            name="notifyTo"
+                            type="lookup"
+                            placeholder="utenti / ruoli / gruppi..."
+                            tag="true"
+                            tableId="$ug"
+                            visible="true"
+                            value="">
+                </div>
+                <div>
+                    <label><strong>Destinatari C.C.</strong></label>
+                    <input id="notifyCC"
+                            name="notifyCC"
+                            type="lookup"
+                            placeholder="utenti / ruoli / gruppi..."
+                            tag="true"
+                            tableId="$ug"
+                            visible="true"
+                            value="">
+                </div>
+            </div>
+
+            <a class="accordion" href="#" onclick="$('.avanzate').toggleClass('hidden')">
+                <h3>
+                        <i class="fa fa-flash"></i> Impostazioni Avanzate
+                        <i class="avanzate hidden fa fa-caret-up pull-right"></i>
+                        <i class="avanzate fa fa-caret-down pull-right"></i>
+                </h3>
+            </a>
+            <div class="avanzate hidden">
+                        <label for="ExternalId"><strong>Identificativo Univoco</strong></label>
+                        <input type="textbox"
+                                maxlength="256"
+                                name="ExternalId"
+                                id="ExternalId"
+                                tableId="$$t"
+                                tag="false"
+                                visible="true"
+                                value="@Model.Document.ExternalId" />
+            </div>
+
+        </container>
+        <div class="Bottom">
+            <button type="submit" class="btn btn-primary">Crea</button>
+            <a href="/New?IdCategoria=@Model.Document.DocumentType.CategoryId" id="BackButton" class="btn btn-link">Indietro</a>
+            <a href="#" class="btn btn-link" onclick="return CloseWindow()">Esci</a>
+        </div>
+    </form>
+</div>
+
+
+

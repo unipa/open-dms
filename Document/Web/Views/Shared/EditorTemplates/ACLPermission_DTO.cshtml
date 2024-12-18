@@ -1,0 +1,52 @@
+﻿@model ACLPermission_DTO;
+@using Microsoft.Extensions.Configuration;
+@using OpenDMS.Domain.Constants;
+@using Web.DTOs;
+@inject IConfiguration Configuration
+
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{ var guid = Guid.NewGuid();}
+
+    <tr class="rigaricerca">
+    <form id="form_Authorization_@Model.ProfileId@Model.ProfileType@Model.PermissionId@guid" asp-controller="Permessi@((ViewData["isGlobal"].ToString() ?? ""))" asp-action="ModificaAutorizzazione">
+        <td>
+            <input type="hidden" value="@Model.ACLId" name="ACLId" />
+            <input type="hidden" value="@Model.ProfileId" name="ProfileId" />
+            @*<i class="fa fa-user"></i>*@
+            <input id="ProfileId@(ViewData["index"].ToString())"
+               name="ProfileId@(ViewData["index"].ToString())"
+                          type="lookup"
+                          value="@((int)Model.ProfileType)@Model.ProfileId"
+                          tableId="$ug"
+                          tag="false"
+                          visible="true"
+                          disabled="true"
+                          placeholder="" />
+        </td>
+        <td>
+            <input type="hidden" value="@Model.ProfileType" name="ProfileType" />
+            <span>@Model.ProfileType</span>
+        </td>
+        <td>
+            <input type="hidden" value="@Model.PermissionId" name="PermissionId" />
+        <span>@Model.PermissionName</span>
+        </td>
+        <td class ="select-wrapper">
+        <select name="Authorization" id="Authorization_@Model.ProfileId@Model.ProfileType@Model.PermissionId@guid" class="Authorization" required asp-for="Authorization" asp-items="Model.ElencoAuthorization" onchange ="this.form.submit()"></select>
+
+        </td>
+        <td>
+            <div style="float:right"> 
+                @*<button type="submit" class=" btn-link" style="border:none; background-color: transparent">
+                <svg class="icon icon-primary"><use href="@($"{Configuration["PATH_BASE"]}/bootstrap-italia/svg/sprites.svg#it-pencil")"</use></svg>
+                </button>*@
+            <a href="#" onclick="EliminaAutorizzazione('/Admin/Permessi@((ViewData["isGlobal"].ToString() ?? ""))/EliminaAutorizzazione?ACLId=@Model.ACLId&ProfileId=@Model.ProfileId&ProfileType=@Model.ProfileType&PermissionId=@Model.PermissionId','@Model.ProfileId','@Model.PermissionName')">
+                    <button class="mt-2" type="button" style="border:none; background-color: transparent" id="btnDelete" class="btn-link">
+                    <i class="fa fa-trash-o"></i>
+                </button>
+                </a>
+            </div>
+        </td>
+        </form>
+    </tr>

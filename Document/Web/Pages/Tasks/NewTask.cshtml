@@ -1,0 +1,244 @@
+﻿@page
+@model NewTaskModel;
+@using OpenDMS.Domain.Entities;
+@using OpenDMS.Domain.Enumerators;
+@{
+    ViewData["Title"] = "Nuova Attività";
+}
+
+
+<script type="module">
+    import { renderFileUploads, Save } from "/js/forms/client.js";
+    window.Save = Save;
+    window.renderFileUploads = renderFileUploads;
+
+</script>
+
+
+
+
+<form id="form" class="MainPanel" onsubmit="return SaveTask()">
+    <div class="Header">
+        <i class="fa fa-tasks"></i>
+        <h1>
+            <small>Nuova </small>
+            <span>Attività</span>
+        </h1>
+        <div class="right-header">
+            <a class="btn btn-link" href="#" onclick="return CloseWindow()"><i class="fa fa-times"></i></a>
+        </div>
+    </div>
+
+    <div id="Message_Target"></div>
+    <input type="hidden" name="Note" value="prova" id="HiddenInputNote">
+    <div class="Panel">
+        @if (Model.ShareInfo.Companies.Count > 1)
+        {
+            <div class="Row NoWrap">
+                <label for="CompanyId">Sistema Informativo</label>
+                <span>
+                    <select id="CompanyId" name="CompanyId" style="width:100%" required>
+                        <option value="">Seleziona un Sistema Informativo</option>
+                        @foreach (var C in Model.ShareInfo.Companies)
+                        {
+                            @Html.Raw("<option " + (C.Id == Model.ShareInfo.CompanyId ? "selected" : "") + $" value='{C.Id}'>{C.Description}</option>")
+                        }
+                    </select>
+                </span>
+            </div>
+        }
+        else
+        {
+            <input type="hidden" id="CompanyId" name="CompanyId" value="@Model.ShareInfo.CompanyId" />
+        }
+        <input type="hidden" id="Attachments" name="Attachments" />
+        <input type="hidden" id="ParentTaskId" name="ParentTaskId" value="@Model.ShareInfo.ParentTaskId" />
+
+        <div class="Row NoWrap">
+            <label>A</label>
+            <input id="To"
+                   name="To"
+                   type="lookup"
+                   value="@Model.ShareInfo.To"
+                   tableId="$ug"
+                   tag="true"
+                   visible="true"
+                   required
+                   placeholder="Scegli i destinatari" />
+        </div>
+        <div class="Row NoWrap">
+            <label>C.C.</label>
+            <input id="cc"
+                   name="cc"
+                   type="lookup"
+                   value="@Model.ShareInfo.Cc"
+                   tableId="$ug"
+                   tag="true"
+                   visible="true"
+                   placeholder="" />
+        </div>
+        @if (Model.CanAssignToAll)
+        {
+            <div class="">
+                <label for="AssignToAllUsers"><input type="checkbox" value="S" id="AssignToAllUsers" name="AssignToAllUsers" /> Assegna a tutti gli utenti dei gruppi e ruoli indicati</label>
+            </div>
+        }
+        else
+        {
+            <input type="hidden" value="" id="AssignToAllUsers" name="AssignToAllUsers" />
+        }
+        <div class="Row NoWrap">
+            <label>Azione Richiesta</label>
+            <select id="Action" xsize="@Model.ShareInfo.Actions.Count()" style="margin:0 2px;width:100%" name="Action" required asp-items="Model.ShareInfo.Actions">
+            </select>
+        </div>
+
+        <div class="Row NoWrap">
+            <label>Scadenza</label>
+            <input type="Date" width="150px" minDate="now" value="@Model.ShareInfo.ExpirationDate" name="ExpirationDate" id="ExpirationDate" />
+        </div>
+        <div id="OggettoGroup" class="Row NoWrap mt-4">
+            <label>Oggetto</label>
+            <input type="textbox" required value="@Model.ShareInfo.Message" name="Oggetto" id="Oggetto" />
+        </div>
+        <div class="MainPanel">
+            <textarea name="taskdescription" required class="textEditor"></textarea>
+        </div>
+        <div class="">
+            @if (Model.ShareInfo.ParentTaskId > 0)
+            {
+                <input type="checkbox" value="S" id="IncludeParentAttachments" name="IncludeParentAttachments" checked />
+                @("Includi Allegati e Correlati")
+            }
+            else
+            {
+                <input type="hidden" value="" id="IncludeParentAttachments" name="IncludeParentAttachments" />
+
+            }
+        </div>
+        <div class="">
+            <input type="checkbox" value="S" id="notifyExecution" name="notifyExecution" /> Ricevi notifica al completamento dell'attività
+        </div>
+@*         <div class="">
+            <input type="checkbox" value="S" id="notifyExpiration" name="notifyExpiration" /> Ricevi notifica alla scadenza dell'attività
+        </div>
+ *@
+        <div class="Bottom" style="padding:0">
+            <input type="file" id="allegati" multiple class="hidden" container-id="allegati_container" />
+            <div id="allegati_container" class="attachments_file hidden">
+                <div style="display:inline-block" class="label file hidden">
+                    <i class="fa fa-file-o"></i> <strong class="name"></strong>  <span class="size"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="Bottom">
+        <button type="submit" id="SubmitButton" class="btn btn-primary">Crea Attività</button>
+        <a href="#" onclick="return CloseWindow()" class="btn btn-link">Esci</a>
+        <a id="allegati_addButton" style="position:absolute;right:8px" class="btn btn-outline-primary" href="#">
+            <i class="fa fa-paperclip"></i> Aggiungi Allegato...
+        </a>
+
+        <a id="allegati_removeButton" style="position:absolute;right:8px" class="btn btn-outline-danger hidden" href="#">
+            <i class="fa fa-trash-o"></i> Rimuovi Allegati
+        </a>
+    </div>
+</form>
+
+
+
+
+<script>
+
+    var textEditorSelector = ".textEditor";
+
+    $(document).ready(function () {
+        renderFileUploads();
+
+        if ("@Model.ShareInfo.ErrorMessage" !== '') ShowMessage('alert', '@Model.ShareInfo.ErrorMessage', 'Message_Target', 'Index');
+
+        var Value = $('<textarea/>').html("@Model.ShareInfo.Message").text();
+        InizializzaTextEditor(textEditorSelector, Value, null, "100%").then(function () {
+
+        })
+    })
+
+
+    function SaveTask() {
+        var BodyValue = tinymce.activeEditor.getContent(textEditorSelector);
+        $("#HiddenInputNote").val(BodyValue);
+        ok = ShowRequiredPopupJS("form");//faccio comparire i popup manualmente in caso di campi non validi
+        if (document.forms["form"].reportValidity()) {
+            //controllo la validità dei campi
+            Save((model) => {
+                var body = ShareInformation(getFormValues("form"));
+                body.attachments = model.Attachments;
+                $.ajax({
+                    url: "/internalapi/tasklist/CheckRecipients",
+                    type: "POST",
+                    headers: { "Content-Type": "application/json", 'accept': 'text/plain' },
+                    data: JSON.stringify(body)
+                })
+                    .done(function (max) {
+                        if (max == -1)
+                            ShowMessage("alert", "Hai indicato troppi utenti. Riduci il numero e ripeti", 'Message_Target', window.location.href);
+                        else {
+                            if (max > 0) {
+                                if (confirm("Stai per inviare una attività a " + max + " utenti. Sei sicuro ?"))
+                                    max = 0;
+                            }
+                            if (max == 0) {
+                                $.ajax({
+                                    url: "/internalapi/tasklist",
+                                    type: "POST",
+                                    headers: { "Content-Type": "application/json", 'accept': 'text/plain' },
+                                    data: JSON.stringify(body)
+                                })
+                                    .done(function (DocumentImage) {
+
+                                        if (window.parent)
+                                            window.parent.postMessage({ op: "refresh" }, "*");
+                                        // ShowMessage("success", "messaggio condiviso con successo.", 'Message_Target');
+                                        // window.parent.selectTask();
+                                        // window.parent.updateFilters();
+
+                                    }).fail(function (err) {
+                                        ShowMessage("alert", "Non è stato possibile inviare l'attività. Errore: " + err.responseText, 'Message_Target', window.location.href);
+                                    });
+
+                            }
+                        }
+                    })
+                    .fail(function (err) {
+                        ShowMessage("alert", "Non è stato possibile inviare l'attività. Errore: " + err.responseText, 'Message_Target', window.location.href);
+                    });
+            });
+        }
+        return false;
+    }
+
+    function ShareInformation(Info) {
+        var shareInformation = {
+            Description: Info.note,
+            Title: Info.oggetto,
+            CompanyId: Info.companyId,
+            ParentTaskId: Info.parentTaskId,
+            NotifyTo: (Info.to !== "") ? Info.to.split(",") : [],
+            NotifyCC: (Info.cc !== "") ? Info.cc.split(",") : [],
+            Attachments: (Info.attachments == "") ? [] : JSON.parse(Info.attachments),
+            AssignToAllUsers: Info.assignToAllUsers == "S",
+            EventId: Info.action == "*" ? "" : Info.action,
+            ExpirationDate: Info.expirationDate ? Info.expirationDate : null,
+            NotifyExecution: Info.notifyExecution == "S",
+            // NotifyExpiration: Info.notifyExpiration == "S",
+            IncludeParentAttachments : Info.includeParentAttachments == "S"
+        };
+
+        return shareInformation;
+    }
+
+
+
+
+</script>

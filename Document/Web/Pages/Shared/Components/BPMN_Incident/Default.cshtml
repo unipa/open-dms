@@ -1,0 +1,90 @@
+﻿@using OpenDMS.Core.DTOs;
+@model Web.Pages.Shared.Components.BPMN_Incident.BPMN_Incident.ProcessInstanceInfo
+
+
+<div class="Panel">
+    <h1>@Model.ProcessName</h1>
+    <p>Versione @Model.Version</p>
+    <div class="right-header">
+        <div>ID: @Model.BPMNProcessId</div>
+        <div>#@Model.ProcessInstanceId</div>
+    </div>
+    <div class="Incidents">
+        @* Elenco Task *@
+        <h3>Errori</h3>
+        <div class="right-header">
+            <ul class="nav nav-toolbar">
+                <li>
+                </li>
+            </ul>
+        </div>
+        <div class="">
+            <table>
+                <tr>
+                    <th style="max-width:200px">Task</th>
+                    <th style="max-width:200px">Tipo Errore</th>
+                    <th style="width:100%">Messaggio</th>
+                </tr>
+                @foreach (var t in Model.Incidents)
+                {
+                <tr>
+                    <td><strong>@t.TaskName</strong></td>
+                    <td>@t.ErrorType</td>
+                    <td>@t.ErrorMessage</td>
+                </tr>
+                }
+            </table>
+        </div>
+
+        @* Elenco Variabili *@
+        <div>
+            <h3>Variabili</h3>
+            <table>
+                <tr>
+                    <th style="max-width:200px">Nome</th>
+                    <th style="width:100%">Valore</th>
+                </tr>
+                @foreach (var v in Model.Variables)
+                {
+                    <tr>
+                        <td>@v.VarName</td>
+                        <td>@v.VarValue</td>
+                    </tr>
+                }
+            </table>
+        </div>
+
+        @* Task Eseguiti *@
+        <h3>Tasks </h3>
+        <div class="right-header">
+            <ul class="nav nav-toolbar">
+                <li>
+                </li>
+            </ul>
+        </div>
+        <div class="">
+            <table>
+                <tr>
+                    <th style="width:100%">Task</th>
+                    <th style="max-width:200px">Stato</th>
+                    <th style="max-width:200px">Data</th>
+                </tr>
+                @foreach (var t in Model.Tasks)
+                {
+                    <tr>
+                        <td><strong>@t.TaskName</strong></td>
+                        <td>@t.TaskStatus</td>
+                        <td>@t.TimeStamp</td>
+                    </tr>
+                }
+            </table>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+
+</script>

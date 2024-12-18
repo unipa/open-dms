@@ -1,0 +1,105 @@
+﻿@using OpenDMS.Core.DTOs;
+@inject IConfiguration config
+@model IndexModel
+
+
+@if (Model != null)
+{
+    <div class="nav-toolbar-container MainToolbar">
+        <ul class="nav nav-toolbar">
+            @if (Model.Document.Image != null)
+            {
+                <li id="tbDownload">
+                    <a href="#" role="button" class="MobileIcon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-download"></i> Scarica... <span class="fa fa-caret-down"></span></a>
+                    <ul class="dropdown-menu">
+                        <li class="btnDownload"><a onclick="return Download(@Model.DocumentId, '')" class="dropdown-item" href="#"><i class="fa fa-image"></i> Documento Originale</a></li>
+                        <li class="btnPDF"><a onclick="return Download(@Model.DocumentId, '.pdf')" class="dropdown-item" href="#"><i class="fa fa-file-pdf-o"></i> Versione PDF</a></li>
+                    </ul>
+                </li>
+                @if (Model.CanAddContent && Model.CanSign)
+                {
+                    <li id="tbAddDigitalSignature"><a href="#" onclick="return AddDigitalSign('[@Model.DocumentId]')" title="Apponi Firma Elettronica"><i class="fa fa-pencil"></i> Firma Elettronica</a></li>
+                }
+
+@*                 @if (Model.CanSend )
+                {
+                    <li id="tbReply"><a href="#" onclick="OpenModal('/SendMail?cmd=REPLY&Id=[@Model.DocumentId]')"  title="Rispondi"><i class="fa fa-mail-reply"></i> Rispondi</a></li>
+                    <li id="tbReplyAll"><a href="#" onclick="OpenModal('/SendMail?cmd=REPLYTOALL&Id=[@Model.DocumentId]')" title="Rispondi a tutti"><i class="fa fa-mail-reply"></i> Rispondi a tutti</a></li>
+                    <li id="tbForward"><a href="#" onclick="OpenModal('/SendMail?cmd=FORWARD&Id=[@Model.DocumentId]')" title="Inoltra"><i class="fa fa-mail-forward"></i> Inoltra</a></li>
+                    <li id="tbForwardWith"><a href="#" onclick="OpenModal('/SendMail?cmd=FORWARDWITHATTACHMENT&Id=[@Model.DocumentId]')" title="Inoltra con allegati"><i class="fa fa-mail-forward"></i> Inoltra con allegati</a></li>
+                }
+ *@
+            }
+        </ul>
+        <label class="PreviewDocumentName"></label>
+    </div>
+    <div class="Panel Background">
+        <container class="EMLPage Panel">
+            <div class="PreviewPanel">
+                <div>
+                    <h1>Caricamento in corso...</h1>
+                </div>
+            </div>
+            <div class="ErrorPanel" style="display:none">
+                <h1>Si è verificato un errore durante l'estrazione del file</h1>
+                <p class="ErrorMessage"></p>
+            </div>
+        </container>
+    </div>
+@*
+    @if (Model.Document.Image != null)
+    {
+
+        <div class="Bottom Mobile" style="border-top:1px solid #eee">
+            <label><b>Versione: </b>@(
+        Model.Document.Image.VersionNumber
+        ).@(
+                  Model.Document.Image.RevisionNumber.ToString("00")
+                  )</label>
+            <label><b>Dimensione: </b> @Model.Document.Image.FileSize Bytes</label>
+            <label><b>Pubblicazione: </b> @Model.Document.Image.SendingStatus @Model.Document.Image.SendingDate</label>
+        </div>
+    }
+ *@
+}
+else
+{
+
+}
+
+<script>
+
+
+    var zoomFactor = 1;
+    function Zoom(factor) {
+        var panel = $(".PreviewPanel");
+        if (factor == 2) // larghezza
+            zoomFactor = .13348388671875;
+        else
+            if (factor == 3) // altezza
+                zoomFactor = 1;
+            else
+                zoomFactor = zoomFactor * (factor > 0 ? 3 / 4 : 4 / 3);
+        panel.css("zoom", zoomFactor);
+        $("#tbZoomValue").html(" " + Math.trunc(zoomFactor * 100) + "% ");
+
+    }
+
+    $(document).ready(() => {
+
+        const imageId = @Model.Document.Image.Id;
+        const imageViewer = document.querySelector('.PreviewPanel');
+
+        fetch("/internalapi/preview/GetText/" + imageId)
+            .then((response) => { if (!response.ok) return response.text().then(text => { throw new Error(text) }); else return response.text() })
+            .then((data) => {
+                imageViewer.innerHTML = data;
+            })
+            .catch(error => {
+                $(".PreviewPanel").hide();
+                $(".ErrorMessage").text(error.message);
+                $(".ErrorPanel").show();
+            });
+    });
+
+</script>

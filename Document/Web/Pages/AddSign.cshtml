@@ -1,0 +1,186 @@
+﻿@page
+@model Web.Pages.AddSignModel
+@{
+
+}
+
+<script>
+    function Loader() {
+        $("#form").addClass("hidden");
+        $("#Loader").removeClass("hidden");
+        return true;
+    }
+
+</script>
+
+
+<div class="Header">
+    <i class="DocumentIcon fa fa-pencil"></i>
+    <h1>
+        <small>Stai per firmare dei documenti</small>
+        <span>Sottoscrizione documenti</span>
+    </h1>
+    <div class="right-header">
+        <a class="btn btn-link" href="#" onclick="CloseWindow()"><i class="fa fa-times"></i></a>
+    </div>
+</div>
+
+<div id="Loader" class="InfoPanel hidden">
+    <i class="fa fa-spinner fa-spin"></i>
+    <h3>Caricamento in corso...</h3>
+</div>
+<div class="SelectDocumentType MainPanel" id="form">
+    <div class="Panel">
+        <h3>Seleziona il tipo di firma che vuoi utilizzare</h3>
+        <div class="PreviewContainer">
+@*             <div class="PreviewRow">
+                <a href="#" onclick="return AddTokenSign('@(Model.Documents)','@(Model.signField)')">
+                    <div class="PreviewImage LowProfile">
+                        <i class="fa fa-usb"></i>
+                    </div>
+                    <div class="PreviewName">
+                        Firma Digitale (P7M)
+                        <small>@Model.DigitalSignVendor</small>
+                    </div>
+                </a>
+            </div>
+ *@
+            @if (Model.HasPADESSign)
+            {
+                <div class="PreviewRow">
+                    <a href="#" onclick="return AddTokenPADESSign('@(Model.Documents)','@(Model.signField)')">
+                        <div class="PreviewImage LowProfile">
+                            <span class="fa fa-file-pdf-o"></span>
+                            <i class="fa fa-usb"></i>
+                        </div>
+                        <div class="PreviewName">
+                            Firma Digitale (PDF)
+                            <small>@Model.DigitalSignVendor</small>
+                        </div>
+                    </a>
+                </div>
+            }
+
+            @if (Model.HasRemoteSign)
+            {
+@*                 <div class="PreviewRow">
+                    <a onclick="Loader()" href="~/RemoteSign/?documents=@(Model.Documents)&type=@(AddRemoteSignModel.SignTypes.Cades)&signField=@Model.signField">
+                        <div class="PreviewImage LowProfile">
+                            <i class="fa fa-commenting"></i>
+                        </div>
+                        <div class="PreviewName">
+                            Firma Remota (P7M)
+                            <small>Certificato Remoto</small>
+                        </div>
+                    </a>
+                </div>
+ *@
+                <div class="PreviewRow">
+                    <a onclick="Loader()"  href="~/RemoteSign/?documents=@(Model.Documents)&type=@(AddRemoteSignModel.SignTypes.Pades)&signField=@Model.signField">
+                        <div class="PreviewImage LowProfile">
+                            <span class="fa fa-file-pdf-o"></span>
+                            <i class="fa fa-commenting"></i>
+                        </div>
+                        <div class="PreviewName">
+                            Firma Remota (PDF)
+                            <small>Certificato Remoto</small>
+                        </div>
+                    </a>
+                </div>
+            }
+            @if (Model.HasOTPSign)
+            {
+                <div class="PreviewRow">
+                    <a href="~/AddOTPSign?documents=@(Model.Documents)&signField=@Model.signField">
+                        <div class="PreviewImage LowProfile">
+                            <i class="fa fa-mobile"></i>
+                        </div>
+                        <div class="PreviewName">
+                            Firma OTP
+                            <small>Certificato Remoto</small>
+                        </div>
+                    </a>
+                </div>
+            }
+
+            @if (Model.HasFEASign)
+            {
+                <div class="PreviewRow">
+                    <a href="#" onclick="return AddFEASign('@(Model.Documents)','@(Model.signField)'">
+                        <div class="PreviewImage LowProfile">
+                            <i class="fa fa-tablet"></i>
+                            <i class="fa fa-pencil" style="position:absolute;transform: translate(-15px, 16px);z-index:1;font-size:.5em"></i>
+                        </div>
+                        <div class="PreviewName">
+                            Firma Grafometrica
+                            <small>Certificato Remoto</small>
+                        </div>
+                    </a>
+                </div>
+            }
+
+            @if (Model.HasHandWrittenSign)
+            {
+                <div class="PreviewRow">
+                    <a href="#" onclick="StartHandwrittenSign(@(Model.Documents))">
+                        <div class="PreviewImage LowProfile">
+                            <i class="fa fa-hand-pointer-o"></i>
+                        </div>
+                        <div class="PreviewName">
+                            Firma Autografa
+                            <small>Immagine digitalizzata</small>
+                        </div>
+                    </a>
+                </div>
+            }
+            @if (Model.HasVisto)
+            {
+                <div class="PreviewRow">
+                    <a href="#" onclick="StartVistoSign(@(Model.Documents))">
+                        <div class="PreviewImage">
+                            <i class="fa fa-check-square-o"></i>
+                        </div>
+                        <div class="PreviewName LowProfile">
+                            Visto
+                            <small>Immagine digitalizzata</small>
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+        <div class="RicercaClient hidden">
+            <div class="InfoPanel">
+                <i class="fa fa-search"></i>
+                <h1>Attivazione del Client Locale</h1>
+                <p>Ricerca del client in corso. Attendere prego...</p>
+                <br />
+                <h3 class="Progresso"></h3>
+            </div>
+        </div>
+    </div>
+    <nav class="Bottom">
+        <a href="#" onclick="return CloseWindow()" class="btn">Esci</a>
+    </nav>
+
+</div>
+
+<script>
+    AbortSignal.timeout ??= function timeout(ms) {
+        const ctrl = new AbortController()
+        setTimeout(() => ctrl.abort(), ms)
+        return ctrl.signal
+    }
+
+    function StartHandwrittenSign(documents) {
+        window.parent.StartSign(this, 'SignMark');
+        CloseWindow();
+        return false;
+    }
+    function StartVistoSign(documents) {
+        window.parent.StartSign(this, 'VistoMark');
+        CloseWindow();
+        return false;
+    }
+
+
+</script>

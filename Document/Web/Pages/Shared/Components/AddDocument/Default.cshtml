@@ -1,0 +1,18 @@
+﻿@using Microsoft.Extensions.Configuration
+@using OpenDMS.Domain.Entities;
+@using OpenDMS.Domain.Enumerators;
+@model AddDocument
+
+
+@if ((Model.CanCreate))
+{
+    <li>
+        @* <a href="#" role="button" title="Crea un nuovo contenuto digitale..." class="MobileIcon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"> *@
+        <a href="#" role="button" title="Crea un nuovo contenuto digitale..." class="MobileIcon" aria-expanded="false" onclick="return CreateDocument(@Model.ParentId)">
+            <i class="fa fa-plus"></i> Aggiungi...
+            @* <i class="fa fa-caret-down"></i> *@
+
+        </a>
+</li>
+
+}

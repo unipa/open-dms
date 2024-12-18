@@ -1,0 +1,9 @@
+﻿@using OpenDMS.Core.DTOs;
+@inject IConfiguration config
+@model IndexModel
+
+
+@await  Component.InvokeAsync("FileExplorer", Model.FileFilters)
+
+
+

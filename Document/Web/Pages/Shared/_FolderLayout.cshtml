@@ -1,0 +1,75 @@
+﻿@{
+    Layout = "_MenuLayout";
+}
+<main role="main">
+    <div class="MainWindow">
+        <div class="Header">
+            @await  Component.InvokeAsync("CompanyLogo")
+            @RenderSection("Icon", false)
+            <h1>
+                <small>
+                    @RenderSection("SubHeader", false)
+                </small>
+                <span>
+                    @RenderSection("Header", false)
+                </span>
+            </h1>
+            @await  Component.InvokeAsync("DocumentFilters")
+            <div class="right-header">
+                <ul class="nav-toolbar">
+                    @RenderSection("Action", false)
+                    @await  Component.InvokeAsync("AddDocument")
+                </ul>
+            </div>
+        </div>
+        @RenderSection("Folders", false)
+        @RenderBody()
+    </div>
+</main>
+
+<script>
+    $(document).ready(() => {
+        $(".mnuFolders").addClass("active");
+    });
+
+    function LoadResults() {
+        alert("avvio ricerca...");
+        return true;
+    }
+
+    //function ShowDocument(id, NewWindow) {
+    //    if (NewWindow)
+    //        window.open("/?id=" + id, "_blank");
+    //    else
+    //        window.location.href = "/?id=" + id;
+    //}
+
+    function FolderType(documentType) {
+        if (!documentType) documentType=null;
+        window.location.href = "/Folders/DocumentType?Id=" + documentType;
+    }
+    function FolderContentView(documentType) {
+        if (!documentType) documentType = null;
+        window.location.href = "/Folders/Documents?Id=" + documentType;
+    } 
+    function ExpiredView(documentType) {
+        if (!documentType) documentType = null;
+        window.location.href = "/Folders/Expired?Id=" + documentType;
+    }
+    function SearchView(documentType) {
+        if (!documentType) documentType = null;
+        window.location.href = "/Folders/Search?Id=" + documentType;
+    }
+    function TrashView(documentType) {
+        if (!documentType) documentType = null;
+        window.location.href = "/Folders/Trash?Id=" + documentType;
+    }
+    function StoredView(documentType) {
+        if (!documentType) documentType = null;
+        window.location.href = "/Folders/Stored?Id=" + documentType;
+    }
+    function ShowView(view) {
+        window.location.href = "/Folders/" + view;
+    }
+
+</script>

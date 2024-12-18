@@ -1,0 +1,120 @@
+﻿@page
+@model Web.Pages.DistribuzioneModel
+@{
+    ViewData["Title"] = "Pagina di Distribuzione";
+    Layout = "_ConservazioneLayout";
+}
+
+<div class="MainWindow">
+    <div class="Header">
+        <i class="fa fa-cloud-upload"></i>
+        <h1>
+            <small>
+                Distribuzione
+            </small>
+            <span id="HeaderTitle">Avanzamento dei processi di produzione e distribuzione </span>
+        </h1>
+        <div class="right-header">
+            <a href="#" onclick="return CloseWindow()"><i class="fa fa-times"></i></a>
+        </div>
+    </div>
+
+    <div>
+        <div id="Table" style="position: relative; height: 529px;" class="FullHeight">
+
+            <ul class="nav nav-pills" id="Anni"></ul>
+            <div style="position: relative; height: 520px;" class="FullHeight">
+                <table id="Grid" class="table">
+                    <thead>
+                        <tr>
+                            <th nowrap="" style="width: 200px">Data Generazione</th>
+                            <th nowrap="" style="width: 150px">Pacchetto</th>
+                            <th nowrap="" style="text-align: right; width: 100px;">Documenti</th>
+                            <th nowrap="" style="width: 100%">Errori</th>
+                            <th nowrap="" style="max-width: 200px; min-width: 200px"></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="TableBody" style="margin-bottom: 10px;"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(() => {
+            fetch('@Model.EndPointDistribuzione')
+                .then(response => response.json())
+                .then(data => populateTable(data))
+                .catch(error => console.error('Errore durante il recupero dei dati dall\'API:', error));
+
+            $(".mnuDistribuzione").addClass("active");
+        });
+
+        function populateTable(data) {
+            const tableBody = document.getElementById('TableBody');
+
+            data.forEach(item => {
+                const row = document.createElement('tr');
+
+                const dataGenerazioneCell = document.createElement('td');
+                dataGenerazioneCell.textContent = new Date(item.dataGenerazione).toLocaleString();
+                row.appendChild(dataGenerazioneCell);
+
+                const pacchettoCell = document.createElement('td');
+                pacchettoCell.textContent = item.pacchetto;
+                row.appendChild(pacchettoCell);
+
+                const documentiCell = document.createElement('td');
+                documentiCell.textContent = item.documenti;
+                documentiCell.style.textAlign = 'right';
+                row.appendChild(documentiCell);
+
+                const erroriCell = document.createElement('td');
+                erroriCell.textContent = item.errori;
+                row.appendChild(erroriCell);
+
+                const buttonCell = document.createElement('td');
+                const buttonContainer = document.createElement('div');
+                buttonContainer.className = 'btn-group';
+
+                const downloadButton = document.createElement('a');
+                downloadButton.href = 'CS_Download.ashx?BD=001&CMD=PDD&ID=' + item.pacchetto;
+                downloadButton.className = 'btn btn-success btn-small';                
+                downloadButton.innerHTML = '<i class="fa fa-cloud-download"></i> Scarica';
+                buttonContainer.appendChild(downloadButton);
+
+                const cancelButton = document.createElement('button');
+                cancelButton.type = 'button';
+                cancelButton.style.border = 'none';
+                cancelButton.style.backgroundColor = 'transparent';
+                cancelButton.style.paddingLeft='10px';
+                cancelButton.className = 'mt-2';
+               /* cancelButton.onclick = function () {
+                    return AnnullaPDD(this.parentNode.parentNode, 'CS:PDD-001-d9934436-4a8b-4df8-913d-931ffea2bc5c');
+                };*/
+                cancelButton.onclick = function () {
+                    const row = this.closest('tr'); 
+                    if (row) {
+                        row.style.display = 'none'; //al momento nascondo la riga dalla View
+                    }
+                };
+                const deleteIcon = document.createElement('i');
+                deleteIcon.className = 'fa fa-trash-o';
+                cancelButton.appendChild(deleteIcon);
+                buttonContainer.appendChild(cancelButton);
+
+                buttonCell.appendChild(buttonContainer);
+                row.appendChild(buttonCell);
+
+                tableBody.appendChild(row);
+            });
+        }
+    </script>
+}
+
+
+
+        

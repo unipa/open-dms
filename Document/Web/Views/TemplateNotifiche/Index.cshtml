@@ -1,0 +1,322 @@
+﻿@using Microsoft.Extensions.Configuration
+@using OpenDMS.Core.DTOs;
+@using OpenDMS.Core.Utilities;
+@using OpenDMS.Domain.Constants;
+@using OpenDMS.Domain.Entities;
+@using OpenDMS.Domain.Entities.Users;
+@using OpenDMS.Domain.Entities.Documents;
+@using Web.Model.Admin;
+@inject IConfiguration Configuration
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model TemplateNotificheViewModel;
+@{
+    ViewData["Title"] = "Template notifiche";
+    Layout = "_AdminLayout";
+}
+@* import tinymce *@
+<script src="~/js/tinymce/tinymce.min.js"></script>
+
+@*language*@
+<script src="~/js/tinymce/langs/it.js"></script>
+
+@*plugins*@
+<script src="~/js/tinymce/plugins/advlist/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/autolink/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/lists/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/link/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/image/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/charmap/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/preview/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/anchor/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/searchreplace/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/visualblocks/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/fullscreen/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/insertdatetime/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/media/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/table/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/code/plugin.min.js"></script>
+
+
+
+@section HeaderTitle
+    {
+    Tasks
+}
+
+<form class="Page" id="form" asp-controller="TemplateNotifiche" asp-action="Memorizza" method="post">
+    <div class="MainPanel InsidePanel ListMenu">
+
+        <input type="hidden" name="Template" value="@Model.Template" />
+        @if (Model.ElencoCompanies.Count > 2)
+        {
+            <div class="select-wrapper">
+                <label class="active" for="Status">Sistema Informativo</label>
+                @*<input type="hidden" name="CompanyId" value="@Model.CompanyId" id="HiddenInputCompany">*@
+                <select name="CompanyId" id="CompanyId" required asp-for="CompanyId" asp-items="Model.ElencoCompanies"></select>
+            </div>
+        }
+        else
+        {
+            <input type="hidden" name="CompanyId" value="@Model.ElencoCompanies[0].Value" />
+        }
+
+
+        <h3>Impostazioni Generali</h3>
+        <ul class="nav nav-list">
+            <li codice="General" class="list-item">
+                <a class="left-icon px-2" href="/Admin/TemplateNotifiche/Index?CompanyId=@Model.CompanyId">
+                    <span class="list-item-title-icon-wrapper me-0">
+                        <i class="fa fa-settings"></i>
+                        <span class="m-0">
+                            Controlli
+                        </span>
+                    </span>
+                </a>
+            </li>
+        </ul>
+        <h3>Templates</h3>
+        <ul class="nav nav-list">
+            <li codice="@NotificationConstants.CONST_TEMPLATE_NOTIFY" class="list-item">
+                <a class="left-icon px-2" href="/Admin/TemplateNotifiche/Index?CompanyId=@Model.CompanyId&Template=@NotificationConstants.CONST_TEMPLATE_NOTIFY">
+                    <span class="list-item-title-icon-wrapper me-0">
+                        <i class="fa fa-comments"></i>
+                        <span class="m-0">
+                            Notifica
+                        </span>
+                    </span>
+                </a>
+            </li>
+
+            <li codice="@(NotificationConstants.CONST_TEMPLATE_NOTIFY).cc" class="list-item">
+                <a class="left-icon px-2" href="/Admin/TemplateNotifiche/Index?CompanyId=@Model.CompanyId&Template=@(NotificationConstants.CONST_TEMPLATE_NOTIFY).cc">
+                    <span class="list-item-title-icon-wrapper me-0">
+                        <i class="fa fa-comments"></i>
+                        <span class="m-0">
+                            Notifica CC
+                        </span>
+                    </span>
+                </a>
+            </li>
+            <li codice="@NotificationConstants.CONST_TEMPLATE_REFERENT" class="list-item">
+                <a class="left-icon px-2" href="/Admin/TemplateNotifiche/Index?CompanyId=@Model.CompanyId&Template=@NotificationConstants.CONST_TEMPLATE_REFERENT">
+                    <span class="list-item-title-icon-wrapper me-0">
+                        <i class="fa fa-user-plus"></i>
+                        <span class="m-0">
+                            Nuovo Referente
+                        </span>
+                    </span>
+                </a>
+            </li>
+
+            <li codice="@(NotificationConstants.CONST_TEMPLATE_REFERENT).cc" class="list-item">
+                <a class="left-icon px-2" href="/Admin/TemplateNotifiche/Index?CompanyId=@Model.CompanyId&Template=@(NotificationConstants.CONST_TEMPLATE_REFERENT).cc">
+                    <span class="list-item-title-icon-wrapper me-0">
+                        <i class="fa fa-user-plus"></i>
+                        <span class="m-0">
+                            Nuovo Referente CC
+                        </span>
+                    </span>
+                </a>
+            </li>
+            <li codice="@(NotificationConstants.CONST_TEMPLATE_REFERENT_CHANGES)" class="list-item">
+                <a class="left-icon px-2" href="/Admin/TemplateNotifiche/Index?CompanyId=@Model.CompanyId&Template=@(NotificationConstants.CONST_TEMPLATE_REFERENT_CHANGES)">
+                    <span class="list-item-title-icon-wrapper me-0">
+                        <i class="fa fa-user-edit"></i>
+                        <span class="m-0">
+                            Segnalazione Modifiche al Referente
+                        </span>
+                    </span>
+                </a>
+            </li>
+
+            <li codice="@NotificationConstants.CONST_TEMPLATE_NO_REFERENT" class="list-item">
+                <a class="left-icon px-2" href="/Admin/TemplateNotifiche/Index?CompanyId=@Model.CompanyId&Template=@NotificationConstants.CONST_TEMPLATE_NO_REFERENT">
+                    <span class="list-item-title-icon-wrapper me-0">
+                        <i class="fa fa-user-minus"></i>
+                        <span class="m-0">
+                            Rimozione da Referente
+                        </span>
+                    </span>
+                </a>
+            </li>
+            <li codice="@(NotificationConstants.CONST_TEMPLATE_NO_REFERENT).cc" class="list-item">
+                <a class="left-icon px-2" href="/Admin/TemplateNotifiche/Index?CompanyId=@Model.CompanyId&Template=@(NotificationConstants.CONST_TEMPLATE_NO_REFERENT).cc">
+                    <span class="list-item-title-icon-wrapper me-0">
+                        <i class="fa fa-user-minus"></i>
+                        <span class="m-0">
+                            Rimozione da Referente CC
+                        </span>
+                    </span>
+                </a>
+            </li>
+            <li codice="@NotificationConstants.CONST_TEMPLATE_NEWMAIL" class="list-item">
+                <a class="left-icon px-2" href="/Admin/TemplateNotifiche/Index?CompanyId=@Model.CompanyId&Template=@NotificationConstants.CONST_TEMPLATE_NEWMAIL">
+                    <span class="list-item-title-icon-wrapper me-0">
+                        <i class="fa fa-envelope-o"></i>
+                        <span class="m-0">
+                            Posta Elettronica Da Gestire
+                        </span>
+                    </span>
+                </a>
+            </li>
+            <li codice="@NotificationConstants.CONST_TEMPLATE_NOTIFY_EXCEPTION" class="list-item">
+                <a class="left-icon px-2" href="/Admin/TemplateNotifiche/Index?CompanyId=@Model.CompanyId&Template=@NotificationConstants.CONST_TEMPLATE_NOTIFY_EXCEPTION">
+                    <span class="list-item-title-icon-wrapper me-0">
+                        <i class="fa fa-exclamation-triangle"></i>
+                        <span class="m-0">
+                            Errore
+                        </span>
+                    </span>
+                </a>
+            </li>
+
+            <li codice="@(NotificationConstants.CONST_TEMPLATE_NOTIFY_EXCEPTION).cc" class="list-item">
+                <a class="left-icon px-2" href="/Admin/TemplateNotifiche/Index?CompanyId=@Model.CompanyId&Template=@(NotificationConstants.CONST_TEMPLATE_NOTIFY_EXCEPTION).cc">
+                    <span class="list-item-title-icon-wrapper me-0">
+                        <i class="fa fa-exclamation-triangle"></i>
+                        <span class="m-0">
+                            Errore CC
+                        </span>
+                    </span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="Panel">
+        <div id="Message_Target"></div>
+        @if (String.IsNullOrEmpty(Model.Template))
+        {
+            <div class="mt-2">
+                <h3>
+                    <i class="fa fa-bell"></i>
+                    Impostazioni Generali
+                    <small></small>
+                    <button type="button" id="ConfirmButton" class="btn btn-primary pull-right">Memorizza</button>
+                </h3>
+            </div>
+            <div class="Panel">
+                <div class="Row">
+                    <label>Nr.Massimo Destinatari (Warning)</label>
+                    <span><input type="number" min="0" max="1000" name="MinWarning" value="@Model.MinWarning" /></span>
+                </div>
+                <div class="Row">
+                    <label>Nr.Massimo Destinatari</label>
+                    <span><input type="number" min="0" max="5000" name="MinError" value="@Model.MinError" /></span>
+                </div>
+
+                <div class="Row">
+                    <label>GG.Scadenza (Se non indicata nell'attività)</label>
+                    <span><input type="number" min="0" max="365" name="Expiration" value="@Model.Expiration" /></span>
+                </div>
+            </div>
+
+        }
+        else
+        {
+            <div class="mt-2">
+                <h3>
+                    <i class="fa fa-envelope-o"></i>
+                    @Model.Template
+                    <small></small>
+                    <button type="button" id="ConfirmButton" class="btn btn-primary pull-right">Memorizza</button>
+                </h3>
+            </div>
+            <div class="Panel">
+                <div class="mt-3">
+                    <div class="mb-2">
+                        <label for="Title">Oggetto</label>
+                        <input type="text" class="form-control" value="@Model.Title" name="Title" id="Title">
+                    </div>
+
+                </div>
+
+                <div class="mt-3">
+                    <div class="mb-2">
+                        <label>Messaggio</label>
+                        <input type="hidden" name="Body" value="@Model.Body" id="HiddenInputBody">
+                        <div class="textEditor"></div>
+                    </div>
+                </div>
+                <h3>Segnaposto</h3>
+                <div class="mt-3 mb-2">
+                    <div class="Row">
+                        <label>Task</label>
+                        <span>Sender, SenderName, Title, Description, Status, Event.Description, Percentage, CreationDate, ExpirationDate, Company.Description</span>
+                    </div>
+                    <div class="Row">
+                        <label>User</label>
+                        <span>FullName, CountryCode, LicTradNum, FiscalCode, IPACode, SurName, FirstName</span>
+                    </div>
+                    <div class="Row">
+                        <label>Sender</label>
+                        <span>FullName, CountryCode, LicTradNum, FiscalCode, IPACode, SurName, FirstName</span>
+                    </div>
+                    <div class="Row">
+                        <label>Document</label>
+                        <span>Icon, IconColor, Description, DocumentTypeName, DocumentTypeCategory, DocumentNumberFormatetdValue, Owner, DocumentDate, ExpirationDate, ConsolidationDate, Company.Description, Protocol.FormattedNumber, Protocol.Date, Protocol.ExternalProtocolURL</span>
+                    </div>
+                    <div class="Row">
+                        <label>Documents</label>
+                        <span>Count</span>
+                    </div>
+                </div>
+
+            </div>
+        }
+    </div>
+</form>
+
+
+
+<script>
+
+    $(document).ready(function () {
+
+        $(".mnuAdminTemplateNotifiche").addClass("active");
+
+        if (`@Model.ErrorMessage` !== '') ShowMessage('alert', `@Html.Raw(Model.ErrorMessage)`, 'Message_Target', 'TemplateNotifiche');
+        if (`@Model.SuccessMessage` !== '') ShowMessage('success', '@Html.Raw(Model.SuccessMessage)', 'Message_Target', null);
+
+        var ConfPath = "@Configuration["PATH_BASE"]";
+        var textEditorSelector = ".textEditor";
+        var TextEditorFlag = false;
+
+        var BodyValue = $('<textarea/>').html("@Model.Body").text();
+        InizializzaTextEditor(textEditorSelector, BodyValue,
+        @Html.Raw(
+            ObjectExtensions.GetProperties(
+                new (typeof(Document), "Document"), 
+                new (typeof(Contact), "Sender"), 
+                new (typeof(TaskItemInfo), "Task"), 
+                new (typeof(Contact), "User" ))
+        )
+        ); // ["{uno}", "{due}", "{tre}", "{quattro}", "{undici}", "{trecento}"]);
+
+        $(function () {
+
+
+            Carica("@Model.Template");
+            // window.setTimeout(() => {
+            //     AddVariable(".mce-content-body", ["{uno}", "{due}", "{tre}", "{quattro}", "{undici}", "{trecento}"])
+            // }, 500);
+            FadeOutSuccessMessagge(3000);
+
+            $("#CompanyId").change(function () {
+                var CompanyId = $(this).val();
+                window.location.href = '/Admin/TemplateNotifiche/Index?CompanyId=' + CompanyId + '&Template=@Model.Template';
+            })
+
+            $("#ConfirmButton").on("click", function () {
+
+                var BodyValue = tinymce.activeEditor.getContent(textEditorSelector);
+
+                $("#HiddenInputBody").val(BodyValue);
+                $("#form").submit();
+
+            });
+
+        });
+        })
+
+</script>

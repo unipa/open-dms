@@ -1,0 +1,48 @@
+﻿@{
+    ViewData["Title"] = "Ricerca";
+    Layout = "_MenuLayout";
+}
+<div class="Page">
+    <div class="LeftMenu">
+        <div class="Header">
+           <img src="" class="logo" />
+        </div>
+        <div class="Panel sidebar-wrapper InsidePanel">
+            <div class="sidebar-linklist-wrapper">
+                <div class="link-list-wrapper">
+
+                    <ul class="link-list">
+                        <li class="mnuContentSearch"><a href="/Search/Content"><i class="fa fa-search"></i>Contenuto</a></li>
+                        <li class="mnuCreationDateSearch"><a href="/Search/CreationDate"><i class="fa fa-calendar"></i>Data Creazione</a></li>
+                        <li disabled class="mnuDocumentTypeSearch"><a href="/Search/DocumentType"><i class="fa fa-tags"></i>Tipologia</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="MainWindow">
+        <div class="Header">
+            <i class="Desktop fa fa-arrow-left" onclick="ShowLeftMenu(this)"></i>
+            @RenderSection("Icon", false)
+            <h1>
+                <small>
+                    @RenderSection("SubHeader", false)
+                </small>
+                <span>
+                    @RenderSection("Header", false)
+                </span>
+            </h1>
+            <div class="right-header">
+                <ul class="nav-toolbar">
+                    @RenderSection("Action", false)
+                </ul>
+            </div>
+        </div>
+        @RenderBody()
+    </div>
+</div>
+<script>
+    $(document).ready(() => {
+        $(".mnuSearch").addClass("active");
+    });
+</script>

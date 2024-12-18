@@ -1,0 +1,641 @@
+﻿@using Microsoft.Extensions.Configuration
+@using OpenDMS.Domain.Enumerators;
+@using Web.DTOs;
+@model UserMailBoxes_DTO
+@{
+    ViewData["Title"] = "Recapiti";
+    Layout = "_AdminSystemUserLayout";
+
+}
+
+
+@* import tinymce *@
+<script src="~/js/tinymce/tinymce.min.js"></script>
+
+@*language*@
+<script src="~/js/tinymce/langs/it.js"></script>
+
+@*plugins*@
+<script src="~/js/tinymce/plugins/advlist/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/autolink/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/lists/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/link/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/image/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/charmap/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/preview/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/anchor/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/searchreplace/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/visualblocks/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/fullscreen/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/insertdatetime/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/media/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/table/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/code/plugin.min.js"></script>
+
+
+<script>
+    $(document).ready(function () {
+        Carica("liCustomize-UserEmail");
+        AttivazionePopover();
+        //ripristinaFormDaJSON();
+    })
+
+
+
+
+    function AuthToggle() {
+        $("#UAuthPanel1").hide();
+        if ($("#Auth").val() == "UserCredentials") {
+            $("#UAuthPanel1").show();
+        }
+    }
+
+    function Authenticate(id) {
+
+        debugger;
+
+        $.ajax({
+            url: "/Services/Oauth/GetURL/" + id,
+            type: "GET",
+            headers: { "Content-Type": "application/json" },
+        })
+            .done(function (authUrl) {
+                if (authUrl !== "") {
+                    window.location.href = authUrl;
+                    //window.open(authUrl);
+                    //debugger;
+                    //$("#externalLoginButton").attr("href", authUrl);
+                    //if(authUrl.includes("google")){
+                    //    $("#buttonExternal").text( "Accedi con Google");
+                    //}
+                    //if(authUrl.includes("microsoft")){
+                    //    $("#buttonExternal").text("Accedi con Microsoft");
+                    //}
+                    //document.getElementById("Auth").selectedIndex = 1;
+                    //AuthToggle();
+                }
+                else {
+                    console.log("Nessun Login Esterno");
+                }
+            }).fail(function (ex) {
+                ShowMessage("alert", ex.status);
+            });
+    }
+
+
+    function getMailServerName() {
+
+
+        var selectedValue = $("#MailServerId").val();
+        var selectedText = $("#MailServerId").find('option:selected').text();
+
+        //document.getElementById("Auth").selectedIndex = 0;
+        var mbSelected = data.MailServers.find(x => x.id == selectedValue);
+        $("#Auth").val(mbSelected.authenticationType == 0 ? "UserCredentials" : "External");
+        $("#buttonExternal").text("Login Esterno");
+        AuthToggle();
+
+
+        // if (selectedText.includes("gmail")) {
+        //     document.getElementById("Auth").selectedIndex = 1;
+        //     $("#buttonExternal").text("Accedi con Google");
+        //     AuthToggle();
+        // }
+
+
+        // if (selectedText.includes("outlook")) {
+        //     t
+        //     document.getElementById("Auth").selectedIndex = 1;
+        //     $("#buttonExternal").text("Accedi con Microsoft");
+        //     AuthToggle();
+        // }
+    }
+
+    function ToggleRequired(Id) {
+        var element = document.getElementById(Id);
+        $("." + Id).prop('required', element.checked);
+    }
+    var data = {};
+
+    function BuildEditRecapito(MailboxId) {
+
+        debugger;
+
+        //inserimento loading
+        document.getElementById('EditRecapito').innerHTML = `
+                                             <div class="progress-spinner progress-spinner-active">
+                                                 <span class="visually-hidden">Caricamento...</span>
+                                             </div>
+                                             `;
+
+        //inizializzo tutti i dati necessari
+        data = {};
+        data.MailboxId = MailboxId;
+        data.MailServers = @Html.Raw(Json.Serialize(@Model.MailServers));
+        data.Companies = @Html.Raw(Json.Serialize(@Model.Companies));
+
+        //In caso di "Aggiunzione recapito"
+        if (MailboxId <= 0) {
+            data.Mailbox = {};
+            data.Mailbox.id = 0;
+            data.IsNew = true;
+
+            PrepareTemplate(data)
+            return;
+        }
+
+        //Authenticate( MailboxAddress.split('@("@")')[1]);
+
+        $.ajax({
+            url: "/internalapi/Mailbox/ById/" + MailboxId,
+            type: "GET",
+            headers: { "Content-Type": "application/json" },
+        })
+            .done(function (type) {
+
+                if (type !== "") {
+                    debugger;
+                    data.IsNew = false;
+                    data.Mailbox = type;
+                    data.Mailbox.mailAddressFull = data.Mailbox.mailAddress;
+                    //estraggo dal mail address la substring prima della chiocciola.
+                    //if (data.Mailbox.mailAddress)
+                    //    data.Mailbox.mailAddress = data.Mailbox.mailAddress.split('@("@")')[0];
+
+                    if (data.Mailbox.firstReceivingMessageDate)
+                        data.Mailbox.firstReceivingMessageDate = (data.Mailbox.firstReceivingMessageDate) ? data.Mailbox.firstReceivingMessageDate.split('T')[0] : null;
+
+                    data.ModifyAddressEnable = true;
+
+                    //Manipolo l'oggetto del MailServer selezionato per fare il modo che nel template venga inserito "selected" all'elemento giusto
+                    var mbSelected = data.MailServers.find(x => x.id == data.Mailbox.mailServerId);
+                    if (mbSelected)
+                        mbSelected.selected = "selected";
+
+                    //Manipolo l'oggetto della Company selezionata per fare il modo che nel template venga inserito "selected" all'elemento giusto
+                    var cSelected = data.Companies.find(x => x.id == data.Mailbox.companyId);
+                    if (cSelected)
+                        cSelected.selected = "selected";
+
+                    // $("#Auth").val(mbSelected.authenticationType == 0 ? "UserCredentials" : "External");
+                    if (type.tokenId != undefined && type.tokenId != "" && type.tokenId.length > 0) {
+                        data.Mailbox.tokenId = type.tokenId;
+                        /*$("#Auth").val("External");
+                        AuthToggle();*/
+                    }
+                    //Authenticate( MailboxAddress.split('@("@")')[1]);
+                    PrepareTemplate(data);
+                    getMailServerName();
+
+                }
+                else {
+                    //EmptyEditRecapito();
+                    //ShowMessage("alert", "Non sono state trovate le informazioni associate a questo contatto digitale.");
+                    data.IsNew = false;
+                    data.Mailbox = {};
+                    data.Mailbox.id = 0;
+                    data.Mailbox.mailAddressFull = MailboxAddress;
+                    data.Mailbox.displayName = ContactDigitalAddressName;
+
+                    data.ModifyAddressEnable = true;
+
+                    //estraggo dal mail address la substring prima della chiocciola.
+                    //data.Mailbox.mailAddress = data.Mailbox.mailAddressFull.split('@("@")')[0];
+                    var mailServerDomain = data.Mailbox.mailAddressFull.split('@("@")')[1];
+                    data.Mailbox.firstReceivingMessageDate = (data.Mailbox.firstReceivingMessageDate) ? data.Mailbox.firstReceivingMessageDate.split('T')[0] : null;
+
+                    //Manipolo l'oggetto del MailServer selezionato per fare il modo che nel template venga inserito "selected" all'elemento giusto
+                    var mbSelected = data.MailServers.find(x => x.domain == mailServerDomain);
+                    if (mbSelected)
+                        mbSelected.selected = "selected";
+
+                    // $("#Auth").val(mbSelected.authenticationType == 0 ? "UserCredentials" : "External");
+                    //Manipolo l'oggetto della Company selezionata per fare il modo che nel template venga inserito "selected" all'elemento giusto
+                    var cSelected = data.Companies[0].id;
+                    if (cSelected)
+                        cSelected.selected = "selected";
+
+                    PrepareTemplate(data);
+                }
+
+                getMailServerName();
+            }).fail(function (ex) {
+                EmptyEditRecapito();
+                ShowMessage("alert", ex.status);
+            });
+    }
+
+    function PrepareTemplate(data) {
+        const template = document.getElementById('EditRecapito_Template').innerHTML;
+        const rendered = Mustache.render(template, { data: data, today: new Date().toISOString().split('T')[0] });
+        var EditRecapitoHtml = document.getElementById('EditRecapito')
+        EditRecapitoHtml.innerHTML = rendered; //mostro il pannello di edit recapito
+        //Inizializzo il TextEditor della UserSignature
+        var userSignature = "";
+        if (data.Mailbox) userSignature = data.Mailbox.userSignature;
+
+        if (data.IsNew)
+            $("#DeleteBtn").hide();
+        else
+            $("#DeleteBtn").show();
+
+
+        AttivazionePopover();
+
+        ToggleRequired("EnableDownload");
+        ToggleRequired("DeleteDownloadedMail");
+
+        ToggleCollapse("EnableDownload");
+        ToggleCollapse("DeleteDownloadedMail");
+
+        AuthToggle();
+
+        dataEntry();
+        InizializzaTextEditor(".textEditor", userSignature, null, '300');
+
+        debugger;
+        //var tokenId = document.getElementById("TokenId").value;
+        //if (tokenId) {
+        //    $("#refLink").attr("display", "none");
+        //    $("#successLink").attr("display", "");
+        //}
+    }
+
+
+
+
+
+    function ToggleCollapse(Id) {
+        var myCollapse = document.getElementById('collapse' + Id);
+        var bsCollapse = new bootstrap.Collapse(myCollapse, {
+            toggle: false,
+        });
+        var element = document.getElementById(Id);
+        if (element.checked) bsCollapse.show();
+        else bsCollapse.hide();
+    }
+
+
+    function ShowMessage(type, message) {
+
+        var TemplateId = "AlertMessage_Template";
+        if (type === "success") TemplateId = "SuccessMessage_Template";
+
+        const template = document.getElementById(TemplateId).innerHTML;
+        const rendered = Mustache.render(template, { data: { message: message } });
+        document.getElementById('Message_Target').innerHTML = rendered;
+    }
+
+    function ShowDeleteConfirmationMessage(MailboxId) {
+        var xdata = {};
+        xdata.MailboxId = MailboxId;
+        xdata.MailAddress = MailAddress;
+
+
+        const template = document.getElementById("ConfermaEliminazioneModal_Template").innerHTML;
+        const rendered = Mustache.render(template, { data: xdata });
+        document.getElementById('ConfermaEliminazioneModal_Target').innerHTML = rendered;
+
+        var myModal = new bootstrap.Modal(document.getElementById('ConfermaEliminazioneModal'), {
+            keyboard: false,
+        })
+
+        myModal.show();
+    }
+
+    function EmptyEditRecapito() { window.location = "/Admin/SystemUser/Email" }
+
+    function SetMailbox() {
+        debugger;
+        //combino la prima parte del Mailaddress con il MailDomain scelto
+        // var MailServerId = $("#MailServerId").val();
+        // var MailServers = @Html.Raw(Json.Serialize(@Model.MailServers));
+        // var MailAddressValue = $("#Address1").val() + "@("@")" + MailServers.find(x => x.id == MailServerId).domain;
+         //$("#MailAddress").val(MailAddressValue);
+
+        var ToPutInHiddenInput = ['DraftEnabledProfiles', 'SendEnabledProfiles'];
+        ToPutInHiddenInput.forEach(function (i) {
+            let value = document.getElementById(i).getAttribute("value")
+            console.log("HIDDEN_" + i + "   " + value);
+            $("#Hidden" + i).val(value);
+        });
+
+
+        //prendo il contenuto del textEditor
+        //var UserSignatureValue = tinymce.activeEditor.getContent(".textEditor");
+        //$("#HiddenUserSignature").val(UserSignatureValue);
+
+        //submit del form
+        if (document.forms['SetMailboxForm'].reportValidity())
+            $("#SetMailboxForm").submit();
+    }
+
+
+</script>
+
+
+<script type="module">
+    import { dataEntry } from "/components/data-entry/data-entry.js";
+    window.dataEntry = dataEntry;
+
+
+</script>
+
+
+<div class="Page">
+    <div class="ListPanel InsidePanel">
+
+        <div id="Message_Target">
+        </div>
+
+        <div id="ConfermaEliminazioneModal_Target">
+        </div>
+
+        <div id="PanelRecapiti" class="search-bar px-0" style="overflow-y: auto;overflow-x: hidden;">
+            <div class="container">
+                <h3>
+                    <i class="fa fa-envelope"></i>
+                    <span>Posta Elettronica</span>
+                </h3>
+                @*                 <div class="pull-right">
+                <ul class="nav nav-toolbar">
+                <li>
+                <a href="#" onclick="BuildEditRecapito('',0)"><i class="fa fa-plus"></i> Aggiungi...</a>
+                </li>
+                </ul>
+                </div>
+                *@
+            </div>
+
+            <div class="Files">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:100%">Indirizzo</th>
+                            <th nowrap style="min-width:200px">Nome</th>
+                            <th nowrap style="min-width:80px"><i class="fa fa-envelope-o"></i></th>
+                            <th nowrap style="min-width:40px;text-align:center"><i class="fa fa-check"></i></th>
+                            <th nowrap style="min-width:40px;text-align:center"><i class="fa fa-inbox"></i></th>
+                            <th nowrap style="min-width:40px;text-align:center"><i class="fa fa-trash-o"></i></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @foreach (var DigitalAddress in Model.Mailboxes)
+                        {
+                            <tr onclick="BuildEditRecapito(@DigitalAddress.Id)">
+                                <td><a href="#" class="text-decoration-none fw-bold">@DigitalAddress.MailAddress</a></td>
+                                <td>@DigitalAddress.DisplayName</td>
+                                <td>@DigitalAddress.MailServer.MailType.ToString()</td>
+                                <td>
+                                    @if (@DigitalAddress.Validated)
+                                    {
+                                        <i class="fa fa-lg fa-check"></i>
+                                    }
+                                    else
+                                    {
+                                        <a href="#" title="Aggiorna le credenziali" onclick="return Authenticate(@DigitalAddress.Id)"><i class="fa fa-warning"></i></a>
+                                    }
+                                </td>
+                                <td>
+                                    @if (@DigitalAddress.EnableDownload)
+                                    {
+                                        <i class="fa fa-lg fa-inbox"></i>
+                                    }
+                                </td>
+                                <td>
+                                    <a href="#" class="link" onclick="ShowDeleteConfirmationMessage(@DigitalAddress.Id)">
+                                        <i class="fa fa-lg fa-trash-o"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="MainPanel">
+        <div id="EditRecapito" class="Panel">
+            @if (!String.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger mt-2 mx-4" role="alert" style="position: absolute;z-index: 101;width: -webkit-fill-available;">
+                    <h6 class="alert-heading">Qualcosa è andato storto durante il caricamento dei dati: </h6>
+                    <p>@Model.ErrorMessage <a href="/Admin/SystemUser/UserContactDigitalAddress/Index"><button type="button" class="btn btn-link ">Ricarica</button></a></p>
+                </div>
+            }
+
+            @if (!String.IsNullOrEmpty(Model.SuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show bg-white mt-2 mx-4" role="alert" style="position: absolute;z-index: 101;width: -webkit-fill-available;">
+                    <p>@Model.SuccessMessage</p>
+                    <button type="button" class="btn btn-grey" style="background: transparent;box-shadow: none;" data-bs-dismiss="alert" aria-label="Chiudi avviso">
+                        <i class="fa fa-lg fa-times"></i>
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+
+
+    <!-- EditRecapito -->
+    <script id="EditRecapito_Template" type="x-tmpl-mustache">
+                                                <form id="SetMailboxForm" class="Panel" action="/Admin/SystemUser/Email" method="post" style="padding-left:8px;">
+                                                <h1>
+                                                    Posta Elettronica Utente di Sistema
+                                                </h1>
+                                                <input type="hidden" name="Id" id="Id" value="{{data.Mailbox.id}}">
+                                                <input type="hidden" name="TokenId" id="TokenId" value="{{data.Mailbox.tokenId}}">
+                                                <input type="hidden" name="RefreshToken" id="RefreshToken" value="{{data.RefreshToken}}">
+                                                <div class="Panel">
+        @*Indirizzo e MailServerId*@
+                                                <div class="d-flex">
+                                                    <div class="col-6 mb-4 select-wrapper">
+                                                        <label for="MailAddress">Indirizzo di posta</label>
+                                                        <div class="input-group">
+                                                            <input type="text" class="form-control"  name="MailAddress" id="MailAddress" value="{{data.Mailbox.mailAddress}}" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 mb-3 ps-0 select-wrapper">
+                                                    <label for="inlineFormInputGroup">Mail Server</label>
+                                                    <div class="input-group">
+                                                        <div class="form-control p-0">
+                                                                <select  type="text" onchange="getMailServerName();" name="MailServerId" id="MailServerId" required>
+                                                                    {{#data.MailServers}}
+                                                                        <option value="{{id}}"  {{selected}}  >{{domain}}</option>
+                                                                    {{/data.MailServers}}
+                                                                </select>
+                                                        </div>
+                                                    </div>
+                                                    </div>
+                                                </div>
+        @*DisplayName*@
+                                                <div class="mt-4">
+                                                    <div class="col-12 mb-4 select-wrapper">
+                                                        <label for="DisplayName">Nome Visualizzato</label>
+                                                        <input name="DisplayName" type="text" id="DisplayName" value="{{data.Mailbox.displayName}}" required>
+                                                    </div>
+                                                </div>
+        @*CompanyId*@
+                                                <div class="mt-4">
+                                                    <div class="col-12 mb-4 select-wrapper">
+                                                        <label for="CompanyId">Sistema Informativo</label>
+                                                        <select name="CompanyId" id="CompanyId" required>
+                                                            {{#data.Companies}}
+                                                                <option value="{{id}}"  {{selected}}  >{{description}}</option>
+                                                            {{/data.Companies}}
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+
+        @*Autenticazione*@
+                                                <br/>
+                                                <div id="UAuthPanel1">
+                                                    <h4>Autenticazione</h4>
+                                                                <input type="hidden" id="Auth" />
+                                                    <div class="d-flex  mt-4 mb-4" >
+        @*Account*@
+                                                        <div class="col-6 select-wrapper">
+                                                            <label for="Account">Account</label>
+                                                            <input name="Account" value="{{data.Mailbox.account}}" type="text" id="Account">
+                                                        </div>
+        @*Password*@
+                                                        <div class="col-6 ps-3 select-wrapper">
+                                                            <label for="Password">Password</label>
+                                                            <input type="password" value="{{data.Mailbox.password}}" data-bs-input class="form-control input-password" name="Password" id="Password" style="background: #eeeeee;">
+                                                            <span class="hidden password-icon  me-3" aria-hidden="true" style="background: #eeeeee;position:relative">
+                                                                <svg class="password-icon-visible icon icon-sm" style="background: #eeeeee;"><use href="/bootstrap-italia/svg/sprites.svg#it-password-visible"></use></svg>
+                                                                <svg class="password-icon-invisible icon icon-sm d-none" style="background: #eeeeee;"><use href="/bootstrap-italia/svg/sprites.svg#it-password-invisible"></use></svg>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                               </div>
+
+        @*                                 <div id="UAuthPanel2" class="row mb-5">
+                                                    <a id="externalLoginButton" onclick="saveSession()" href="#">
+                                                        <button id="buttonExternal" class="btn btn-primary btn-sm" type="button" data-bs-dismiss="modal">Esegui login
+
+                                                        {{#data.Mailbox.TokenId}}
+                                                        <svg id="successLink" class="icon icon-white icon-sm"><use href="/bootstrap-italia/svg/sprites.svg#it-check-circle"></use></svg>
+                                                        {{/data.Mailbox.TokenId}}
+
+
+                                                        </button>
+                                                    </a>
+                                                </div>
+                 *@
+
+        @*Accesso OAuth*@
+                                                <div id="OAuth">
+                                                </div>
+
+                                                <h4>Condivisione</h4>
+        @*DraftEnabledProfiles*@
+                                                <div class="col-12 mt-4 mb-4  select-wrapper">
+                                                    <label for="DraftEnabledProfiles">Preparatori
+                                                        <span class="btn btn-xs fade show" data-container="body" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-placement="right" data-html="true" data-bs-content="Elenco di profili (utenti/ruoli/gruppi) abilitati alla creazione di bozze dalla casella">
+                                                            ?
+                                                        </span>
+                                                    </label>
+                                                    <input type="hidden" id="HiddenDraftEnabledProfiles" name="hDraftEnabledProfiles"/>
+                                                    <input id="DraftEnabledProfiles"
+                                                                    name="DraftEnabledProfiles"
+                                                                    type="lookup"
+                                                                    value="{{data.Mailbox.draftEnabledProfiles}}"
+                                                                    tableId="$ug"
+                                                                    tags="true"
+                                                                    visible="true"
+                                                                    placeholder="Scegli tra utenti/ruoli/gruppi">
+
+                                                </div>
+        @*SendEnabledProfiles*@
+                                                <div class="col-12 mt-4 mb-4  select-wrapper">
+                                                    <label for="SendEnabledProfiles">Sostituti
+                                                        <span class="btn btn-xs fade show" data-container="body" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-placement="right" data-html="true" data-bs-content="Elenco di profili (utenti/ruoli/gruppi) abilitati all'invio dalla casella">
+                                                                ?
+                                                        </span>
+                                                    </label>
+                                                    <input type="hidden" id="HiddenSendEnabledProfiles" name="hSendEnabledProfiles"/>
+                                                    <input id="SendEnabledProfiles"
+                                                                    name="SendEnabledProfiles"
+                                                                    type="lookup"
+                                                                    value="{{data.Mailbox.sendEnabledProfiles}}"
+                                                                    tableId="$ug"
+                                                                    tags="true"
+                                                                    visible="true"
+                                                                    placeholder="Scegli tra utenti/ruoli/gruppi">
+
+                                                </div>
+
+                                        </div>
+
+                                                <div class="Bottom">
+                                                    <a href="#" class="btn btn-primary" onclick="SetMailbox()">Memorizza</a>
+                                                    <a href="#" class="btn btn-link"  onclick="EmptyEditRecapito()">
+                                                            <i class="fa fa-lg fa-times"></i> Esci
+                                                    </a>
+
+                                                                    <a href="#" id="DeleteBtn" class="btn btn-link  pull-right" onclick="ShowDeleteConfirmationMessage({{data.MailboxId}})" >
+                                                        <i class="fa fa-lg fa-trash-o"></i> Cancella
+                                                    </a>
+
+                                                </div>
+                                            </form>
+    </script>
+
+    <!-- AlertMessage -->
+    <script id="AlertMessage_Template" type="x-tmpl-mustache">
+        <div class="alert alert-danger mt-2 alert-dismissible fade show mx-4" role="alert" style="position: absolute;z-index: 101;width: -webkit-fill-available;">
+            <h6 class="alert-heading">Qualcosa è andato storto durente il caricamento dei dati: </h6>
+            <p>{{data.message}}<a href="/Admin/SystemUser/UserContactDigitalAddress/Index")"><button type="button" class="btn btn-link ">Ricarica</button></a></p>
+            <button type="button" class="btn btn-grey" style="background: transparent;box-shadow: none;" data-bs-dismiss="alert" aria-label="Chiudi avviso">
+                <i class="fa fa-lg fa-times"></i>
+            </button>
+        </div>
+    </script>
+
+    <!-- SuccessMessage -->
+    <script id="SuccessMessage_Template" type="x-tmpl-mustache">
+        <div class="alert alert-success alert-dismissible fade show bg-white mt-2 mx-4" role="alert" style="position: absolute;z-index: 101;width: -webkit-fill-available;">
+            <p>{{data.message}}</p>
+            <button type="button" class="btn btn-grey" style="background: transparent;box-shadow: none;" data-bs-dismiss="alert" aria-label="Chiudi avviso">
+                <i class="fa fa-lg fa-times"></i>
+            </button>
+        </div>
+    </script>
+
+    <!-- Conferma Eliminazione Modal -->
+    <script id="ConfermaEliminazioneModal_Template" type="x-tmpl-mustache">
+        <div class="modal fade" tabindex="-1" role="dialog" id="ConfermaEliminazioneModal" aria-labelledby="ConfermaEliminazioneModalTitle">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title h5 " id="ConfermaEliminazioneModalTitle">Stai per cancellare il recapito</h2>
+                        <button class="btn btn-grey" style="background: transparent;box-shadow: none;" type="button" data-bs-dismiss="modal" aria-label="Chiudi finestra modale">
+                            <i class="fa fa-lg fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                    </div>
+                    <div class="modal-footer">
+                            <a href="/Admin/SystemUser/DeleteEmail?DigitalAddressId={{data.MailboxId}}">
+                            <button class="btn btn-primary btn-sm" type="button" data-bs-dismiss="modal">Conferma</button>
+                        </a>
+                        <button class="btn btn-outline-primary btn-sm" type="button" data-bs-dismiss="modal" aria-label="Chiudi finestra modale">Annulla</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </script>
+
+
+
+
+
+
+
+</div>
+
+
+

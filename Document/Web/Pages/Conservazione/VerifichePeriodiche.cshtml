@@ -1,0 +1,68 @@
+﻿@page
+@model Web.Pages.VerifichePeriodicheModel
+@{
+    ViewData["Title"] = "Pagina di Verifiche Periodiche";
+    Layout = "_ConservazioneLayout";
+}
+
+<div class="MainWindow">
+    <div class="Header">
+        <i class="fa fa-check-square"></i>
+        <h1>
+            <small>
+                Verifiche Periodiche
+            </small>
+            <span id="HeaderTitle">Verifiche Periodiche su campioni di documenti</span>
+        </h1>
+        <div class="right-header">
+            <a href="#" onclick="return CloseWindow()"><i class="fa fa-times"></i></a>
+        </div>
+    </div>
+
+    <div id="ContentPanel" class="MainPanel FullHeight" style="height: 529px; position: relative;">
+        <div id="Table" style="position: relative; height: 529px;" class="FullHeight">
+            <div style="position: relative; height: 529px;" class="FullHeight">
+                <ul class="nav nav-pills" id="Anni"></ul>
+                <table id="Grid" class="table">
+                    <thead>
+                        <tr>
+                            <th nowrap="" style="width: 50px">Anno</th>
+                            <th nowrap="" style="width: 200px">Data Creazione</th>
+                            <th nowrap="" style="width: 100px; text-align: right">Estratti</th>
+                            <th nowrap="" style="width: 100px; text-align: right">Errati</th>
+                            <th nowrap="" style="width: 100px; text-align: right">Validi</th>
+                            <th style="width: 50%">Esito</th>
+                            <th nowrap="" style="min-width: 70px"></th>
+                            <th nowrap="" style="min-width: 55px"></th>
+                            <th nowrap="" style="min-width: 20px"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="TableBody" style="opacity: 1;">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(() => {
+            $(".mnuVerifichePeriodiche").addClass("active");
+            
+            $.get("@Model.EndPointVerifichePeriodiche", function (data) {                
+                var tableBody = $("#TableBody");
+                data.forEach(function (item) {
+                    var row = $("<tr>");
+                    row.append($("<td>").text(item.anno));
+                    row.append($("<td>").text(item.dataCreazione));
+                    row.append($("<td>").text(item.estratti).css("text-align", "right"));
+                    row.append($("<td>").text(item.errati).css("text-align", "right"));
+                    row.append($("<td>").text(item.validi).css("text-align", "right"));
+                    row.append($("<td>").text(item.esito));
+                    tableBody.append(row);
+                });
+            });
+        });
+    </script>
+}

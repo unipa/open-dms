@@ -1,0 +1,49 @@
+﻿@{
+    ViewData["Title"] = "Amministrazione";
+    Layout = "_MenuLayout";
+}
+
+<script src="~/adminjs/admin.js"></script>
+<script src="~/adminjs/js/UI/List.js"></script>
+
+@* <link href="~/adminjs/admin.min.css" rel="stylesheet" />
+ *@
+
+<div class="Page">
+    <div class="LeftMenu">
+        <div class="Header">
+            <img class="logo" src="" />
+        </div>
+        <div class="MainPanel InsidePanel">
+                    <ul class="nav nav-list">
+                        @*<li class="mnuContentSearch"><a href="/Search/Content"><i class="fa fa-align-left"></i>Contenuto</a></li>
+                        <li class="mnuCreationDateSearch"><a href="/Search/CreationDate"><i class="fa fa-calendar"></i>Data Creazione</a></li>
+                        <li disabled class="mnuDocumentTypeSearch"><a href="/Search/DocumentType"><i class="fa fa-tags"></i>Tipologia</a></li>*@
+                        @await Component.InvokeAsync("AdminLeftMenu")
+                    </ul>
+        </div>
+    </div>
+    <div class="MainWindow">
+
+        <div class="Header">
+            <i class="fa fa-sliders"></i>
+            <h1>
+                <small>Amministrazione</small>
+                <span>@RenderSection("HeaderTitle", false)</span>
+            </h1>
+            <div class="right-header">
+                <ul class="nav nav-toolbar">
+                    @RenderSection("Toolbar", false)
+                </ul>
+            </div>
+        </div>
+
+        @RenderBody()
+
+    </div>
+</div>
+<script>
+    $(document).ready(() => {
+        $(".mnuAdmin").addClass("active");
+    });
+</script>

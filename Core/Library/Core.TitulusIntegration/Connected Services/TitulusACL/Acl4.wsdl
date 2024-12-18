@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:impl="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Acl4" xmlns:tns1="http://www.kion.it/titulus" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:intf="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Acl4" targetNamespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Acl4" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <xsd:schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Acl4">
+      <xsd:import namespace="http://www.kion.it/titulus" />
+      <xsd:import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
+      <xsd:complexType name="ArrayOf_soapenc_string">
+        <xsd:complexContent mixed="false">
+          <xsd:restriction base="soapenc:Array">
+            <xsd:attribute wsdl:arrayType="soapenc:string[]" ref="soapenc:arrayType" />
+          </xsd:restriction>
+        </xsd:complexContent>
+      </xsd:complexType>
+    </xsd:schema>
+    <xsd:schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.kion.it/titulus">
+      <xsd:import namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Acl4" />
+      <xsd:import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
+      <xsd:complexType name="QueryParams">
+        <xsd:sequence>
+          <xsd:element name="fields" nillable="true" type="intf:ArrayOf_soapenc_string" />
+          <xsd:element name="titlePageSize" type="xsd:int" />
+        </xsd:sequence>
+      </xsd:complexType>
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="removeResponse">
+    <wsdl:part name="removeReturn" type="xsd:boolean" />
+  </wsdl:message>
+  <wsdl:message name="prevTitlePageResponse">
+    <wsdl:part name="prevTitlePageReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="modifyRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+    <wsdl:part name="xmlRecord" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="addProfileResponse">
+    <wsdl:part name="addProfileReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="lookupResponse">
+    <wsdl:part name="lookupReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="currentTitlePageResponse">
+    <wsdl:part name="currentTitlePageReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="unlockRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="lookupRequest">
+    <wsdl:part name="nome_uff" type="soapenc:string" />
+    <wsdl:part name="nome_persona" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="updateUsersProfileRequest">
+    <wsdl:part name="keyProfile" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="searchRequest">
+    <wsdl:part name="query" type="soapenc:string" />
+    <wsdl:part name="orderby" type="soapenc:string" />
+    <wsdl:part name="params" type="tns1:QueryParams" />
+  </wsdl:message>
+  <wsdl:message name="firstTitlePageRequest" />
+  <wsdl:message name="modifyResponse">
+    <wsdl:part name="modifyReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="addInternalStructureRequest">
+    <wsdl:part name="xmlStructure" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="updateUsersProfileResponse">
+    <wsdl:part name="updateUsersProfileReturn" type="xsd:int" />
+  </wsdl:message>
+  <wsdl:message name="firstTitlePageResponse">
+    <wsdl:part name="firstTitlePageReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="nextTitlePageRequest" />
+  <wsdl:message name="checkRightResponse">
+    <wsdl:part name="checkRightReturn" type="xsd:boolean" />
+  </wsdl:message>
+  <wsdl:message name="addUserResponse">
+    <wsdl:part name="addUserReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="addExternalStructureResponse">
+    <wsdl:part name="addExternalStructureReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="addProfileRequest">
+    <wsdl:part name="keyProfile" type="soapenc:string" />
+    <wsdl:part name="descProfile" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="checkRightRequest">
+    <wsdl:part name="code" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="addExternalUserRequest">
+    <wsdl:part name="xmlUser" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="addInternalStructureResponse">
+    <wsdl:part name="addInternalStructureReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="setWSUserResponse">
+    <wsdl:part name="setWSUserReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="setWSUserRequest">
+    <wsdl:part name="user" type="soapenc:string" />
+    <wsdl:part name="pnumber" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="prevTitlePageRequest" />
+  <wsdl:message name="titlePageResponse">
+    <wsdl:part name="titlePageReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="titlePageRequest">
+    <wsdl:part name="pageIndex" type="xsd:int" />
+  </wsdl:message>
+  <wsdl:message name="addExternalStructureRequest">
+    <wsdl:part name="xmlStructure" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="nextTitlePageResponse">
+    <wsdl:part name="nextTitlePageReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="setUserProfileResponse">
+    <wsdl:part name="setUserProfileReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="currentTitlePageRequest" />
+  <wsdl:message name="removeRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="setUserProfileRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+    <wsdl:part name="keyProfile" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="loadResponse">
+    <wsdl:part name="loadReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="lastTitlePageRequest" />
+  <wsdl:message name="unlockResponse">
+    <wsdl:part name="unlockReturn" type="xsd:boolean" />
+  </wsdl:message>
+  <wsdl:message name="lastTitlePageResponse">
+    <wsdl:part name="lastTitlePageReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="addUserRequest">
+    <wsdl:part name="xmlUser" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="addExternalUserResponse">
+    <wsdl:part name="addExternalUserReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="searchResponse">
+    <wsdl:part name="searchReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="loadRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+    <wsdl:part name="lock" type="xsd:boolean" />
+  </wsdl:message>
+  <wsdl:portType name="Acl4">
+    <wsdl:operation name="setWSUser" parameterOrder="user pnumber">
+      <wsdl:input name="setWSUserRequest" message="intf:setWSUserRequest" />
+      <wsdl:output name="setWSUserResponse" message="intf:setWSUserResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="titlePage" parameterOrder="pageIndex">
+      <wsdl:input name="titlePageRequest" message="intf:titlePageRequest" />
+      <wsdl:output name="titlePageResponse" message="intf:titlePageResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="firstTitlePage">
+      <wsdl:input name="firstTitlePageRequest" message="intf:firstTitlePageRequest" />
+      <wsdl:output name="firstTitlePageResponse" message="intf:firstTitlePageResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="nextTitlePage">
+      <wsdl:input name="nextTitlePageRequest" message="intf:nextTitlePageRequest" />
+      <wsdl:output name="nextTitlePageResponse" message="intf:nextTitlePageResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="prevTitlePage">
+      <wsdl:input name="prevTitlePageRequest" message="intf:prevTitlePageRequest" />
+      <wsdl:output name="prevTitlePageResponse" message="intf:prevTitlePageResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="lastTitlePage">
+      <wsdl:input name="lastTitlePageRequest" message="intf:lastTitlePageRequest" />
+      <wsdl:output name="lastTitlePageResponse" message="intf:lastTitlePageResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="currentTitlePage">
+      <wsdl:input name="currentTitlePageRequest" message="intf:currentTitlePageRequest" />
+      <wsdl:output name="currentTitlePageResponse" message="intf:currentTitlePageResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="checkRight" parameterOrder="code">
+      <wsdl:input name="checkRightRequest" message="intf:checkRightRequest" />
+      <wsdl:output name="checkRightResponse" message="intf:checkRightResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="addUser" parameterOrder="xmlUser">
+      <wsdl:input name="addUserRequest" message="intf:addUserRequest" />
+      <wsdl:output name="addUserResponse" message="intf:addUserResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="addInternalStructure" parameterOrder="xmlStructure">
+      <wsdl:input name="addInternalStructureRequest" message="intf:addInternalStructureRequest" />
+      <wsdl:output name="addInternalStructureResponse" message="intf:addInternalStructureResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="setUserProfile" parameterOrder="id keyProfile">
+      <wsdl:input name="setUserProfileRequest" message="intf:setUserProfileRequest" />
+      <wsdl:output name="setUserProfileResponse" message="intf:setUserProfileResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="updateUsersProfile" parameterOrder="keyProfile">
+      <wsdl:input name="updateUsersProfileRequest" message="intf:updateUsersProfileRequest" />
+      <wsdl:output name="updateUsersProfileResponse" message="intf:updateUsersProfileResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="addExternalStructure" parameterOrder="xmlStructure">
+      <wsdl:input name="addExternalStructureRequest" message="intf:addExternalStructureRequest" />
+      <wsdl:output name="addExternalStructureResponse" message="intf:addExternalStructureResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="addExternalUser" parameterOrder="xmlUser">
+      <wsdl:input name="addExternalUserRequest" message="intf:addExternalUserRequest" />
+      <wsdl:output name="addExternalUserResponse" message="intf:addExternalUserResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="modify" parameterOrder="id xmlRecord">
+      <wsdl:input name="modifyRequest" message="intf:modifyRequest" />
+      <wsdl:output name="modifyResponse" message="intf:modifyResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="addProfile" parameterOrder="keyProfile descProfile">
+      <wsdl:input name="addProfileRequest" message="intf:addProfileRequest" />
+      <wsdl:output name="addProfileResponse" message="intf:addProfileResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="remove" parameterOrder="id">
+      <wsdl:input name="removeRequest" message="intf:removeRequest" />
+      <wsdl:output name="removeResponse" message="intf:removeResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="load" parameterOrder="id lock">
+      <wsdl:input name="loadRequest" message="intf:loadRequest" />
+      <wsdl:output name="loadResponse" message="intf:loadResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="search" parameterOrder="query orderby params">
+      <wsdl:input name="searchRequest" message="intf:searchRequest" />
+      <wsdl:output name="searchResponse" message="intf:searchResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="lookup" parameterOrder="nome_uff nome_persona">
+      <wsdl:input name="lookupRequest" message="intf:lookupRequest" />
+      <wsdl:output name="lookupResponse" message="intf:lookupResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="unlock" parameterOrder="id">
+      <wsdl:input name="unlockRequest" message="intf:unlockRequest" />
+      <wsdl:output name="unlockResponse" message="intf:unlockResponse" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="Acl4SoapBinding" type="intf:Acl4">
+    <wsdlsoap:binding transport="http://schemas.xmlsoap.org/soap/http" style="rpc" />
+    <wsdl:operation name="setWSUser">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="setWSUserRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="setWSUserResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Acl4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="titlePage">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="titlePageRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="titlePageResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Acl4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="firstTitlePage">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="firstTitlePageRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="firstTitlePageResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Acl4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nextTitlePage">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="nextTitlePageRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="nextTitlePageResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Acl4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="prevTitlePage">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="prevTitlePageRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="prevTitlePageResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Acl4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="lastTitlePage">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="lastTitlePageRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="lastTitlePageResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Acl4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="currentTitlePage">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="currentTitlePageRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="currentTitlePageResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Acl4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="checkRight">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="checkRightRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="checkRightResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Acl4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="addUser">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="addUserRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="addUserResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Acl4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="addInternalStructure">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="addInternalStructureRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="addInternalStructureResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Acl4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="setUserProfile">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="setUserProfileRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="setUserProfileResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Acl4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="updateUsersProfile">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="updateUsersProfileRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="updateUsersProfileResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Acl4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="addExternalStructure">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="addExternalStructureRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="addExternalStructureResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Acl4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="addExternalUser">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="addExternalUserRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="addExternalUserResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Acl4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="modify">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="modifyRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="modifyResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Acl4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="addProfile">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="addProfileRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="addProfileResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Acl4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="remove">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="removeRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="removeResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Acl4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="load">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="loadRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="loadResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Acl4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="search">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="searchRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="searchResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Acl4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="lookup">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="lookupRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="lookupResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Acl4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="unlock">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="unlockRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="unlockResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Acl4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="Acl4Service">
+    <wsdl:port name="Acl4" binding="intf:Acl4SoapBinding">
+      <wsdlsoap:address location="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Acl4" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

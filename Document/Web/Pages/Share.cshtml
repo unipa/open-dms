@@ -1,0 +1,166 @@
+﻿@page
+@model ShareModel;
+@using Newtonsoft.Json.Serialization
+@using OpenDMS.Domain.Entities;
+@using OpenDMS.Domain.Enumerators;
+@{
+    ViewData["Title"] = "Condivisione Documento";
+}
+
+
+
+<form id="form" class="MainPanel">
+    <div class="Header">
+        <i class="fa fa-share-alt"></i>
+        <h1>
+            <small>Stai per condividere nr.@Model.ShareInfo.Selected</small>
+            <span>Condividi</span>
+        </h1>
+        <div class="right-header">
+            <a class="btn btn-link" href="#" onclick="CloseWindow()"><i class="fa fa-times"></i></a>
+        </div>
+    </div>
+
+    <div id="Message_Target"></div>
+    <input type="hidden" name="CompanyId" value="@Model.ShareInfo.CompanyId" id="CompanyId">
+    <input type="hidden" name="Note" value="" id="HiddenInputNote">
+    <div class="Panel">
+
+        <div class="Row NoWrap">
+            <label>A</label>
+            <input id="To"
+                   name="To"
+                   type="lookup"
+                   value="@Model.ShareInfo.To"
+                   tableId="$ug"
+                   tag="true"
+                   visible="true"
+                   required
+                   placeholder="Scegli i destinatari" />
+        </div>
+        <div class="Row NoWrap">
+            <label>C.C.</label>
+            <input id="cc"
+                   name="cc"
+                   type="lookup"
+                   value="@Model.ShareInfo.Cc"
+                   tableId="$ug"
+                   tag="true"
+                   visible="true"
+                   placeholder="" />
+        </div>
+        @if (Model.CanAssignToAll)
+        {
+            <div class="Content">
+                <label for="AssignToAllUsers"><input type="checkbox" value="S" id="AssignToAllUsers" name="AssignToAllUsers" /> Assegna a tutti gli utenti dei gruppi e ruoli indicati</label>
+            </div>
+        }
+        else
+        {
+            <input type="hidden" value="" id="AssignToAllUsers" name="AssignToAllUsers" />
+        }
+        @if (Model.ShareInfo.Actions.Count > 0)
+        {
+            <div class="Row NoWrap">
+                <label>Azione Richiesta</label>
+                <select xsize="@Model.ShareInfo.Actions.Count()" style="margin:0 2px;" required value="@Model.ShareInfo.Action" name="Action" id="Action" asp-items="Model.ShareInfo.Actions">
+                </select> 
+            </div>
+        }
+        <div id="OggettoGroup" class="Row NoWrap mt-4">
+            <label>Oggetto</label>
+            <input type="textbox" required value="@Model.ShareInfo.Message" name="Oggetto" id="Oggetto" />
+        </div>
+
+        <div class="MainPanel">
+            <div class="textEditor"></div>
+        </div>
+    </div>
+</form>
+
+<nav class="Bottom">
+    <button type="button" id="SubmitButton" class="btn btn-primary">Condividi</button>
+    <a href="#" onclick="return CloseWindow()" class="btn">Esci</a>
+</nav>
+
+
+
+
+<script>
+
+    var textEditorSelector = ".textEditor";
+
+    $(document).ready(function () {
+
+        if ("@Model.ShareInfo.ErrorMessage" !== '') ShowMessage('alert', '@Model.ShareInfo.ErrorMessage', 'Message_Target', 'Index');
+
+        var Value = $('<textarea/>').html("@Model.ShareInfo.Message").text();
+        InizializzaTextEditor(textEditorSelector, Value, null, "100%").then(function () {
+            // da eseguire dopo il caricamento del text editor.
+        });
+
+        $("#SubmitButton").on("click", function () {
+            Save();
+        });
+
+        //$("#Action").on("change", function () {
+        //    if ($(this).val() != @((int)ActionRequestType.Generic)) {
+        //        $("#Oggetto").val();
+        //        $("#Oggetto").attr("required", false);
+        //        $("#OggettoGroup").hide();
+
+        //        tinymce.activeEditor.hide();
+        //        tinymce.activeEditor.setContent("");
+        //    } else {
+        //        tinymce.activeEditor.show();
+        //        $("#Oggetto").attr("required", true);
+        //        $("#OggettoGroup").show();
+        //    }
+        //});
+
+
+
+    })
+
+    function Save() {
+
+        var BodyValue = tinymce.activeEditor.getContent(textEditorSelector);
+        $("#HiddenInputNote").val(BodyValue);
+        var body = ShareInformation(getFormValues("form"));
+        ShowRequiredPopupJS("form");//faccio comparire i popup manualmente in caso di campi non validi
+        if (document.forms["form"].reportValidity()) { //controllo la validità dei campi
+
+            $.ajax({
+                url: "/internalapi/document/Share?documentIds=@Model.ShareInfo.DocId",
+                type: "POST",
+                headers: { "Content-Type": "application/json", 'accept': 'text/plain' },
+                data: JSON.stringify(body)
+            })
+                .done(function (DocumentImage) {
+
+                    ShowMessage("success", "messaggio condiviso con successo.", 'Message_Target');
+                    CloseWindow(true);
+                }).fail(function (err) {
+
+                    ShowMessage("alert", "Non è stato possibile inviare il messaggio. Errore: " + err.responseText, 'Message_Target', window.location.href);
+                });
+        }
+    }
+
+    function ShareInformation(Info) {
+        var shareInformation = {
+            Message: Info.note,
+            Title: Info.oggetto,
+            To: (Info.to !== "") ? Info.to.split(",") : [],
+            CC: (Info.cc !== "") ? Info.cc.split(",") : [],
+            AssignToAllUsers: Info.assignToAllUsers == "S",
+            RequestType: parseInt(Info.action)
+        };
+
+        return shareInformation;
+    }
+
+
+
+
+</script>

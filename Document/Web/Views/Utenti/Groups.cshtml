@@ -1,0 +1,56 @@
+﻿@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@using OpenDMS.Domain.Entities;
+@using Web.DTOs;
+@model UserAuthorizations_DTO
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "Amministrazione - Utenti";
+    Layout = "_CustomizeLayoutAdmin";
+}
+<script>
+
+    $(document).ready(function () {
+        $(function () {
+            Carica("liCustomize-Strutture");
+        });
+    })
+</script>
+
+<div class="MainPanel">
+    <div class="Header">
+        <a href="/Admin/Utenti/@ViewBag.id/Dettaglio" class="Desktop"> <i class="fa fa-bars"></i></a>
+        <h1>
+            <small>Profilo Utente</small>
+            <span>Strutture</span>
+        </h1>
+    </div>
+
+
+    <div id="Message_Target"></div>
+    <div class="Panel">
+        <ul class="nav nav-list disabled">
+            <li class="header">
+                <h6>Strutture</h6>
+            </li>
+            @if (Model.Groups.Count > 0)
+            {
+                
+                @foreach (var r in Model.Groups)
+                {
+                    <li>
+                        <div class="Row">
+                            <span>@r.Description</span>
+                            <br />
+                            <span class="text-muted">@r.Id</span> <!-- L'Id sotto la descrizione -->
+                        </div>
+                    </li>
+                }
+            }
+            else
+            {
+                <li class="text-muted">Nessuna struttura disponibile</li>
+            }
+        </ul>
+    </div>
+</div>

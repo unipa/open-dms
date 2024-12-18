@@ -1,0 +1,721 @@
+﻿@model Web.Model.Admin.OrganigrammaViewModel;
+@using Microsoft.Extensions.Configuration
+@using OpenDMS.Domain.Constants;
+@using OpenDMS.Domain.Enumerators;
+@inject IConfiguration Configuration
+@{
+    ViewData["Title"] = "Organigramma";
+    Layout = "_AdminLayout";
+}
+
+<script type="module" src="~/components/data-entry/data-entry.js"></script>
+
+<script src="/adminjs/Organigramma/index.js"></script>
+<script>
+
+    var Tree = @Html.Raw(Json.Serialize(@Model.Tree));
+
+    $(document).ready(function () {
+
+        if (`@Model.ErrorMessage` !== '') ShowMessage('alert', `@Html.Raw(Model.ErrorMessage)`, 'Message_Target', null);
+        if (`@Model.SuccessMessage` !== '') ShowMessage('success', '@Html.Raw(Model.SuccessMessage)', 'Message_Target', null);
+
+        $(".mnuAdminOrganigramma").addClass("active");
+        CreateNodes();
+        AddEventsToNodes();
+        PrepareDateFilter(@Model.StartISODate);
+    });
+
+</script>
+
+
+@section HeaderTitle
+    {
+    Organigramma
+}
+
+
+<div class="Page">
+    <div class="ListMenu InsidePanel" style="min-width:50%">
+        <div class="Content"  style="display:flex;flex-direction:row;justify-content:space-between">
+            <h3>
+                <i class="fa fa-sitemap"></i> Organigramma
+            </h3>
+            <a class="btn btn-link" href="#" id="AggiungiNodo" onclick="AggiungiNodoModal()"><i class="fa fa-plus" title="Aggiungi una nuova struttura apicale"></i></a>
+        </div>
+        <div class="sidebar-linklist-wrapper Panel" style="position:relative;flex-grow:1">
+            <div style="display:flex; flex-direction:row; gap:10px; flex-wrap:nowrap">
+                <input type="text" id="Filter" name="Filter" placeholder="Filtro..." style="width:100%"/>
+                <div style="min-width:200px">
+                    <input type="date" id="StartISODate" name="StartISODate" title="Data Validità">
+                </div>
+            </div>
+            <h3>Strutture</h3>
+            <div class="link-list-wrapper MainPanel" id="Organigramma">
+            </div>
+        </div>
+    </div>
+
+    <div class="MainPanel" tabindex="-1" role="dialog" id="NoDetail">
+        <div id="Message_Target" style="z-index: 10000;"></div>
+        <div class="InfoPanel">
+            <i class="fa fa-sitemap"></i>
+            <h1>Organigramma</h1>
+            @* <p>La versione corrente dell'organigramma ha nr.<b id="totale_strutture">0</b> strutture </p>  *@
+            <br />
+            <a class="btn btn-outline-primary" id="AggiungiNodo2" onclick="AggiungiNodoModal()"><span class="fa fa-plus"></span> Aggiungi una Nuova Struttura Apicale</a>
+            <p></p>
+        </div>
+    </div>
+    <!-- Main Modal (viene aperta tramite ausilio dell'attributo data-bs-toggle ) -->
+    <div class="MainPanel hidden" tabindex="-1" role="dialog" id="NodeDetail">
+        <script id="NodeDetail_Template" type="text/html">
+            <div class="header">
+                <h2><i class="fa fa-info-circle"></i> {{data.info.shortName}}
+                <a href="#" onclick="return HidePanels()" class="pull-right btn btn-link"><i class="fa fa-lg fa-times"></i></a>
+                </h2>
+                <p>Nome Esteso: <b>{{data.info.name}}</b></p>
+                <p>ID Univoco: <b>{{data.info.userGroupId}}</b></p>
+                <p>ID Esterno: <b>{{data.info.externalId}}</b></p>
+            </div>
+            <ul class="nav nav-toolbar">
+                <li><a href="#" class="" id="AggiungiNodo" onclick="AggiungiNodoModal('{{data.info.userGroupId}}')"><i class="fa fa-plus"></i> Aggiungi Struttura</a></li>
+
+                <li><a href="#" class="" id="ModificaNodo" onclick="ModificaNodoModal('{{data.info.userGroupId}}')"><i class="fa fa-edit"></i> Modifica</a></li>
+                <li><a href="#" class="" id="SpostaNodo" onclick="SpostaNodoModal('{{data.info.userGroupId}}')"><i class="fa fa-window-maximize"></i> Sposta</a></li>
+                <li><a href="#" class="" id="RimuoviNodo" onclick="RimuoviNodoModal('{{data.info.userGroupId}}')" ><i class="fa fa-trash"></i></a></li>
+            </ul>
+
+            <div class="Content">
+                <div class="Row">
+                    <label>Periodo di validità</label>
+                    <span>{{data.info.period}}</span>
+                </div>
+                <div class="Row">
+                    <label>Struttura Superiore</label>
+                    <span>{{data.parent.name}}</span>
+                </div>
+                <div class="Row">
+                    <label>Strategia Notifiche</label>
+                    <span>{{data.info.notificationStrategyText}}</span>
+                </div>
+                <div class="Row">
+                    <label>Strategia Gestione Task</label>
+                    <span>{{data.info.taskReallocationStrategyText}}</span>
+                </div>
+            </div>
+
+            <ul class="nav nav-toolbar mt-4">
+                <li><a href="#" class="" id="AggiungiUtente" onclick="AggiungiUserModal('{{data.info.userGroupId}}')"><i class="fa fa-user-plus"></i> Aggiungi Utente</a></li>
+            </ul>
+
+            <div class="Panel" id="GroupBody">
+                @* <table class="table table-responsive table-condensed table-hover row-fluid"> *@
+                {{#data.users.length}}
+                <table class="Files">
+                    <thead>
+                        <tr>
+                            <th style="width:50%">Utente</th>
+                            <th style="width:50%">Ruolo</th>
+                            <th nowrap style="min-width:100px">Dal</th>
+                            <th nowrap style="min-width:100px">Al</th>
+                            <th nowrap style="min-width:30px"> </th>
+                        </tr>
+                    <tr>
+                        <th><input type="text" onkeyup="return FilterUsers(0,this)" id="filtroUtente" style="width:100%" placeholder="Filtro Utente..." /></th>
+                        <th><input type="text" onkeyup="return FilterUsers(1,this)" id="filtroRuolo" style="width:100%" placeholder="Filtro Ruolo..." /></th>
+                        <th><input type="text" onkeyup="return FilterUsers(2,this)" id="filtroDal" style="width:100%" placeholder="Dal..." /></th>
+                        <th><input type="text" onkeyup="return FilterUsers(3,this)" id="filtroAl" style="width:100%" placeholder="Al..." /></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                    <tbody>
+                        {{#data.users}}
+                        <tr>
+                        <td title="#{{userId}}">{{userName}}</td>
+                        <td title="#{{roleId}}">
+                            <a href="#" class="btn btn-link btn-xs" onclick="ModificaRuoloUserModal('{{data.info.userGroupId}}','{{id}}')">
+                            {{roleName}}
+                            </a>
+                        </td>
+                        <td>{{startDateText}}</td>
+                        <td>{{endDateText}}</td>
+                        <td>
+                            <a href="#" class="btn btn-link btn-xs" onclick="DataFineUserModal('{{data.info.userGroupId}}','{{id}}')">
+                                <i class="fa fa-lg fa-trash"></i>
+                            </a>
+                        </td>
+                        </tr>
+                        {{/data.users}}
+                    </tbody>
+                </table>
+                 {{/data.users.length}}
+            </div>
+        </script>
+        <div id="NodeDetail_Content" class="Panel"></div>
+    </div>
+
+    <!-- Aggiungi Nodo Modal (viene aperta tramite js (attributo onclick)) -->
+    <div class="MainPanel hidden" tabindex="-1"  id="AggiungiNodoModal">
+        <script id="AggiungiNodoModal_Template" type="text/html">
+            <div class="header">
+                <h2><i class="fa fa-plus"></i> Nuova Struttura
+                <a href="#" class="pull-right btn btn-link"  onclick="return ShowNodeDetail(breadthFirstSearch('{{ParentUserGroupId}}'));">
+                    <i class="fa fa-lg fa-times"></i>
+                </a>
+                </h2>
+                {{#ParentUserGroupId}}
+                <p>Struttura Superiore: <b>{{parent.name}}</b></p>
+                {{/ParentUserGroupId}}
+                {{^ParentUserGroupId}}
+                <p><b>Struttura Apicale</b></p>
+                {{/ParentUserGroupId}}
+            </div>
+            <form id="AggiungiNodoForm" class="Panel">
+                <div class="Panel">
+                    <input type="hidden" id="ParentUserGroupId" name="ParentUserGroupId" value="{{ParentUserGroupId}}" />
+                    <div class="row">
+                      <div class="form-group col-12 mt-4">
+                        <label class="active" for="Name">Nome Completo</label>
+                        <input required type="text" name="Name" id="Name" value="" placeholder="Nome Completo...">
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="form-group col-6 mt-4">
+                        <label class="active" for="ShortName">Nome Breve</label>
+                        <input required type="text" name="ShortName" id="ShortName" value="" placeholder="Nome breve...">
+                      </div>
+                        <div class="form-group col-3 mt-4">
+                            <label class="active" for="StartDate">Data Apertura</label>
+                            <input type="date" minDate="{{today}}" value="{{today}}" class="form-control" name="StartDate" id="StartDate">
+                        </div>
+                        <div class="form-group col-3 mt-4">
+                            <label class="active" for="StartDate">Data Prevista Chiusura</label>
+                            <input type="date" minDate="{{today}}" value="{{today}}" class="form-control" name="EndDate" id="EndDate">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="form-group col-12">
+                        <div class="select-wrapper">
+                          <label for="NotificationStrategy">Strategia Notifiche</label>
+                          <select required name="NotificationStrategy" id="NotificationStrategy">
+                            <option selected value="3">Tutti gli utenti della struttura</option>
+                            <option value="1">Utenti abilitati al ruolo "ViewInbox"</option>
+                            <option value="2">Utenti con ruolo specifico</option>
+                            <option value="4">Tutti gli utenti e le sotto-strutture</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row" id="NotificationStrategyProfilePanel" name="NotificationStrategyProfilePanel" style="display:none">
+                      <div class="from-group col-12">
+                        <div class="select-wrapper">
+                            <label for="NotificationStrategyProfile">Ruolo Destinatario</label>
+                            <input id="NotificationStrategyProfile"
+                                            name="NotificationStrategyProfile"
+                                            type="lookup"
+                                            value=""
+                                            tableId="$ro"
+                                            tag="false"
+                                            visible="true"
+                                            required
+                                            disabled
+                                            placeholder="Scegli un ruolo" />
+
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="form-group col-12">
+                        <div class="select-wrapper">
+                          <label for="NotificationStrategyCC">Strategia Notifiche P.C.</label>
+                          <select required name="NotificationStrategyCC" id="NotificationStrategyCC">
+                            <option selected value="3">Tutti gli utenti della struttura</option>
+                            <option value="1">Utenti abilitati al ruolo "ViewInbox"</option>
+                            <option value="2">Utenti con ruolo specifico</option>
+                            <option value="4">Tutte gli utenti e le sotto-strutture</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row" id="NotificationStrategyProfileCCPanel" name="NotificationStrategyProfileCCPanel" style="display:none">
+                      <div class="form-group col-12">
+                        <div class="select-wrapper">
+                            <label for="NotificationStrategyProfileCC">Ruolo Destinatario</label>
+                            <input id="NotificationStrategyProfileCC"
+                                            name="NotificationStrategyProfileCC"
+                                            type="lookup"
+                                            value=""
+                                            tableId="$ro"
+                                            tag="false"
+                                            visible="true"
+                                            required
+                                            disabled
+                                            placeholder="Scegli un ruolo" />
+
+                        </div>
+                      </div>
+                    </div>
+                    <input type="hidden" name="Visible" value="true">
+                </div>
+                <div class="Bottom">
+                    <button class="btn btn-primary btn-sm" id="AggiungiNodoFormButton" onclick="return AggiungiNodoModal_Save()" type="button">Conferma</button>
+                </div>
+            </form>
+
+        </script>
+        <div class="Panel" id="AggiungiNodoModal_Content"></div>
+    </div>
+
+    <!-- Modifica Nodo Modal (viene aperta tramite js (attributo onclick)) -->
+    <div class="MainPanel hidden" tabindex="-1" role="dialog" id="ModificaNodoModal">
+        <script id="ModificaNodoModal_Template" type="text/html">
+
+            <div class="header">
+                <h2><i class="fa fa-edit"></i> {{data.shortName}}
+                <a href="#" class="btn btn-link pull-right" onclick="return ShowNodeDetail(breadthFirstSearch('{{data.userGroupId}}'));">
+                    <i class="fa fa-lg fa-times"></i>
+                </a>
+                </h2>
+                <p>Struttura Superiore: <b>{{data.parent.name}}</b></p>
+                <p>ID Esterno: <b>{{data.externalId}}</b></p>
+            </div>
+            <form id="ModificaNodoForm" class="Panel">
+                <input type="hidden" name="ParentUserGroupId" value="{{data.parentUserGroupId}}">
+                <div class="Panel">
+                    <div class="row">
+                      <div class="form-group col-12 mt-4">
+                        <label class="active" for="Name">Nome Completo</label>
+                        <input required type="text" name="Name" id="Name" value="{{data.name}}">
+                      </div>
+                    </div>
+                   <div class="row">
+                      <div class="form-group col-6">
+                        <label class="active" for="ShortName">Nome Breve</label>
+                        <input required type="text" name="ShortName" id="ShortName" value="{{data.shortName}}">
+                      </div>
+                        {{#CanEditStartDate}}
+                            <div class="form-group col-3">
+                            <label class="active" for="StartDate">Data Apertura</label>
+                                        <input type="date" minDate="{{today}}" value="{{data.startDate}}" class="form-control" name="StartDate" id="StartDate">
+                            </div>
+                        {{/CanEditStartDate}}
+                        {{^CanEditStartDate}}
+                            <div class="form-group col-3">
+                            <label class="active" for="StartDate">Data Apertura</label>
+                                        <input type="date" readonly disabled minDate="{{today}}" value="{{data.startDate}}" class="form-control" name="StartDate" id="StartDate" />
+                            </div>
+                        {{/CanEditStartDate}}
+                        {{#CanEditEndDate}}
+                        <div class="form-group col-3">
+                            <label class="active" for="EndDate">Data Prevista Chiusura</label>
+                                        <input type="date" minDate="{{today}}" value="{{data.endDate}}" class="form-control" name="EndDate" id="EndDate">
+                            </div>
+                        {{/CanEditEndDate}}
+                        {{^CanEditEndDate}}
+                            <div class="form-group col-3">
+                            <label class="active" for="EndDate">Data Prevista Chiusura</label>
+                                        <input disabled readonly type="date" minDate="{{today}}" value="{{data.endDate}}" class="form-control" name="EndDate" id="EndDate">
+                            </div>
+                        {{/CanEditEndDate}}
+                    </div>
+@*                     <div class="row">
+                         {{#CanEditEndDate}}
+                          <div class="form-group col-3">
+                            <label class="active" for="EndDate">Data Chiusura</label>
+                            <input type="date" min="{{today}}" value="{{data.endDate}}" class="form-control" name="EndDate" id="EndDate">
+                          </div>
+                        {{/CanEditEndDate}}
+                        <div class="form-group col-4">
+                            <div class="select-wrapper">
+                                <label for="TaskReallocationStrategy">Strategia Gestione Task alla chiusura</label>
+                                <select required name="TaskReallocationStrategy" id="TaskReallocationStrategy">
+                                <option {{data.taskReallocationStrategy1}} value="1">Riassegnazione Tasks al nodo padre</option>
+                                <option {{data.taskReallocationStrategy2}} value="2">Riassegnazione Tasks ad un nodo specifico</option>
+                                <option {{data.taskReallocationStrategy3}} value="3">Riassegnazione Tasks ad un ruolo specifico</option>
+                                <option {{data.taskReallocationStrategy4}} value="4">Completamento Automatico dei Tasks</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="TaskReallocationProfile_Target" class="row"></div>
+
+                    </div>
+ *@                 
+                    <input type="hidden" name="Visible" value="{{data.visible}}">
+                    <div class="row">
+                      <div class="form-group col-12">
+                        <div class="select-wrapper">
+                          <label for="NotificationStrategy">Strategia Notifiche</label>
+                          <select required name="NotificationStrategy" id="NotificationStrategy">
+                            <option {{data.notificationStrategy3}} value="3">Tutti gli utenti della struttura</option>
+                            <option {{data.notificationStrategy1}} value="1">Utenti abilitati al ruolo "ViewInbox"</option>
+                            <option {{data.notificationStrategy2}} value="2">Utenti con ruolo specifico</option>
+                            <option {{data.notificationStrategy4}} value="4">Tutti gli utenti e le sotto-strutture</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="form-group col-12">
+                        <div class="select-wrapper">
+                            <label for="NotificationStrategyProfile">Ruolo Destinatario</label>
+                            <input id="NotificationStrategyProfile"
+                                            name="NotificationStrategyProfile"
+                                            type="lookup"
+                                                        value="{{data.notificationStrategyProfile}}"
+                                            tableId="$ro"
+                                            tag="false"
+                                            visible="true"
+                                            required
+                                            disabled
+                                            placeholder="Scegli un ruolo" />
+
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="form-group col-12">
+                        <div class="select-wrapper">
+                          <label for="NotificationStrategyCC">Strategia Notifiche P.C.</label>
+                          <select required name="NotificationStrategyCC" id="NotificationStrategyCC">
+                            <option {{data.notificationStrategyCC3}} value="3">Tutti gli utenti della struttura</option>
+                            <option {{data.notificationStrategyCC1}} value="1">Utenti abilitati al ruolo "ViewInbox"</option>
+                            <option {{data.notificationStrategyCC2}} value="2">Utenti con ruolo specifico</option>
+                            <option {{data.notificationStrategyCC4}} value="4">Tutti gli utenti e le sotto-strutture</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="form-group col-12">
+                        <div class="select-wrapper">
+                            <label for="NotificationStrategyProfileCC">Ruolo Destinatario</label>
+                            <input id="NotificationStrategyProfileCC"
+                                            name="NotificationStrategyProfileCC"
+                                            type="lookup"
+                                                        value="{{data.notificationStrategyProfileCC}}"
+                                            tableId="$ro"
+                                            tag="false"
+                                            visible="true"
+                                            required
+                                            disabled
+                                            placeholder="Scegli un ruolo" />
+
+                        </div>
+                      </div>
+
+                    </div>
+                </div>
+                <div class="Bottom">
+                    <button class="btn btn-primary btn-sm" id="ModificaNodoFormButton" onclick="return ModificaNodoModal_Save()" type="button">Conferma</button>
+                </div>
+            </form>
+
+        </script>
+        <div class="Panel" id="ModificaNodoModal_Content"></div>
+    </div>
+
+    <!-- Sposta Nodo Modal (viene aperta tramite js (attributo onclick)) -->
+    <div class="MainPanel hidden" tabindex="-1" role="dialog" id="SpostaNodoModal">
+        <script id="SpostaNodoModal_Template" type="text/html">
+
+            <div class="header">
+                <h2><i class="fa fa-window-maximize"></i> {{data.shortName}} 
+                <a href="#" class="btn btn-link pull-right"  onclick="return ShowNodeDetail(breadthFirstSearch('{{data.userGroupId}}'));">
+                    <i class="fa fa-lg fa-times"></i>
+                </a>
+                </h2>
+                <p>Nome Esteso: <b>{{data.name}}</b></p>
+                <p>Struttura Superiore: <b>{{data.parent.name}}</b></p>
+                <p>ID Esterno: <b>{{data.externalId}}</b></p>
+            </div>
+            <form id="SpostaNodoForm" class="Panel">
+                <div class="Panel">
+                    <input type="hidden" name="UserGroupId" value="{{data.userGroupId}}">
+                    <div class="row">
+                          <div class="form-group col-9 mt-4">
+                              <div class="select-wrapper">
+                                  <label for="NewParentUserGroupId">Nuova Struttura Superiore</label>
+                                  <input id="NewParentUserGroupId"
+                                                name="NewParentUserGroupId"
+                                                type="lookup"
+                                                value="{{data.parentUserGroupId}}"
+                                                tableId="$gr"
+                                                tag="false"
+                                                visible="true"
+                                                required
+                                                placeholder="Scegli una struttura" />
+                              </div>
+                           </div>
+                          <div class="form-group col-3 mt-4">
+                                <label class="active" for="StartDate">Data Spostamento</label>
+                                <input required type="date" class="form-control" name="StartDate" id="StartDate" minDate={{today}} value={{today}}>
+                          </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-12">
+                            <div class="select-wrapper">
+                                    <label for="TaskReallocationStrategy">Strategia di Gestione dei Task</label>
+                                    <select required name="TaskReallocationStrategy" id="TaskReallocationStrategy">
+                                    <option {{data.selected.taskReallocationStrategy1}} value="1">Riassegnazione alla struttura superiore</option>
+                                    <option {{data.selected.taskReallocationStrategy2}} value="2">Riassegnazione ad una struttura specifica</option>
+                                    <option {{data.selected.taskReallocationStrategy3}} value="3">Riassegnazione ad un ruolo specifico</option>
+                                    <option {{data.selected.taskReallocationStrategy4}} value="4">Archiviazione Automatica</option>
+                                    </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row" id="TaskReallocationStrategyPanel" name="TaskReallocationStrategyPanel" style="display:none">
+                      <div class="form-group col-6">
+                        <div class="select-wrapper">
+                            <label for="TaskReallocationStrategyProfile">Ruolo Destinatario</label>
+                            <input id="TaskReallocationStrategyProfile"
+                                            name="NotificationStrategyProfileCC"
+                                            type="lookup"
+                                            value=""
+                                            tableId="$ro"
+                                            tag="false"
+                                            visible="true"
+                                            required
+                                            disabled
+                                            placeholder="Scegli un ruolo" />
+
+                        </div>
+                      </div>
+                      <div class="form-group col-6">
+                        <div class="select-wrapper">
+                            <label for="TaskReallocationStrategyProfileGroup">Struttura Destinataria</label>
+                            <input id="TaskReallocationStrategyProfileGroup"
+                                            name="TaskReallocationStrategyProfileGroup"
+                                            type="lookup"
+                                            value=""
+                                            tableId="$ug"
+                                            tag="false"
+                                            visible="true"
+                                            required
+                                            disabled
+                                            placeholder="Scegli una struttura" />
+
+                        </div>
+                      </div>
+                    </div>
+
+                </div>
+                <div class="Bottom">
+                    <button class="btn btn-primary btn-sm" type="button" onclick="return SpostaNodoModal_Save()" id="SpostaNodoFormButton">Conferma</button>
+                </div>
+            </form>
+
+        </script>
+        <div class="Panel" id="SpostaNodoModal_Content"></div>
+    </div>
+
+    <!-- Rimuovi Nodo Modal (viene aperta tramite js (attributo onclick)) -->
+    <div class="MainPanel hidden" tabindex="-1" role="dialog" id="RimuoviNodoModal">
+        <script id="RimuoviNodoModal_Template" type="text/html">
+            <div class="header">
+                <h2><i class="fa fa-trash-o"></i> {{data.shortName}}
+                <a href="#" class="btn btn-link pull-right" onclick="return HidePanels()" >
+                    <i class="fa fa-lg fa-times"></i>
+                </a>
+                </h2>
+                <p>Nome Esteso: <b>{{data.name}}</b></p>
+                <p>Struttura Superiore: <b>{{data.parent.name}}</b></p>
+                <p>ID Esterno: <b>{{data.externalId}}</b></p>
+            </div>
+
+            <form id="RimuoviNodoForm" class="Panel">
+                <div class="Panel">
+                        <input type="hidden" name="StartISODate" id="StartISODate" value="{{data.startISODate}}">
+                        <div class="row">
+                          <div class="form-group col-3 mt-4">
+                            <label class="active" for="EndDate">Data Chiusura</label>
+                            <input required type="date" minDate="{{today}}" required class="form-control" name="EndDate" id="EndDate" value="{{today}}">
+                          </div>
+                        </div>
+                    <div class="row">
+                        <div class="form-group col-6 mt-4">
+                            <div class="select-wrapper">
+                                    <label for="TaskReallocationStrategy">Strategia di Gestione dei Task</label>
+                                    <select required name="TaskReallocationStrategy" id="TaskReallocationStrategy">
+                                    <option {{data.selected.taskReallocationStrategy1}} value="1">Riassegnazione alla struttura superiore</option>
+                                    <option {{data.selected.taskReallocationStrategy2}} value="2">Riassegnazione ad una struttura specifica</option>
+                                    <option {{data.selected.taskReallocationStrategy3}} value="3">Riassegnazione ad un ruolo specifico</option>
+                                    <option {{data.selected.taskReallocationStrategy4}} value="4">Archiviazione Automatica</option>
+                                    </select>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="Bottom">
+                    <button class="btn btn-primary btn-sm" type="button" id="RimuoviNodoFormButton" onclick="return RimuoviNodoModal_Save()">Conferma</button>
+                    @* <button class="btn btn-outline-primary btn-sm" type="button" data-bs-dismiss="modal">Annulla</button> *@
+                </div>
+            </form>
+
+        </script>
+        <div class="Panel" id="RimuoviNodoModal_Content"></div>
+    </div>
+
+
+
+    <div class="MainPanel hidden" tabindex="-1"  id="AggiungiUserModal">
+        <script id="AggiungiUserModal_Template" type="text/html">
+
+            <div class="header">
+                <h2><i class="fa fa-user-plus"></i> Inserimento Utente
+                <a href="#" class="btn btn-link pull-right" onclick="return ShowNodeDetail(breadthFirstSearch('{{info.userGroupId}}'));">
+                    <i class="fa fa-lg fa-times"></i>
+                </a>
+                </h2>
+                <p>Struttura: <b>{{info.name}}</b></p>
+            </div>
+            <form id="AggiungiUserForm" class="Panel">
+                <div class="Panel">
+                    <input type="hidden" name="UserGroupId" value="{{info.userGroupId}}">
+
+                    <div class="row mt-4">
+                        <div class="form-group">
+                            <label class="active" for="UserId">Utente</label>
+                            <input id="UserId"
+                                            name="UserId"
+                                            type="lookup"
+                                            value=""
+                                            tableId="$us"
+                                            tag="false"
+                                            visible="true"
+                                            required
+                                            placeholder="Scegli un utente" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="active" for="RoleId">Ruolo</label>
+                            <input id="RoleId"
+                                            name="RoleId"
+                                            type="lookup"
+                                            value=""
+                                            tableId="$ro"
+                                            tag="false"
+                                            visible="true"
+                                            required
+                                            placeholder="Scegli un ruolo" />
+                        </div>
+                    </div>
+                    <div class="row">
+                      <div class="form-group col-3 col-sm-6">
+                        <label class="active" for="StartDate">Data Inserimento</label>
+                        <input required type="date" class="form-control" value="{{today}}" minDate="{{today}}" name="StartDate" id="StartDate">
+                      </div>
+                      <div class="form-group col-3 col-sm-6">
+                        <label class="active" for="EndDate">Data Prevista Rimozione</label>
+                        <input type="date" class="form-control" name="EndDate" minDate="{{today}}" id="EndDate">
+                      </div>
+                    </div>
+                </div>
+                <div class="Bottom">
+                    <button class="btn btn-primary btn-sm" type="button" id="AggiungiUserFormButton" onclick="return AggiungiUserModal_Save()">Conferma</button>
+                </div>
+            </form>
+
+        </script>
+        <div class="Panel" id="AggiungiUserModal_Content"></div>
+    </div>
+
+    <!-- Data Fine User Modal (viene aperta tramite js (attributo onclick)) -->
+    <div class="MainPanel hidden" tabindex="-1" role="dialog" id="DataFineUserModal">
+            <script id="DataFineUserModal_Template" type="text/html">
+
+                <div class="header">
+                    <h2>Rimozione Utente
+                    <button class="btn btn-link pull-right"  onclick="return ShowNodeDetail(breadthFirstSearch('{{data.userGroupId}}'));">
+                        <i class="fa fa-lg fa-times"></i>
+                    </button>
+                    </h2>
+                    <p>Struttura: <b>{{data.info.name}}</b></p>
+                </div>
+                <form id="DataFineUserForm">
+                    <div class="Panel">
+                        <input type="hidden" name="UserGroupId" value="{{data.userGroupId}}">
+                        <input type="hidden" name="UserId" value="{{data.userId}}">
+                        <input type="hidden" name="Id" value="{{data.id}}">
+                        <input type="hidden" name="RoleId" value="{{data.roleId}}">
+                        <input type="hidden" name="UserName" value="{{data.userName}}">
+                        <input type="hidden" name="RoleName" value="{{data.roleName}}">
+                        <input type="hidden" name="StartDate" value="{{data.startDate}}">
+
+                        <div class="row">
+                          <div class="form-group col-6 mt-4">
+                            <label class="active" for="EndDate">Data Rimozione</label>
+                            <input required type="date" minDate="{{minDate}}" value="{{data.endDate}}" class="form-control" name="EndDate" id="EndDate">
+                          </div>
+                        </div>
+                </div>
+                <div class="Bottom">
+                    <button class="btn btn-primary btn-sm" type="button" id="DataFineUserFormButton"  onclick="return DataFineUserModal_Save()">Conferma</button>
+                </div>
+            </form>
+
+            </script>
+            <div class="Panel" id="DataFineUserModal_Content">
+            </div>
+    </div>
+
+    <!-- Modifica Ruolo User Modal (viene aperta tramite js (attributo onclick)) -->
+    <div class="MainPanel hidden" tabindex="-1" id="ModificaRuoloUserModal">
+
+            <script id="ModificaRuoloUserModal_Template" type="text/html">
+
+                <div class="header">
+                    <h2><i class="fa fa-user-circle-o"></i>{{data.userName}}
+                    <button class="btn btn-link pull-right"   onclick="return ShowNodeDetail(breadthFirstSearch('{{data.userGroupId}}'));" >
+                        <i class="fa fa-lg fa-times"></i>
+                    </button>
+                    </h2>
+                    <p>Struttura: <b>{{data.info.name}}</b></p>
+                </div>
+                <form id="ModificaRuoloUserForm" class="Panel">
+                    <div class="Panel">
+                        <input type="hidden" name="UserGroupId" value="{{data.userGroupId}}">
+                        <input type="hidden" name="Id" value="{{data.id}}">
+                        <input type="hidden" name="UserId" value="{{data.userId}}">
+                        <input type="hidden" name="UserName" value="{{data.userName}}">
+
+                        <div class="row mt-4">
+                            <div class="form-group col-8">
+                                <label class="active" for="formId">Ruolo</label>
+                                <input id="mRoleId"
+                                                name="RoleId"
+                                                type="lookup"
+                                                value="{{data.roleId}}"
+                                                tableId="$ro"
+                                                tag="false"
+                                                visible="true"
+                                                required
+                                                placeholder="Scegli un ruolo" />
+                            </div>
+                            <div class="form-group col-4">
+                            <label class="active" for="StartDate">Data Assunzione Ruolo</label>
+                            <input type="date" minDate="{{today}}" value="{{data.startDate}}" {{^CanEditStartDate}} disabled {{/CanEditStartDate}} class="form-control" name="StartDate" id="StartDate">
+                            </div>
+                        </div>
+                </div>
+                <div class="Bottom">
+                        <button class="btn btn-primary btn-sm" type="button" id="ModificaRuoloUserFormButton" onclick="return ModificaRuoloUserModal_Save()">Conferma</button>
+                    </div>
+            </form>
+
+            </script>
+
+            <div class="Panel" id="ModificaRuoloUserModal_Content">
+            </div>
+    </div>
+
+
+    <!-- Aggiungi User Modal (viene aperta tramite js (attributo onclick)) -->
+
+
+</div>

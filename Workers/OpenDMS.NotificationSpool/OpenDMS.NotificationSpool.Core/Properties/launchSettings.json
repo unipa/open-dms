@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "OpenDMS.NotificationSpool.Core": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:57910;http://localhost:57911"
+    }
+  }
+}

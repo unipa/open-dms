@@ -1,0 +1,109 @@
+﻿@using OpenDMS.Core.DTOs;
+@model ZipInfo
+
+<div class="nav-toolbar-container">
+
+    <ul class="nav nav-toolbar">
+        <li class="btnDownload"><a onclick="return Download(@Model.DocumentId, true)" class="" href="#"><i class="fa fa-file-pdf-o"></i> Scarica Zip</a></li>
+    </ul>
+
+</div>
+        <h1>
+           <i class="fa fa-file-zip-o"></i> Model.Title
+        </h1>
+<div class="Panel">
+        @if(!String.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="InfoPanel">
+                <i class="fa fa-bug"></i>
+                <h1>@Model.ErrorMessage</h1>
+            </div>
+        }
+        <div class="Panel Files">
+                <table>
+                    <thead>
+                        <tr>
+                            @*<th><input type="checkbox" class="checkbox" onclick="return SelectAll()" /></th>*@
+                            <th></th>
+                            <th></th>
+                            <th style="min-width:300px; width:50%">File</th>
+                            <th style="width:50%">Cartella</th>
+                            <th style="min-width:100px;text-align:right">Dimensione</th>
+                            <th style="min-width:150px;text-align:right">Data Creazione</th>
+                        </tr>
+                    </thead>
+                    @foreach (var f in Model.Entries)
+                    {
+                        <tr>
+                    <td></td>
+                    <td><i style="color: @(string.IsNullOrEmpty(f.IconColor) ? "crimson" : f.IconColor)" class="@(string.IsNullOrEmpty(f.Icon) ? "fa fa-file-o" : f.Icon)"></i></td>
+                            <td><strong>@f.Name</strong></td>
+                            <td>
+                                @foreach (var p in f.Path)
+                                {
+                                    <span class="divider">\</span>
+                                    <span>@p.Description</span>
+                                }
+                            </td>
+                            <td style="text-align:right">@f.Nr</td>
+                            <td style="text-align:right">@f.Date</td>
+                        </tr>
+                    }
+                </table>
+        </div>
+
+</div>
+
+
+<script>
+
+    function Refresh() {
+        //TODO: richiamae l'api per ricaricare i files
+        window.location.reload(true);
+    }
+
+    function SelectRow(rowid) {
+        var add = $("tr[rowid=" + rowid + "] td .checkbox").prop("checked") == true;
+        var i = Selected.indexOf(rowid);
+        if (i < 0 && add)
+            Selected.push(rowid);
+        else
+            if (!add)
+                Selected.splice(i, 1);
+        $("tr[rowid=" + rowid + "] td .checkbox").prop("checked", add);
+
+        event.stopPropagation();
+        UpdateSelection();
+        return true;
+    }
+    function SelectAll() {
+        var add = $("th .checkbox").prop("checked") == true;
+        Selected = [];
+        if (add) {
+            $("td .checkbox").prop("checked", true);
+            $("tr[rowid]").each((i, e) => {
+                Selected.push($(e).attr("rowid"));
+            });
+            $("th .checkbox").prop("checked", true);
+        }
+        else {
+            $("td .checkbox").prop("checked", false);
+            $("th .checkbox").prop("checked", false);
+        }
+        UpdateSelection();
+        //event.preventDefault();
+        return true;
+    }
+    function UpdateSelection() {
+        $(".Selected").html(Selected.length);
+        if (Selected.length)
+            $(".FilesToolbar").removeClass("hidden");
+        else
+            $(".FilesToolbar").addClass("hidden");
+        if (Selected.length)
+            $(".PagerToolbar").addClass("hidden");
+        else
+            $(".PagerToolbar").removeClass("hidden");
+    }
+</script>
+

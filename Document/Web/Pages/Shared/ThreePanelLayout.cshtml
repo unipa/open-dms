@@ -1,0 +1,44 @@
+﻿@{
+    Layout = "_Layout";
+
+}
+
+<main role="main">
+
+    <div class="MainMenu">
+        @await Component.InvokeAsync("MainMenuPanel")
+    </div>
+    <div class="MainWindow InsidePanel">
+        <div class="Page">
+            <div class="LeftMenu">
+                <div class="Header">
+                    @await Component.InvokeAsync("CompanyLogo")
+                    <span style="padding:16px 12px" class="Desktop fa fa-times" onclick="$('.ListPanel').removeClass('hiddenOnMobile');$('.LeftMenu').removeClass('active');"></span>
+                </div>
+                <div class="InsidePanel">
+                    @RenderSection("Filters", false)
+                </div>
+            </div>
+            <div class="ListPanel InsidePanel">
+                <div class="Header">
+                    <span style="padding:16px 12px" class="Desktop fa fa-bars" onclick="$('.ListPanel').addClass('hiddenOnMobile');$('.LeftMenu').addClass('active');"></span>
+                    @RenderSection("Header", false)
+                </div>
+                <div class="MainPanel">
+                    @RenderBody()
+                </div>
+            </div>
+            <div class="DetailPanel LoadingPanel hidden">
+                @RenderSection("LoadingPanel", false)
+            </div>
+            <div class="DetailPanel MultiSelectPanel hidden">
+                @RenderSection("MultiSelectPanel", false)
+            </div>
+            <div class="DetailPanel EmptyPanel hidden">
+                @RenderSection("EmptyPanel", false)
+            </div>
+            <iframe frameborder="0" id="ItemPanel" class="DetailPanel MainPanel hidden"  style="height:100%;margin-left:0px"></iframe>
+        </div>
+    </div>
+</main>
+

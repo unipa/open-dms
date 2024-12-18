@@ -1,0 +1,396 @@
+﻿@page
+@using Newtonsoft.Json.Serialization
+@using OpenDMS.Domain.Entities;
+@model Web.Pages.SendMailModel;
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "Invia messaggio";
+}
+
+@* <script src="~/js/tinymce/tinymce.min.js"></script>
+<script src="~/js/tinymce/langs/it.js"></script>
+
+<script src="~/js/tinymce/plugins/advlist/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/autolink/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/lists/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/link/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/image/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/charmap/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/preview/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/anchor/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/searchreplace/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/visualblocks/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/fullscreen/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/insertdatetime/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/media/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/table/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/code/plugin.min.js"></script>
+ *@
+
+
+
+<div class="Header">
+    <i class="fa fa-envelope"></i>
+    <h1>
+        <small>Stai per inviare nr. @Model.Selected</small>
+        @if (Model.NewMessage)
+        {
+            <span>@Model.Title</span>
+        }
+        else
+        {
+            <span>Modifica Messaggio</span>
+        }
+    </h1>
+    <div class="right-header">
+        <a href="#" class="btn btn-link" onclick="return selectMail()"><i class="fa fa-times"></i></a>
+    </div>
+</div>
+
+<div id="Message_Target"></div>
+    <form id="form" class="Panel">
+    <input type="hidden" id="EntryId" name="EntryId" value="@Model.Message.Id" />
+
+    <div class="Row NoWrap">
+        <label>Da</label>
+        <input type="select" required id="select_mittente_input" name="mittente" items="@(Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.UserAddresses, new Newtonsoft.Json.JsonSerializerSettings(){ ContractResolver = new DefaultContractResolver{ NamingStrategy = new CamelCaseNamingStrategy() } }).Replace("\"","'")))" value="@Model.MailAddress" />
+    </div>
+    <div class="Row NoWrap">
+        <label>A</label>
+        <input type="lookup" tableid="$$@@" tag="true" placeholder="Destinatari" value="@(String.Join(',',@Model.Message.To))" name="Destinatari" id="Destinatari">
+    </div>
+    <div class="Row NoWrap">
+        <label>C.C.</label>
+        <input type="lookup" tableid="$$@@" tag="true" placeholder="cc" value="@(String.Join(',',@Model.Message.CC))" name="cc" id="cc">
+        </div>
+    <div class="Row NoWrap">
+        <label>C.C.R.</label>
+        <input type="lookup" tableid="$$@@" tag="true" placeholder="ccr" value="@(String.Join(',',@Model.Message.CCr))" name="ccr" id="ccr">
+    </div>
+    <div class="Row NoWrap mt-4">
+        <label>Oggetto</label>
+        <input type="textbox" required value="@Model.Message.Subject" name="Oggetto" id="Oggetto">
+    </div>
+    <input type="hidden" name="Body" value="prova" id="HiddenInputBody">
+    <div class="MainPanel">
+        <div class="textEditor"></div>
+    </div>
+@if (Model.Message.Attachments.Count > 0)
+{
+    <div style="padding-left:8px;">
+        <div for="IncludePDFPreview">
+            <input id="IncludePDFPreview" name="IncludePDFPreview" type="checkbox" value="1" @(Model.Message.IncludePDFPreview ? "checked='checked'" : "")>
+            Includi una copia PDF dei documenti
+        </div>
+        <div for="LinkAttachments">
+            <input id="LinkAttachments" name="LinkAttachments" type="checkbox" value="1" @(Model.Message.LinkAttachments ? "checked='checked'" : "")>
+            Invia solo un link ai documenti
+        </div>
+    </div>
+}
+</form>
+<div class="Bottom">
+    <a id="sendButton" class="btn btn-primary">
+        <i class="fa fa-send"></i>
+        Invia Messaggio
+    </a>
+    <a id="draftButton" class="btn btn-link">
+        <i class="fa fa-pencil"></i>
+        Salva come bozza
+    </a>
+    <a href="#" class="btn btn-link" onclick="return selectMail()">Esci</a>
+</div>
+
+
+<script>
+
+    var Attachments = @Html.Raw(Json.Serialize(Model.Message.Attachments.Select(a=>a.Id)));
+    var status = @((int)MailStatus.Draft);
+    var textEditorSelector = ".textEditor";
+    var UserId = "@Model.UserId";
+    var EndPoint = "@Model.EndPoint";
+    var UserAddresses = @Html.Raw(Json.Serialize(Model.UserAddresses));
+
+    $(document).ready(function () {
+
+        var BodyValue = `@Html.Raw(Model.Message.Body)`;
+        InizializzaTextEditor(textEditorSelector, BodyValue, null, "100%").then(function () {
+            CaricaUpload();
+        });
+
+        
+        $("#draftButton").on("click", function () {
+            status = @((int)MailStatus.Draft);
+            Save();
+        });
+        $("#sendButton").on("click", function () {
+            status = @((int)MailStatus.Sending);
+            Save();
+        });
+    });
+
+
+    function selectMail() {
+        if (window.parent.selectMail)
+            window.parent.selectMail();
+        else
+            CloseWindow();
+    }
+
+    function DeleteFile(Id) {
+
+        $.ajax({ //elimino il documento in caso di fallimento nel caricamento del file
+            url: "/internalapi/Document/" + Id + "/FALLIMENTO_ATTACHMENTS_INVIO_MAIL",
+            type: "DELETE",
+            headers: { "Content-Type": "application/json", 'accept': 'text/plain'},
+        }).done(function () {
+
+            $("#Attachments_" + Id).remove();
+
+        }).fail(function (err) {
+           ShowMessage("alert", "Non è stato possibile caricare il file del documento(id: " + Id + "). Errore: " + err.responseText, 'Message_Target', window.location.href);
+        });
+
+
+
+    }
+
+    function CaricaUpload() {
+
+        var UploadButton = `<div class="d-flex">
+                                 <div id="FileArea" class="upload-file-list d-flex flex-wrap"></div>
+                                 <div class="ms-auto position-relative" style="width: 16rem;">
+                                    <div class="float-end" style="width: 100px;position: absolute;bottom: 0;right: 0;">
+                                        <input type="file" name="upload1" id="upload1" class="upload" multiple="multiple" style="display: none;"/>
+                                        <label for="upload1" class="m-2 float-end px-2">
+                                            <i class="fa fa-upload"></i>    
+                                            <span>Upload</span>
+                                        </label>
+                                    </div>
+                                 </div>
+                            </div>`
+        $(".tox-sidebar-wrap").after(UploadButton); // inserisco il button per eseguire l'upload
+
+        /* Al caricamento di un file-------------------------------------------------------------------------*/
+
+        var InputUpload = document.getElementById("upload1");
+        InputUpload.onchange = async (e) => {
+
+            AggiungiFileLoadingSpinner();
+
+            handleFileUpload(e) //leggo tutte le informazioni del file
+                .then(function (file) {
+
+                    var body = JSON.stringify(CreateOrUpdateDocument(file)); //preparo l'oggetto per creare il documento
+
+                    $.ajax({ //creao il documento
+                        url: "/internalapi/Document",
+                        type: "POST",
+                        headers: { "Content-Type": "application/json", 'accept': 'text/plain'},
+                        data: body
+                    })
+                        .done(function (DocumentInfo) {
+
+                            var body = JSON.stringify(FileContent(file)); //preparo l'oggetto per caricare il file sul documento
+
+                            $.ajax({ //carico il file del documento tramite base64
+                                url: "/internalapi/Content/" + DocumentInfo.id,
+                                type: "POST",
+                                headers: { "Content-Type": "application/json", 'accept': 'text/plain' },
+                                data: body
+                            })
+                                .done(function (DocumentImage) {
+
+                                    ShowMessage("success", "file caricato con successo.", 'Message_Target');
+                                    Attachments.push(DocumentInfo.id); //conservo le informazioni del file caricato nell'array Attachments
+                                    file.documentId = DocumentInfo.id; //aggiungo l'id del documento per poterlo usare nell' onclick del button della funzione di Delete
+                                    AggiungiFileCaricato(file);
+
+                                }).fail(function (err) {
+                                    RimuoviFileLoadingSpinner();
+                                    $.ajax({ //elimino il documento in caso di fallimento nel caricamento del file
+                                        url: "/internalapi/Document/" + DocumentInfo.id + "/FALLIMENTO_ATTACHMENTS_INVIO_MAIL",
+                                        type: "DELETE",
+                                        headers: { "Content-Type": "application/json", 'accept': 'text/plain'},
+                                        data: body
+                                    });
+
+                                    ShowMessage("alert", "Non è stato possibile caricare il file del documento(id: " + DocumentInfo.id + "). Errore: " + err.responseText, 'Message_Target', window.location.href);
+                                });
+                        }).fail(function (err) {
+                            RimuoviFileLoadingSpinner();
+                           ShowMessage("alert", "Non è stato possibile creare il documento. Errore: " + err.responseText, 'Message_Target', window.location.href);
+                        });
+                }).catch(function (err) {
+                    RimuoviFileLoadingSpinner();
+                })
+
+        }
+
+        //funzioni utili all'upload file
+        function CreateOrUpdateDocument(file) {
+
+            var CreateOrUpdateDocument = {
+                ContentType: 1,
+                Status: 255,
+                Description: file.name
+            }
+
+            return CreateOrUpdateDocument;
+        }
+
+        function FileContent(file) {
+
+            var FileContent = {
+                FileName: file.name,
+                FileData: file.base64,
+                LinkToContent: false,
+                DataIsInBase64: true
+            }
+
+            return FileContent;
+        }
+
+        function AggiungiFileCaricato(file) {
+
+            $("#file_loading_spinner").remove();
+
+            var fileHTML = `<div id="Attachments_${file.documentId}" class="upload-file success border border-primary rounded m-1 ">
+                        <svg class="icon icon-sm" aria-hidden="true"><use href="/bootstrap-italia/svg/sprites.svg#it-file"></use></svg>
+                        <p>${file.name}</p>
+                        <p class="ms-0">
+                            <span class="upload-file-weight">${file.dimension} MB</span>
+                        </p>
+                        <button onclick="DeleteFile('${file.documentId}')">
+                            <svg class="icon" aria-hidden="true"><use href="/bootstrap-italia/svg/sprites.svg#it-close"></use></svg>
+                        </button>
+                    </div>`
+
+            $("#FileArea").append(fileHTML);
+        }
+
+        function AggiungiFileLoadingSpinner() {
+            var spinnerHTML = `<div id="file_loading_spinner"  class="upload-file success border border-primary rounded m-1 px-1">
+                                                        <svg class="icon" style="width: 30px;height: 30px;" aria-hidden="true"><use href="/bootstrap-italia/svg/sprites.svg#it-file"></use></svg>
+                                                        <div class="lower-spinner p-2">
+                                                            <div class="progress-spinner progress-spinner-active size-sm custom-spinner">
+                                                            <span class="visually-hidden">Caricamento...</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>`
+
+            $("#FileArea").append(spinnerHTML);
+        }
+
+        function RimuoviFileLoadingSpinner() {
+            $("#file_loading_spinner").remove();
+        }
+
+        function handleFileUpload(event) {
+            return new Promise((resolve, reject) => {
+                const file = event.target.files[0]; // Ottieni il file caricato
+
+                const reader = new FileReader();
+
+                reader.onload = function (event) {
+                    const base64Data = event.target.result.split(',')[1]; // Rappresentazione in base64
+                    const fileSize = (file.size / (1024 * 1024)).toFixed(2); // Dimensione del file in MB
+                    const fileName = file.name; // Nome del file
+                    const fileExtension = fileName.split('.').pop(); // Estensione del file
+
+                    const fileInfo = {
+                        id: (fileName.replaceAll(' ', '')).replaceAll('.', ''),
+                        base64: base64Data,
+                        dimension: fileSize,
+                        name: fileName,
+                        ext: fileExtension
+                    };
+
+                    resolve(fileInfo);
+                };
+
+                reader.onerror = function (event) {
+                    reject(event.target.error);
+                };
+
+                reader.readAsDataURL(file);
+            });
+        }
+
+    }
+
+        function RimuoviFileLoadingSpinner() {
+            $("#file_loading_spinner").remove();
+        }
+
+    
+
+    function Save() {
+        SalvaLoadingSpinner();
+        var BodyValue = tinymce.activeEditor.getContent(textEditorSelector);
+        $("#HiddenInputBody").val(BodyValue);
+        debugger;
+        var body = NewMailMessage(getFormValues("form"));
+        //var token = await _accessor.HttpContext.GetTokenAsync("access_token");
+        ShowRequiredPopupJS("form");//faccio comparire i popup manualmente in caso di campi non validi
+        if (document.forms["form"].reportValidity()) { //controllo la validità dei campi
+            $.ajax({ //carico il file del documento tramite base64
+                url: "/internalapi/mailentry/Send",
+                type: "POST",
+                headers: { "Content-Type": "application/json", 'accept': 'text/plain'
+                },
+                data: JSON.stringify(body)
+            })
+                .done(function (DocumentImage) {
+                    RimuoviSalvaLoadingSpinner();
+                    //ShowMessage("success", "messaggio inviato con successo.", 'Message_Target');
+                    selectMail();
+
+                }).fail(function (err) {
+                    RimuoviSalvaLoadingSpinner();
+                   ShowMessage("alert", "Non è stato possibile inviare il messaggio. Errore: " + err.responseText, 'Message_Target', window.location.href);
+                });
+        }
+
+        function SalvaLoadingSpinner() {
+            var spinnerHTML = `<div class="progress-spinner progress-spinner-active">
+                                <span class="visually-hidden">Caricamento...</span>
+                            </div>`
+
+            $("#FileArea").append(spinnerHTML);
+        }
+
+        function RimuoviSalvaLoadingSpinner() {
+            $("#file_loading_spinner").remove();
+        }
+
+        function NewMailMessage(messageInfo) {
+
+            var NewMailMessage = {
+                MailboxId: messageInfo.mittente,
+                FromAddress: messageInfo.mittente,
+                FromName: UserId,
+                FromUser: UserId,
+                To: (messageInfo.destinatari !== "") ? messageInfo.destinatari.split(",") : [],
+                CC: (messageInfo.cc !== "") ? messageInfo.cc.split(",") : [],
+                CCr: (messageInfo.ccr !== "") ? messageInfo.ccr.split(",") : [],
+                Subject: messageInfo.oggetto,
+                Body: messageInfo.body,
+                Attachments: Attachments,
+                LinkAttachments: messageInfo.linkAttachments == "1",
+                IncludePDFPreview: messageInfo.includePDFPreview =="1",
+                SendDate: new Date().toISOString().split("T")[0],
+                Interactive: true,
+                ToBeStored: true,
+                AbortOnError: true,
+                EntryId: messageInfo.entryId ? messageInfo.entryId : 0,
+                Status: parseInt( status)
+            }
+
+            return NewMailMessage;
+        }
+
+
+    }
+
+</script>

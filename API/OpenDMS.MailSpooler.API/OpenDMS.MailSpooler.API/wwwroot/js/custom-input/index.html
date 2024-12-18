@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web Components</title>
+
+    <link rel="stylesheet" href="css/test.css" />
+  </head>
+  <body>
+    <form action="" method="post" id="formTest">
+      <div class="test-box">
+        <custom-input
+          id="test2"
+          name="text-area"
+          maxlength="20"
+          label="Test"
+          type="textarea"
+          visible="true"
+          placeholder="Area di testo"
+        ></custom-input>
+        <custom-input
+          id="test1"
+          name="text-value"
+          disabled="false"
+          label="Input testo"
+          type="text"
+          visible="true"
+          placeholder="Input testuale"
+        ></custom-input>
+        
+        <custom-input
+          id="test3"
+          name="text-area2"
+          maxlength="20"
+          type="textarea"
+          visible="true"
+          placeholder="Area di testo"
+        ></custom-input>
+        <custom-input
+          id="test3"
+          name="lookupValue1"
+          type="lookup"
+          value="0SMITH"
+          visible="true"
+          placeholder="Barra di ricerca"
+        ></custom-input>
+        <custom-input
+          id="test3"
+          name="lookupValue2"
+          type="lookup"
+          value="0JOHN,0SMITH"
+          multiValue="true"
+          visible="true"
+          placeholder="Barra di ricerca multipla"
+        ></custom-input>
+        <custom-input
+          id="test4"
+          name="dateValue"
+          type="date"
+          visible="true"
+          value="20021223"
+          placeholder="Data"
+        ></custom-input>
+        <!-- Button with good style -->
+        <button class="button-9" type="submit">Test</button>
+        <div style="margin-top: 20px; white-space: pre" id="results"></div>
+      </div>
+    </form>
+    <script type="module" src="./dist/custom-input.js"></script>
+    <script>
+      const customInput = document
+        .querySelectorAll("custom-input")
+        .forEach((el) => {
+          el.addEventListener("getValue", (e) => {
+            console.log(e.target.value);
+          });
+        });
+
+      const form = document.getElementById("formTest");
+      form.addEventListener("submit", (event) => {
+        event.preventDefault(); // prevent the form from submitting
+
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+        document.querySelector("#results").innerHTML = JSON.stringify(
+          data,
+          null,
+          "\t"
+        );
+        console.log(data);
+      });
+    </script>
+  </body>
+</html>

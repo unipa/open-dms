@@ -1,0 +1,857 @@
+﻿@page
+@model Web.Pages.Tasks.IndexModel
+@{
+    Layout = "ThreePanelLayout";
+}
+@section Filters {
+    <ul class="nav nav-list" id="FiltersPanel">
+    </ul>
+}
+
+@section Header {
+    <i id="FilterIcon" class="DocumentIcon fa fa-bell"></i>
+    <h1>
+        <small class="DocumentType">
+            Attività
+        </small>
+        <span id="FilterTitle" class="Description">Tutte</span>
+    </h1>
+    <div class="right-header">
+        <ul class="nav-toolbar Desktop">
+
+            <li class="AddMenu hidden">
+                <a href="#" role="button" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fa fa-plus"></i>
+                    <span>Crea...</span>
+                    <i class="fa fa-caret-down"></i>
+                </a>
+
+                <ul class="dropdown-menu">
+                    <li class="hidden CreateTaskMenu">
+                        <a class="dropdown-item" onclick="return newTask()" href="#">
+                            <i class="fa fa-tasks"></i> Attività...
+                        </a>
+                    </li>
+                    <li class="hidden CreateMessageMenu">
+                        <a class="dropdown-item" onclick="return newMessage()" href="#">
+                            <i class="fa fa-comment"></i> Messaggio...
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+}
+
+
+@section LoadingPanel {
+    <div class="Header">
+        <h1>
+            <small class="DocumentType">&nbsp;</small>
+            <span class="Description">&nbsp;</span>
+        </h1>
+    </div>
+    <div class="Panel">
+
+        <div class="progress-spinner progress-spinner-active" style="margin: 18vh 13vw 0 44%;width:64px;height:64px;color:#ddd">
+        </div>
+        <h1 style="margin: 10px auto">Caricamento in corso...</h1>
+    </div>
+
+}
+@section EmptyPanel {
+    <div class="Header">
+        <h1>
+            <small class="DocumentType">&nbsp;</small>
+            <span class="Description">&nbsp;</span>
+        </h1>
+        <div class="right-header">
+            <ul class="nav-toolbar">
+
+                <li class="AddMenu hidden">
+                    <a href="#" role="button" class="MobileIcon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fa fa-plus"></i>
+                        <span>Crea...</span>
+                        <i class="fa fa-caret-down"></i>
+                    </a>
+
+                    <ul class="dropdown-menu">
+                        <li class="hidden CreateTaskMenu">
+                            <a class="dropdown-item" onclick="return newTask()" href="#">
+                                <i class="fa fa-tasks"></i> Attività...
+                            </a>
+                        </li>
+                        <li class="hidden CreateMessageMenu">
+                            <a class="dropdown-item" onclick="return newMessage()" href="#">
+                                <i class="fa fa-comment"></i> Messaggio...
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="Panel">
+        @* TODO: Mettere Dettaglio Tasks*@
+        <img style="margin: 18vh 11vw 0 11vw;width:-webkit-fill-available" src="/images/no-tasks.jpg" />
+        <h1 style="margin: 10px auto"></h1>
+    </div>
+
+}
+@section MultiSelectPanel {
+    <div class="Header">
+        <h1>
+            <small class="DocumentType">&nbsp;</small>
+            <span class="Description">&nbsp;</span>
+        </h1>
+    </div>
+    <div class="Panel">
+        <img style="margin: 2vh 11vw 0 11vw;" src="/images/no-tasks.jpg" />
+
+        <div style="margin: 0 0 2vh 13vw;">
+            <h3> Hai selezionato <span id="NrSelectedTask"></span> attività</h3>
+            <p>Puoi scegliere una delle seguenti azioni:</p>
+            <div class="MassiveClaim">
+                <a href="#" class="btn btn-link" onclick="return MassiveClaim()"><i class="fa fa-folder"></i> Prendi in carico le attività selezionate</a>
+            </div>
+            <div class="MassiveExecute">
+                <a href="#" class="btn btn-link" onclick="return MassiveExecute()"><i class="fa fa-folder"></i> Archivia i messaggi selezionati</a>
+            </div>
+            <div class="MassiveSign">
+                <a href="#" class="btn btn-link" onclick="return MassiveSign()"><i class="fa fa-pencil"></i> Firma i documenti allegati...</a>
+            </div>
+        </div>
+    </div>
+
+}
+
+
+    <div style="padding:8px;">
+        <form onsubmit="return selectFilter()" style="display:flex;flex-direction:row;position:relative">
+            <a href="#" style="" class="selectAll btn btn-xs btn-link" onclick="select()"><i class="fa fa-lg fa-check-square"></i></a>
+            <a href="#" style="" class="selectNone btn btn-xs btn-link hidden" onclick="unselect()"><i class="fa fa-lg fa-square-o"></i></a>
+
+            <input type="text" id="searchTextField" placeholder="Cerca..." onchange="return selectFilter()" style="width:100%" />
+            <a href="#" style="position:absolute; right: 3px;top: 3px;padding: 6px 12px;" class="btn btn-xs btn-link" onclick="showFilters()"><i class="fa fa-lg  fa-filter"></i></a>
+        </form>
+    </div>
+    <div class="Panel">
+        @* TODO: Mettere Elenco Tasks*@
+        <ul id="TaskList" class="nav nav-list">
+
+        </ul>
+        <div id="TaskFilters" class="MainPanel" style="display:none">
+            <div class="MainPanel">
+            <div>
+                <h3>Richiedente</h3>
+                <input id="richiedente" type="lookup" tableId="$us" />
+            </div>
+            <div>
+                <h3>Assegnazione</h3>
+                <div class="received">
+                    <label><input id="utente" type="checkbox" value="0@User.Identity.Name" /> Personale</label>
+                    <label>Ruolo</label>
+                    <select id="ruolo" style="width:100%"></select>
+                    <label>Gruppo</label>
+                    <select id="gruppo" style="width:100%"></select>
+                </div>
+            </div>
+
+            <div>
+                <div class="sentab-content hidden">
+                    <input id="destinatario" type="lookup" tableId="$ug" label="Destinatario" />
+                </div>
+            </div>
+            <div>
+                <h3>Scadenza</h3>
+                <label><input id="scadute" name="scadenza" type="radio" value="" checked /> Qualsiasi</label>
+                <label><input id="passata" name="scadenza" type="radio" value="@DateTime.Now.ToString("yyyy-MM-ddT00:00:00")" /> Passata</label>
+                <label><input id="futura" name="scadenza" type="radio" value="@DateTime.Now.AddDays(1).ToString("yyyy-MM-ddT00:00:00")" /> Futura</label>
+            </div>
+        </div>
+
+            <div class="Bottom">
+                <a class="btn btn-primary" onclick="selectFilter()">Applica Filtri</a>
+                <a class="btn btn-link" onclick="hideFilters()">Nascondi</a>
+            </div>
+
+        </div>
+    </div>
+
+
+
+<script type="text/html" id="Items">
+    {{#Page}}
+        {{#rows}}
+            <li tid="{{ keys.0 }}" style="display:flex;">
+                <span style="margin-top:10px;background-color: lightgreen;padding-left: 3px;" class="checked  avatarInList hidden" onclick="return toggle({{ keys.0 }})"><i class="fa fa-check fa-lg"></i></span>
+                <img style="margin-top:10px;" src="/internalapi/identity/avatar/0{{ columns.0.value }}"  class="unchecked avatarInList"  onclick="return toggle({{ keys.0 }})" />
+                <a href="#" onclick="selectTask({{ keys.0 }})">
+                    <div style="display:flex;flex-direction:column;width:100%;position:relative;align-self: normal;">
+                        <b>{{columns.0.description}}</b>
+                        <p style="margin-top:-4px;color:#666;">{{&columns.1.description }}</p>
+
+                        {{#columns.11.DifferentUser }}
+                        <p class="tag" style="font-size:.8em;font-weight:700;width:fit-content">{{&columns.11.description }}</p>
+                        {{/columns.11.DifferentUser }}
+
+                        <div class="right-details">
+                            {{#columns.9.HasAttachment}} <i class="fa fa-paperclip" style="position:absolute;right:160px;top:4px;color:#666" title="Nr.{{columns.9.description}} allegati"></i> {{/columns.9.HasAttachment}}
+                            {{#columns.10.IsClaimed}} <div class="label" style="position:absolute;right:200px;top:0px;text-wrap: nowrap;"> {{&columns.4.description }}</div> {{/columns.10.IsClaimed}}
+
+                            {{ columns.7.description }} <i class="TaskStatus{{ columns.5.value }}" title="{{ columns.5.description }}"></i> <br/>
+                            {{#columns.6.HasExpiration}} <div style="font-size:.85em;color:{{ columns.6.color }};margin-right:20px"> {{ columns.6.description }}</div>{{/columns.6.HasExpiration}}
+                        </div>
+                    </div>
+                </a>
+            </li>
+        {{/rows}}
+    {{^rows}}
+             <img src="/images/task_empty.svg" style="margin:auto;margin-top:25vh; max-width:256px" />
+    {{/rows}}
+    {{/Page}}
+
+</script>
+
+<script type="text/html" id="Filters">
+    {{#filters}}
+        <li>
+            <a href="#" onclick="toggleFilter(this)">
+                <i class="fa fa-caret-down {{hide_down}}"></i>
+                <i class="fa fa-caret-up {{hide_up}}"></i>
+                <b>{{name}}</b>
+                <span class="badge" id="{{id}}">
+                    {{badge}}
+                </span>
+            </a>
+            <ul class="nav nav-list {{hide_up}}">
+            {{#filters}}
+                <li fid="{{id}}">
+                        <a href="#" onclick="selectFilter({{id}})">
+                        <i class="{{icon}}"></i>
+                        {{name}}
+                        {{#badge}}
+                            <span class="badge" id="{{id}}">
+                                {{badge}}
+                            </span>
+                        {{/badge}}
+                    </a>
+                </li>
+            {{/filters}}
+            </ul>
+        </li>
+    {{/filters}}
+</script>
+
+
+<script>
+
+    var context = undefined;
+    var items = undefined;
+    var currentFilter = undefined;
+    var badge = undefined;
+    var pageIndex=0;
+    var pSize = 25;
+    var NoMoreRecords = false;
+    var LoadingPage = false;
+
+    var FiltersVisible = false;
+
+    function showFilters() {
+        if (FiltersVisible) return hideFilters()
+        $("#TaskList").hide();
+        $("#TaskFilters").show();
+        FiltersVisible = true;
+        return false;
+    }
+    function hideFilters() {
+        $("#TaskList").show();
+        $("#TaskFilters").hide();
+        FiltersVisible = false;
+    }
+
+
+    function ParsePage(page)
+    {
+        page.rows.forEach(e=>{
+            e.columns[9].HasAttachment = e.columns[9].value != "0";
+            e.columns[6].HasExpiration = e.columns[6].description.length > 0;
+            e.columns[10].IsClaimed = e.columns[10].value.length > 0;
+            e.columns[11].DifferentUser = e.columns[11].value != "" && e.columns[11].value != "@User.Identity.Name";
+            e.columns[6].color = "#664444";
+
+            if (e.columns[6].HasExpiration)
+            {
+                var exDate = Date.parse(e.columns[6].value.substr(0, 10));
+                var now = Date.now();
+                if (now - exDate > 0)
+                    e.columns[6].color = "red";
+                else if (exDate - now < 86400000)
+                    e.columns[6].color = "orange";
+            }
+        });
+        return page;
+    }
+
+    var LoadFromQueryString = false;
+
+    $(document).ready(() => {
+        GetContext();
+        $(".Tasks").addClass("active");
+        window.addEventListener("message", (event) => {
+            if (event.data.op == "close" || event.data.op == "closeTask") {
+                if (window.Modal) {
+                    $(window.Modal).find("#PopupWindow").attr("src", "");
+                    $(window.Modal).addClass("hidden");
+                }
+                selectTask();
+            }
+            if (event.data.op == "refresh" || event.data.op=="updateTask") {
+                if (window.Modal) {
+                    $(window.Modal).find("#PopupWindow").attr("src", "");
+                    $(window.Modal).addClass("hidden");
+                }
+                selectTask();
+                updateFilters();
+            }
+            if (event.data.op == "removeTask") {
+                var $tlist = $("#TaskList");
+                if ($tlist.length > 0) {
+                    var $li = $tlist.find("[tid=" + event.data.data.id + "]");
+                    if ($li.length > 0)
+                        $li.remove();
+                }
+            }
+
+            if (event.data.op == "getNextTask") {
+                var $tlist = $("#TaskList");
+                if ($tlist.length > 0) {
+                    // var $li = $tlist.find("li[tid]");
+                    // if ($li.length > 0)
+                    //     selectTask($li[0].getAttribute('tid'));
+                    // else {
+                        selectTask();
+                    //}
+                }
+            }
+
+
+
+        });
+        if (qs["tid"]) {
+            LoadFromQueryString = qs["tid"];
+        }
+    });
+
+    function BrowserNotify(title, msg, callback) {
+        var notification = new Notification(title, {
+            body: msg,
+            requireInteraction: false           
+        });
+        if (callback)
+            notification.onclick = callback;
+
+    }
+    function notify(titile, msg, callback) {
+        if (!("Notification" in window)) {
+            alert(msg);
+        }
+        else if (Notification.permission === "granted") {
+            BrowserNotify(title, msg, callback);
+        }
+        else if (Notification.permission !== "denied") {
+            Notification.requestPermission().then(function (permission) {
+                if (permission === "granted") {
+                    BrowserNotify(title, msg, callback);
+                }
+            });
+        }
+    }
+
+
+
+    function GetContext() {
+        fetch("/internalapi/tasklist/AppContext")
+            .then(response => {
+                return response.json();
+            })
+            .then(data => {
+                context = data;
+                if (data.canCreateTask || data.canCreateMessage) $(".AddMenu").removeClass("hidden");
+                if (data.canCreateTask) $(".CreateTaskMenu").removeClass("hidden");
+                if (data.canCreateMessage) $(".CreateMessageMenu").removeClass("hidden");
+                var template = $("#Filters").html();
+
+                $("#ruolo").append("<option value=''></option>");
+                data.roles.forEach(e => {
+                    $("#ruolo").append("<option value='" + e.id + "'>" + e.description + "</option>");
+                });
+
+                $("#gruppo").append("<option value=''></option>");
+                data.groups.forEach(e => {
+                    $("#gruppo").append("<option value='" + e.id + "'>" + e.description + "</option>");
+
+                });
+                var primo = true;
+                data.searchFilters.forEach((e, i) => {
+                    e.hide_down = primo ? "hidden" : "";
+                    e.hide_up = primo ? "" : "hidden";
+                    e.badge = 0;
+                    e.filters.forEach((b) => { e.badge += b.badge });
+                    primo = false;
+                });
+                badge = data.searchFilters;
+                var html = Mustache.to_html(template, { filters: data.searchFilters });
+                $("#FiltersPanel").html(html);
+                currentFilter = data.searchFilters[0].filters[0].id;
+                selectFilter(currentFilter);
+            })
+    }
+
+
+
+    function GetCurrentFilters(id)
+    {
+        var sf = $("#searchTextField").val();
+        var ur = $("#richiedente").val();
+        var r = $("#ruolo").val();
+        var ute = $("#utente").attr("checked");
+        var g = $("#gruppo").val();
+        var passata = $("#passata").attr("checked");
+        var futura= $("#futura").attr("checked");
+
+//        if (ur || r || ute || g || passata || futura) {
+//            id = "_custom";
+//        }
+
+        if (id)
+            currentFilter = id;
+        else
+            id = currentFilter;
+
+        var index = 0;
+        var filter = undefined;
+        for (i = 0; i < context.searchFilters.length; i++) {
+            var f = context.searchFilters[i] ;
+            var f2 = f.filters.find(f => f.id == id);
+            if (f2) { 
+                filter = { ...f2 };
+                break;
+            }
+        }
+        if (filter == undefined) {
+//            filter = { id: "_custom", filters: [], icon: "fa fa-filter", name: "Filtri Personalizzati" };
+//            context.searchFilters.push(filter);
+//            currentFilter = filter.id;
+            //            if (f || ur || r || ute || g || passata || futura) {
+            //}
+            return;
+        }
+        //if (filter.id == "_custom") { 
+            var ft = filter.filters.findIndex(f => f.columnName == "@OpenDMS.Domain.Enumerators.TaskColumn.User");
+            if (ft >= 0) filter.filters = filter.filters.splice(ft, 1);
+            ft = filter.filters.findIndex(f => f.columnName == "@OpenDMS.Domain.Enumerators.TaskColumn.Role");
+            if (ft >= 0) filter.filters = filter.filters.splice(ft, 1);
+            ft = filter.filters.findIndex(f => f.columnName == "@OpenDMS.Domain.Enumerators.TaskColumn.Group");
+            if (ft >= 0) filter.filters = filter.filters.splice(ft, 1);
+//            ft = filter.filters.findIndex(f => f.columnName == "@OpenDMS.Domain.Enumerators.TaskColumn.ExpirationDate");
+//            if (ft >= 0) filter.filters = filter.filters.splice(ft, 1);
+        //}
+
+
+        var ft = filter.filters.findIndex (f => f.columnName == "@OpenDMS.Domain.Enumerators.TaskColumn.FreeText");
+        if (ft >= 0) filter.filters = filter.filters.splice (ft,1);
+        if (sf)
+        {
+            filter.filters.push({ columnName: "@OpenDMS.Domain.Enumerators.TaskColumn.FreeText", operator: 10, values: [sf] });
+        }
+
+        if (ur) {
+            filter.filters.push({ columnName: "@OpenDMS.Domain.Enumerators.TaskColumn.FromUser", operator: 0, values: [ur] });
+        }
+
+        if (ute) {
+            filter.filters.push({ columnName: "@OpenDMS.Domain.Enumerators.TaskColumn.User", operator: 0, values: [$("#utente").val()] });
+        }
+        else {
+            if (r) {
+                filter.filters.push({ columnName: "@OpenDMS.Domain.Enumerators.TaskColumn.Role", operator: 0, values: [r] });
+            } else {
+                if (g) {
+                    filter.filters.push({ columnName: "@OpenDMS.Domain.Enumerators.TaskColumn.Group", operator: 0, values: [g] });
+                }
+            }
+            if (passata) {
+                filter.filters.push({ columnName: "@OpenDMS.Domain.Enumerators.TaskColumn.ExpirationDate", operator: "LessThan", values: [$("#passata").val()] });
+            } else
+                if (futura) {
+                    filter.filters.push({ columnName: "@OpenDMS.Domain.Enumerators.TaskColumn.ExpirationDate", operator: "GreaterThan", values: [$("#futura").val()] });
+                }
+        }
+        return filter;
+    }
+
+    function selectFilter(id) {
+        hideFilters();
+        if (id)
+            selectTask();
+        selected = [];
+        items = [];
+        $(".MassiveClaim").hide();
+        $(".MassiveSign").hide();
+        $(".MassiveExecute").hide();
+
+        $(".MultiSelectPanel").addClass("hidden");
+        if (id == "-2" || id == "-1" || id > 0) { 
+            //$(".MassiveClaim").show();
+            $(".MassiveSign").show();
+        }
+        else 
+        {
+            if (id == "-10" || id == "-13" || id == "-14" || id > 0)
+                $(".MassiveExecute").show();
+        }
+
+        var filter = GetCurrentFilters(id);
+        $("li[fid]").removeClass("active");
+        if (filter) {
+            $("#FilterIcon")[0].className ="DocumentIcon "+ filter.icon;
+            $("#FilterTitle").text(filter.name);
+            $("li[fid=" + id + "]").addClass("active");
+            var sr = {
+                viewId: "Task." + id,
+                filters: filter.filters,
+                pageIndex: 0,
+                pageSize: pSize,
+                orderBy: [
+                    {
+                        columnId: "@OpenDMS.Domain.Enumerators.TaskColumn.CreationDate",
+                        descending: true
+                    }
+                ]
+            }
+            var VerificationCode = "";
+            var RequestVerificationCode = document.getElementsByName("__RequestVerificationToken");
+            if (RequestVerificationCode.length > 0) {
+                VerificationCode = RequestVerificationCode[0].value;
+            }
+            pageIndex=0;
+            NoMoreRecords = false;
+            Loading = true;
+            fetch("/internalapi/ui/Search/get",
+                {
+                    method: 'post',
+                    headers: {
+                        RequestVerificationToken: VerificationCode,
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                    },
+                    body: JSON.stringify(sr)
+                })
+                .then(response => {
+                    return response.json();
+                })
+                .then(data => {
+                    items = data.page.rows;
+                    var template = $("#Items").html();
+                    var html = Mustache.to_html(template, { Page: ParsePage(data.page) });
+                    $("#TaskList").html(html);
+                    $('.ListPanel').removeClass("hiddenOnMobile");
+                    $('.LeftMenu').removeClass('active');
+                    NoMoreRecords = data.page.rows.length==0;
+                    Loading = false;
+                    $("#TaskList").parent().on("scroll", () => {
+                        var container = $("#TaskList").parent();
+                        // Scrollo appena raggiungo il 25% finale dell'elenco...
+                        if (container.scrollTop() >= container[0].scrollHeight - container.height() * 1.25 && !NoMoreRecords && !LoadingPage) {
+                            LoadingPage = true;
+                            pageIndex++;
+                            var sr2 = {
+                                viewId: "Task." + currentFilter,
+                                filters: GetCurrentFilters(currentFilter).filters,
+                                pageIndex: pageIndex,
+                                pageSize: pSize,
+                                orderBy: [
+                                    {
+                                        columnId: "@OpenDMS.Domain.Enumerators.TaskColumn.CreationDate",
+                                        descending: true
+                                    }
+                                ]
+                            }
+                            fetch("/internalapi/ui/Search/page",
+                                {
+                                    method: 'post',
+                                    headers: {
+                                        RequestVerificationToken: VerificationCode,
+                                        'Content-Type': 'application/json',
+                                        Accept: 'application/json',
+                                    },
+                                    body: JSON.stringify(sr2)
+                                })
+                                .then(response => {
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    NoMoreRecords = data.rows.length == 0;
+                                    if (!NoMoreRecords)
+                                    {
+                                        items = [...items, ...data.rows];
+                                        var template = $("#Items").html();
+                                        var html = Mustache.to_html(template, { Page: ParsePage(data) });
+                                        $("#TaskList").append(html);
+                                    }
+                                    LoadingPage = false;
+                                    $("#TaskList").parent().trigger("scroll");
+
+                                });
+                        }
+                    });
+                    $("#TaskList").parent().trigger("scroll");
+                    if (LoadFromQueryString) {
+                        selectTask(LoadFromQueryString);
+                        LoadFromQueryString = undefined;
+                    }
+                })
+        }
+        return false;
+    }
+
+    function toggle(id)
+    {
+        var $li = $("#TaskList li[tid=" + id + "]");
+        var item = items.find(t=>t.keys[0] == id);
+        $li.find(".checked").toggleClass("hidden");
+        $li.find(".unchecked").toggleClass("hidden");
+        item.selected = !item.seleted;
+        UpdateSelected();
+        event.preventDefault();
+        return false;
+    }
+
+    var selected = [];
+
+    function UpdateSelected(id)
+    {
+        $("#ItemPanel").addClass("hidden");
+        selected = items.filter(t => t.selected)
+        if (selected.length > 0) {
+            $(".EmptyPanel").addClass("hidden");
+            $(".MultiSelectPanel").removeClass("hidden");
+            $(".ListPanel").addClass("Mobile");
+            $("#NrSelectedTask").text(selected.length);
+            $(".selectAll").addClass("hidden");
+            $(".selectNone").removeClass("hidden");
+
+        } else {
+            $(".EmptyPanel").removeClass("hidden");
+            $(".MultiSelectPanel").addClass("hidden");
+            $(".ListPanel").removeClass("Mobile");
+            $(".selectAll").removeClass("hidden");
+            $(".selectNone").addClass("hidden");
+        }
+
+    }
+
+    function select(id)
+    {
+        if (!id)
+            id = items;
+        else
+            id = [items.find(t => t.keys[0] == id)];
+        id.forEach(item => {
+            var $li = $("#TaskList li[tid=" + item.keys[0] + "]");
+            $li.find(".checked").removeClass("hidden");
+            $li.find(".unchecked").addClass("hidden");
+            item.selected = true;
+        });
+        UpdateSelected();
+        return false;
+
+    }
+    function unselect(id) {
+        if (!id)
+            id = items;
+        else
+            id = [items.find(t => t.keys[0] == id)];
+        id.forEach(item => {
+            var $li = $("#TaskList li[tid=" + item.keys[0] + "]");
+            $li.find(".checked").addClass("hidden");
+            $li.find(".unchecked").removeClass("hidden");
+            item.selected = false;
+        });
+        UpdateSelected();
+        return false;
+
+    }
+
+    var currentId = undefined;
+
+    function selectTask (id)
+    {
+        $(".MultiSelectPanel").addClass("hidden");
+        $(".ListPanel").removeClass("hiddenOnMobile");
+        $(".LeftMenu").removeClass("active");
+        $("#ItemPanel").addClass("hidden");
+        if (id) {
+            currentId = id;
+            $(".EmptyPanel").addClass("hidden");
+            $(".LoadingPanel").removeClass("hidden");
+            $(".ListPanel").addClass("Mobile");
+
+            $("#ItemPanel").load((data) => {
+                $(".LoadingPanel").addClass("hidden");
+                $("#ItemPanel").removeClass("hidden");
+            });
+            //$("#ItemPanel")[0].loading = "lazy";
+            $("#ItemPanel")[0].src = "/Tasks/Task?tid=" + id;
+        } else
+        {
+            currentId = undefined;
+            $(".EmptyPanel").removeClass("hidden");
+            $(".ListPanel").removeClass("Mobile");
+        }
+    }
+
+    function updateFilters(taskType, callback)
+    {
+        fetch("/internalapi/tasklist/Filters")
+            .then(response => {
+                return response.json();
+            })
+            .then(data => {
+                var template = $("#Filters").html();
+                badge = data;
+                var html = Mustache.to_html(template, { filters: data });
+                $("#FiltersPanel").html(html);
+                if (callback)
+                    callback();
+                if (taskType == currentFilter)
+                    selectFilter();
+            })
+    }
+
+    function newTask() {
+            $("#ItemPanel").load((data) => {
+                $("#ItemPanel").removeClass("hidden");
+                $(".NoTask").addClass("hidden");
+                $(".TaskListPanel").addClass("Mobile");
+            });
+            $("#ItemPanel")[0].src = "/tasks/newTask";
+    }
+    function newMessage() {
+        $("#ItemPanel").load((data) => {
+            $("#ItemPanel").removeClass("hidden");
+            $(".EmptyPanel").addClass("hidden");
+            $(".ListPanel").addClass("Mobile");
+        });
+        $("#ItemPanel")[0].src = "/tasks/newMessage";
+    }
+
+    function MassiveSign ()
+    {
+        var attachments = [];
+        items.forEach(item => {
+            if (item.selected) {
+                if (attachments.indexOf(parseInt(item.keys[0])) < 0)
+                    attachments.push(parseInt( item.keys[0]));
+                //item.selected = false;
+            }
+        });
+        var VerificationCode = "";
+        var RequestVerificationCode = document.getElementsByName("__RequestVerificationToken");
+        if (RequestVerificationCode.length > 0) {
+            VerificationCode = RequestVerificationCode[0].value;
+        }
+
+        fetch("/internalapi/tasklist/Attachments",
+            {
+                method: "PATCH",
+                headers: {
+                    RequestVerificationToken: VerificationCode,
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                },
+                body: JSON.stringify(attachments)
+            })
+            .then(response => {
+                if (response.ok)
+                    return response.json();
+            })
+            .then(data => {
+                AddDigitalSign("["+data+"]");
+            });
+        
+    }
+
+    function MassiveClaim() 
+    {
+        var VerificationCode = "";
+        var RequestVerificationCode = document.getElementsByName("__RequestVerificationToken");
+        if (RequestVerificationCode.length > 0) {
+            VerificationCode = RequestVerificationCode[0].value;
+        }
+        var attachments = [];
+        items.forEach(item => 
+        {
+            if (item.selected) {
+                if (attachments.indexOf(parseInt(item.keys[0])) < 0)
+                    attachments.push(parseInt(item.keys[0]));
+                //item.selected = false;
+            }
+        });
+        fetch("/internalapi/tasklist/MassiveClaim",
+            {
+                method: "PATCH",
+                headers: {
+                    RequestVerificationToken: VerificationCode,
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                },
+                body: JSON.stringify(attachments)
+            })
+            .then(response => {
+                if (response.ok)
+                    return response.json();
+            })
+            .then(data => {
+                selectFilter();
+            });
+    }
+
+    function MassiveExecute() {
+        var VerificationCode = "";
+        var RequestVerificationCode = document.getElementsByName("__RequestVerificationToken");
+        if (RequestVerificationCode.length > 0) {
+            VerificationCode = RequestVerificationCode[0].value;
+        }
+        var attachments = [];
+        items.forEach(item => {
+            if (item.selected) {
+                if (attachments.indexOf(parseInt(item.keys[0])) < 0)
+                    attachments.push(parseInt(item.keys[0]));
+                //item.selected = false;
+            }
+        });
+        fetch("/internalapi/tasklist/MassiveExecute",
+            {
+                method: "PATCH",
+                headers: {
+                    RequestVerificationToken: VerificationCode,
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                },
+                body: JSON.stringify(attachments)
+            })
+            .then(response => {
+                if (response.ok)
+                    return response.json();
+            })
+            .then(data => {
+                selectFilter();
+            });
+        }
+
+</script>
+
+
+

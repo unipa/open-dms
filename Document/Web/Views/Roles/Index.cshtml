@@ -1,0 +1,123 @@
+﻿@using Microsoft.Extensions.Configuration;
+@using Web.Model.Admin;
+@inject IConfiguration Configuration;
+@{
+    ViewData["Title"] = "Ruoli";
+    Layout = "_AdminLayout";
+}
+
+<script src="~/adminjs/Ruoli/Index.js"></script>
+
+<script>
+    var PopupWindow = undefined;
+
+    $(document).ready(() => {
+        $(".mnuAdminRuoli").addClass("active");
+    });
+
+</script>
+
+@section HeaderTitle
+    {
+    Ruoli
+}
+
+<div id="Message_Target"></div>
+<div class="Page">
+    <div class="ListMenu InsidePanel">
+        <h3><i class="fa fa-user-md"></i> Ruoli Applicativi</h3>
+        <div class="Content">
+            <input type="text" onkeyup="FilterTypes(this)" placeholder="Filtra...">
+        </div>
+
+        <div class="Panel">
+            <div class="List">
+            </div>
+        </div>
+
+    </div>
+
+    <div class="Panel" data-bind="with: Current">
+        <div class="Content" data-bind="visible: $root.SelectedrolesValue()">
+            <h2>
+                <span data-bind="text: roleName"></span>
+                <a href="#" class="pull-right btn btn-primary" data-bind="click: $root.Save">Memorizza</a>
+                <a href="#" class="pull-right btn btn-link" data-bind="click: $root.Remove">
+                    <i class="fs-3 fa fa-xl fa-trash-o"></i>
+                </a>
+             </h2>
+             <p>#ID: <span data-bind="text: id "></span></p>
+        </div>
+        <div class="Content" data-bind="visible: !$root.SelectedrolesValue()">
+            <h2>
+                Nuovo Ruolo
+                <a href="#" class="btn btn-primary pull-right" data-bind="click: $root.Create">Crea nuovo</a>
+            </h2>
+        </div>
+
+        <div class="MainPanel">
+
+            <div class="row mt-4">
+                <div class="select-wrapper col-md-5 mt-4">
+                    <label class="active" for="id">ID</label>
+                    <input type="text" required data-bind="value: id" id='id' />
+                </div>
+                <div class="select-wrapper col-md-7 mt-4">
+                    <label class="active" for="roleName">Nome</label>
+                    <input type="text" required data-bind="value: roleName" id='roleName' />
+                </div>
+            </div>
+            <div class="Panel" data-bind="visible: id">
+                <h3>Utenti Associati</h3>
+                <div data-bind='template: { name: "user", foreach: $root.Users() }'>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script type="text/html" id="user">
+        <div class="Row">
+            <label data-bind="text: userId"></label>
+            <span data-bind="text: userGroup?.shortName"></span>
+            <span class="pull-right" style="right:100px" data-bind="text: startDate"></span>
+            <span class="pull-right" data-bind="text: endDate"></span>
+    </div>
+</script>
+
+
+<script language="javascript" type="text/javascript">
+
+    var model;
+
+    $("#liadmin-ruoli").addClass("active");
+
+    function FilterTypes(me) {
+        var v = $(me).val().toLowerCase();
+        var l = $(".List a");
+        $(l).each(function (i, e) {
+            var ok = $(e).find("span, sub").text().toLowerCase().indexOf(v) >= 0 || i == 0;
+            if (!ok)
+                $(e).parent().css("display", "none");
+            else
+                $(e).parent().css("display", "");
+
+        });
+
+    }
+    function Refresh() {
+        model.Refresh();
+    }
+    $(document).ready(function () {
+        model = new viewModel("#view");
+        ko.applyBindings(model, $("#view")[0]);
+    });
+</script>
+<script type="text/html" id="StringStyle">
+    <div>
+    </div>
+</script>
+
+
+

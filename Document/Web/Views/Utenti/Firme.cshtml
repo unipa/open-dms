@@ -1,0 +1,453 @@
+﻿@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@using OpenDMS.Domain.Entities;
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model Web.Model.Customize.FirmeViewModel;
+@{
+    ViewData["Title"] = "Amministrazione - Utenti";
+    Layout = "_CustomizeLayoutAdmin";
+    string uid = ViewBag.id;
+}
+<script src="/js/SignaturePAD/signature_pad.min.js"></script>
+
+<style>
+    .non-clickable {
+        pointer-events: none;
+        opacity: 0.5;
+    }
+
+    .drawing-area {
+        pointer-events: none;
+    }
+</style>
+
+<script>
+    function disableInteraction() {
+        // Disabilita i bottoni
+        document.getElementById('save3').disabled = true;
+        document.getElementById('clear1').disabled = true;
+        document.getElementById('file1').disabled = true;
+
+        // Blocca l'area di disegno
+        const drawingArea = document.getElementById('drawingArea');
+        drawingArea.style.pointerEvents = 'none';
+    }
+
+    // Chiamata alla funzione per disabilitare l'interazione
+    function LoadImage(firma, i) {
+        var canvas = $('#' + firma)[0];
+        var ctx = canvas.getContext("2d");
+        var w = canvas.width,
+            h = canvas.height,
+            imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(i, 0, 0);
+    }
+
+    function UploadFile(firma, files) {
+        var fr = new FileReader();
+        fr.onload = function () {
+
+            var i = new Image(250, 100);
+            i.onload = function () {
+                LoadImage(firma, i);
+            }
+            i.src = fr.result;
+        }
+        fr.readAsDataURL(files[0]);
+
+    }
+
+    function Reset(firma, firmapad) {
+        var canvas = $('#' + firma)[0];
+        canvas.width = 250;
+        canvas.height = 100;
+        firmapad.clear();
+
+        var url = (firma === 'firma1') ? "/Customize/DeleteHandWrittenSign" : "/Customize/DeleteVisto";
+        var successMessage = (firma === 'firma1') ? "Firma eliminata correttamente." : "Visto eliminato correttamente.";
+        $.ajax({
+            url: url,
+            type: "DELETE",
+            headers: { "Content-Type": "application/json", 'accept': 'text/plain' },
+            success: function (data) {
+                ShowMessage('success', successMessage, 'Message_Target', null)
+            }
+        }).fail(function (err) {
+            debugger
+            ShowMessage('alert', err.responseText, 'Message_Target', null)
+        });
+    }
+
+    $(document).ready(function () {
+
+        $('#img1Firma').attr("src", "/internalapi/UserManager/HandWrittenSign");
+        //$('#img2Firma').attr("src", "/internalapi/UserManager/Visto");
+        //SelezionaMenu("fa-table");
+        //Per aggiungere e togliere la classe Active agli elementi della lista laterale
+        Carica("liCustomize-FirmeUtente");
+
+        if (`@Model.ErrorMessage` !== '') ShowMessage('alert', `@Html.Raw(Model.ErrorMessage)`, 'Message_Target', 'Customize/Firme');
+        if (`@Model.SuccessMessage` !== '') ShowMessage('success', '@Html.Raw(Model.SuccessMessage)', 'Message_Target', null);
+
+        //codice per far svanire i messaggi di successo
+        //FadeOutSuccessMessagge(3000);
+
+        LoadIframe("@Model.RemoteSignService");
+
+        $("#RemoteSignService").on("change", function () {
+
+            var selection = $(this).val();
+
+            LoadIframe(selection);
+
+            $.ajax({ // aggiorno lo user attribute
+                url: "/Customize/SetFirme?Service=" + selection,
+                type: "GET",
+                headers: { "Content-Type": "application/json", 'accept': 'text/plain' }
+            }).fail(function (err) {
+
+            });
+
+        });
+
+
+        var firma1pad = new SignaturePad(document.getElementById('firma1'), {
+            backgroundColor: 'rgba(255, 255, 255, 0)',
+            penColor: 'rgb(0, 0, 30, 0.8)'
+        });
+        // var firma2pad = new SignaturePad(document.getElementById('firma2'), {
+        //     backgroundColor: 'rgba(255, 255, 255, 0)',
+        //     penColor: 'rgb(0, 0, 30, 0.8)'
+        // });
+
+        var file1Button = document.getElementById('file1');
+        var file1upload = document.getElementById('FileUpload1');
+        var cancel1Button = document.getElementById('clear1');
+
+        // var file2Button = document.getElementById('file2');
+        // var file2upload = document.getElementById('FileUpload2');
+        // var cancel2Button = document.getElementById('clear2');
+
+        var save3Button = document.getElementById('save3');
+        // var save4Button = document.getElementById('save4');
+
+
+        file1upload.onchange = function (evt) {
+
+            var tgt = evt.target || window.event.srcElement,
+                files = tgt.files;
+
+            UploadFile('firma1', files);
+        };
+
+        // file2upload.onchange = function (evt) {
+
+        //     var tgt = evt.target || window.event.srcElement,
+        //         files = tgt.files;
+
+        //     UploadFile('firma2', files);
+        // };
+
+
+        file1Button.addEventListener('click', function (event) {
+            var u = $('#FileUpload1');
+            u.trigger('click');
+        });
+
+        // file2Button.addEventListener('click', function (event) {
+        //     var u = $('#FileUpload2');
+        //     u.trigger('click');
+        // });
+
+        cancel1Button.addEventListener('click', function (event) {
+            Reset('firma1', firma1pad);
+        });
+
+        // cancel2Button.addEventListener('click', function (event) {
+        //     Reset('firma2', firma2pad);
+        // });
+
+        document.getElementById('img1Firma').addEventListener('error', function (ctx) {
+            Reset('firma1', firma1pad);
+        });
+
+        // document.getElementById('img2Firma').addEventListener('error', function (ctx) {
+        //     Reset('firma2', firma2pad);
+        // });
+
+        $('#img1Firma').on('load', function (ctx) {
+            LoadImage('firma1', $('#img1Firma')[0]);
+        });
+
+        // $('#img2Firma').on('load', function (ctx) {
+        //     LoadImage('firma2', $('#img2Firma')[0]);
+        // });
+
+        //salvataggio firma
+        save3Button.addEventListener('click', function (event) {
+
+            let data = "";
+
+            try {
+                var canvas = $('#firma1')[0];
+                var ctx = canvas.getContext("2d");
+                var w = canvas.width,
+                    h = canvas.height,
+                    pix = { x: [], y: [] },
+                    imageData = ctx.getImageData(0, 0, canvas.width, canvas.height),
+                    x, y, index;
+
+                for (y = 0; y < h; y++) {
+                    for (x = 0; x < w; x++) {
+                        index = (y * w + x) * 4;
+                        if (imageData.data[index + 3] > 0) {
+
+                            pix.x.push(x);
+                            pix.y.push(y);
+
+                        }
+                    }
+                }
+                pix.x.sort(function (a, b) { return a - b });
+                pix.y.sort(function (a, b) { return a - b });
+                var n = pix.x.length - 1;
+
+                w = pix.x[n] - pix.x[0];
+                h = pix.y[n] - pix.y[0];
+                var cut = ctx.getImageData(pix.x[0], pix.y[0], w, h);
+
+                canvas.width = w;
+                canvas.height = h;
+                ctx.putImageData(cut, 0, 0);
+
+                data = firma1pad.toDataURL('image/png').replace(/^data:image\/(png|jpg|jpeg|bmp);base64,/, "");
+            }
+            catch (exception) {
+                data = "";
+            }
+
+            var d1 = data.replace(/^data:image\/(png|jpg|jpeg|bmp);base64,/, "");
+
+            data = "";
+            /*try {
+                var canvas = $('#firma2')[0];
+                var ctx = canvas.getContext("2d");
+                var w = canvas.width,
+                    h = canvas.height,
+                    pix = { x: [], y: [] },
+                    imageData = ctx.getImageData(0, 0, canvas.width, canvas.height),
+                    x, y, index;
+
+                for (y = 0; y < h; y++) {
+                    for (x = 0; x < w; x++) {
+                        index = (y * w + x) * 4;
+                        if (imageData.data[index + 3] > 0) {
+
+                            pix.x.push(x);
+                            pix.y.push(y);
+
+                        }
+                    }
+                }
+                pix.x.sort(function (a, b) { return a - b });
+                pix.y.sort(function (a, b) { return a - b });
+                var n = pix.x.length - 1;
+
+                w = pix.x[n] - pix.x[0];
+                h = pix.y[n] - pix.y[0];
+
+                var cut = ctx.getImageData(pix.x[0], pix.y[0], w, h);
+
+                canvas.width = w;
+                canvas.height = h;
+                ctx.putImageData(cut, 0, 0);
+
+                data = firma2pad.toDataURL('image/png').replace(/^data:image\/(png|jpg|jpeg|bmp);base64,/, "");
+            }
+            catch (exception) {
+                data = "";
+            }
+            */
+            var d2 = data.replace(/^data:image\/(png|jpg|jpeg|bmp);base64,/, "");
+
+            xxhr = $.ajax({
+                url: "/Customize/SetHandWrittenSign",
+                data: JSON.stringify(d1),
+                //data: "{ sign: '" + d1 + "', visto: '" + d2 + "'}",
+                type: "POST",
+                //dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    ShowMessage('success', 'Firma salvata correttamente', 'Message_Target', null)
+                }
+            });
+        });
+
+        //salvataggio visto
+    //     save4Button.addEventListener('click', function (event) {
+
+    //         let data = "";
+
+    //         try {
+    //             var canvas = $('#firma2')[0];
+    //             var ctx = canvas.getContext("2d");
+    //             var w = canvas.width,
+    //                 h = canvas.height,
+    //                 pix = { x: [], y: [] },
+    //                 imageData = ctx.getImageData(0, 0, canvas.width, canvas.height),
+    //                 x, y, index;
+
+    //             for (y = 0; y < h; y++) {
+    //                 for (x = 0; x < w; x++) {
+    //                     index = (y * w + x) * 4;
+    //                     if (imageData.data[index + 3] > 0) {
+
+    //                         pix.x.push(x);
+    //                         pix.y.push(y);
+
+    //                     }
+    //                 }
+    //             }
+    //             pix.x.sort(function (a, b) { return a - b });
+    //             pix.y.sort(function (a, b) { return a - b });
+    //             var n = pix.x.length - 1;
+
+    //             w = pix.x[n] - pix.x[0];
+    //             h = pix.y[n] - pix.y[0];
+    //             var cut = ctx.getImageData(pix.x[0], pix.y[0], w, h);
+
+    //             canvas.width = w;
+    //             canvas.height = h;
+    //             ctx.putImageData(cut, 0, 0);
+
+    //             data = firma2pad.toDataURL('image/png').replace(/^data:image\/(png|jpg|jpeg|bmp);base64,/, "");
+    //         }
+    //         catch (exception) {
+    //             data = "";
+    //         }
+
+    //         var d1 = data.replace(/^data:image\/(png|jpg|jpeg|bmp);base64,/, "");
+
+    //         data = "";
+
+    //         xxhr = $.ajax({
+    //             url: "/Customize/SetVisto",
+    //             data: JSON.stringify(d1),
+    //             type: "POST",
+    //             contentType: "application/json; charset=utf-8",
+    //             success: function (data) {
+    //                 ShowMessage('success', 'Visto salvato correttamente', 'Message_Target', null)
+    //             }
+    //         });
+    //     });
+        disableInteraction();
+
+     })
+
+    function LoadIframe(selection) {
+        var panel = document.getElementById("iframePanel");
+        var iframe = document.getElementById("iframe");
+        var loading = document.getElementById("loading");
+
+
+        if (selection === "Aruba")
+            iframe.src = "@Configuration["ExternalPages:RemoteSign:Aruba"]/EditUser?UserName=@uid";
+        else if (selection === "Infocert")
+            iframe.src = "@Configuration["ExternalPages:RemoteSign:Infocert"]/EditUser?UserName=@uid";
+        else {
+            panel.style.display = "none";
+            return;
+        }
+
+        loading.style.display = "block";
+
+        // Nascondo l'elemento di caricamento dopo il caricamento completato dell'iframe
+        iframe.onload = function () {
+            loading.style.setProperty("display", "none", "important");
+            panel.style.display = "block";
+        };
+    }
+
+</script>
+
+
+<div class="MainPanel">
+
+    <div class="Header">
+        <a href="/Admin/Utenti/@ViewBag.id/Dettaglio" class="Desktop"> <i class="fa fa-bars"></i></a>
+        <h1>
+            <small>Profilo Utente</small>
+            <span>Firme e Servizi Remoti</span>
+        </h1>
+    </div>
+    <div class="Panel">
+        <div id="Message_Target"></div>
+
+        <ul class="nav nav-list disabled">
+            @if (Model.CanHaveHandwrittenSignature)
+            {
+                <li name="SezioneFirmaAutografa" class="header">
+                    <h6>
+                        Firma Autografa Digitalizzata
+                    </h6>
+                </li>
+                <li>
+                    <div class="Content">
+                        <p style="text-align:justify">
+                            La Firma Autografa Digitalizzata è una rappresentazione grafica che non possiede alcun valore legare.
+                            La sua applicazione su un documento non conferisce alcuna integrità, autenticità e riconducibilità al firmatario.<br />
+                        </p>
+                        <p>Per registrare la tua firma autografa scrivi con una stylus digitale sul riquadro sottostante oppure carica una immagine dimensione 250x100 pixel</p>
+                        <div>
+                            <div style="border-radius:6px; border:2px solid #ccc; width: 258px; height:108px;flex-grow:inherit;flex-shrink:0;padding:2px;margin-bottom:16px" id="drawingArea" class="drawing-area">
+                                <canvas id="firma1" class="signature-pad" style="background-color:#f8f8f8;border-radius:6px;" width="250" height="100"></canvas>
+                                <img id="img1Firma" src='' style="position: absolute; left: -10000px" />
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-primary btn-xs" id="save3"><i class="fa fa-save"></i> Memorizza</button>
+                                <button type="button" style="margin-left:10px" class="pull-right btn btn-outline-secondary btn-xs" id="clear1"><i class="fa fa-trash-o"></i> Cancella</button>
+                                <button type="button" class="pull-right btn btn-outline-secondary btn-xs" id="file1"><i class="fa fa-folder-open"></i> Carica file...</button>
+                            </div>
+
+                            <input type="file" accept="image/*" id="FileUpload1" style="width: 0px; height: 0px" />
+                        </div>
+                    </div>
+                </li>
+            }
+            @if (Model.CanHaveRemoteSignature)
+            {
+                <li class="header">
+                    <h6>
+                        Firma Digitale Remota
+                    </h6>
+                </li>
+                <li>
+                    <div id="ProviderSelector" class="Content">
+                        <p>
+                            La Firma Digitale Remota è una firma elettronica forte che attribuisce pieno valore legale ai documenti sottoscritti<br />
+                        </p>
+                        <p>
+                            Se sei registrato ad un servizio di firma digitale remota, indica il fornitore del servizio e i parametri di identificazione che ti sono stati rilasciati<br />
+                        </p>
+                        <select asp-for="@Model.RemoteSignService" name="RemoteSignService" id="RemoteSignService" style="width:100%" disabled>
+                            <option value="" selected>Seleziona un fornitore...</option>
+                            @* <option value="Aruba">Aruba</option> *@
+                            <option value="Infocert">Infocert</option>
+                        </select>
+
+                        <div id="loading" style="position: absolute;left:45%; top: 65%;display:none;text-align:center">
+                            <div class="progress-spinner progress-spinner-active">
+                                <span class="visually-hidden">Caricamento...</span>
+                            </div>
+                        </div>
+                        <div id="iframePanel" class="firmaremota Panel Background" style="margin:20px 0;border-radius:6px;min-height:400px">
+                            <iframe id="iframe" src="" class="Panel" style="width:100%;min-height: 400px;"></iframe>
+                        </div>
+                    </div>
+
+                </li>
+            }
+        </ul>
+
+    </div>
+</div>

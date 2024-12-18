@@ -1,0 +1,97 @@
+﻿@page
+@using OpenDMS.Domain.Entities.Schemas;
+@using OpenDMS.Domain.Entities;
+@model ChooseTypeModel;
+@inject IConfiguration Configuration
+@{
+    ViewData["Title"] = "Scegli Tipologia";
+}
+
+<script>
+
+    $(document).ready(function () {
+
+        if ("@Model.ErrorMessage" !== '') ShowMessage('alert', '@Model.ErrorMessage', 'Message_Target', 'Index');
+
+    })
+
+    function TogglePreferred(a, docType) {
+        var inactive=a.className.indexOf("fa-star-o") >= 0;
+        fetch("?handler=TogglePreferred&DocumentTypeId=" + docType + "&Preferred=" + (inactive ? "true" : "false"))
+            .then(response => response.json)
+            .then(data => { 
+                if (inactive)
+                    a.className = "fa fa-star";
+                else
+                    a.className = "fa fa-star-o";
+            });
+        event.preventDefault();
+        event.stopPropagation();
+        return true;
+    }
+
+    function Filter(me) {
+        var v = $(me).val().toLowerCase();
+        var l = $("div.tipologie");
+        $(l).each(function (i, e) {
+            var ok = $(e).find("div.fw-bold").text().toLowerCase().indexOf(v) >= 0;
+            if (!ok)
+                $(e).css("display", "none");
+            else
+                $(e).css("display", "");
+
+        });
+    }
+
+</script>
+
+<div class="MainWindow">
+    <div class="Header">
+        <i class="fa fa-magic"></i>
+        <h1>
+            <small>
+                Categoria @Model.Categoria.Description 
+            </small>
+            <span id="HeaderTitle">Scegli cosa vuoi creare</span>
+        </h1>
+        <div class="right-header">
+            <a href="#" class="btn btn-link" onclick="return CloseWindow()"><i class="fa fa-times"></i></a>
+        </div>
+    </div>
+
+    <div id="Message_Target"></div>
+
+    <div class="Content">
+        <input class="SearchText" type="text" onkeyup="Filter(this)" placeholder="Filtra..." data-focus-mouse="false">
+    </div>
+    <div class="Panel">
+
+        <div class="PreviewContainer">
+            @foreach (DocumentType dt in Model.Tipologie)
+            {
+                <a class="tipologie PreviewRow" href="/@Html.Raw(dt.ContentType != OpenDMS.Domain.Enumerators.ContentType.Folder ? "NewForm" : "NewDocument")?DocumentType=@dt.Id&ContenType=@((int)dt.ContentType)&FolderId=@(Model.FolderId)&IdCategoria=@dt.CategoryId">
+                    <div class="PreviewImage">
+                        <img class="ImagePage" src="/Images/previews/@(dt.ContentType == OpenDMS.Domain.Enumerators.ContentType.Folder ? "FolderFile.png" : dt.ContentType == OpenDMS.Domain.Enumerators.ContentType.Form ? "FormFile.png" : "ScannedDocument.png")" />
+                        <i class="@(string.IsNullOrEmpty(dt.Icon) ? (dt.ContentType == OpenDMS.Domain.Enumerators.ContentType.Folder ? "fa fa-folder" : "fa fa-file-o") : dt.Icon)"
+                           style="bottom: 5%;left: 50%;position: absolute;font-size:.75em;translate: -50%;color: @(string.IsNullOrEmpty(dt.IconColor) ? (dt.ContentType == OpenDMS.Domain.Enumerators.ContentType.Folder ? "orange" : "firebrick") : dt.IconColor)"></i>
+                    </div>
+                    <div class="PreviewName">
+                        <div class="text-center">
+                            @dt.Name
+                        </div>
+                        <button class="star" onclick="TogglePreferred(this.children[0], `@dt.Id`)"><i class="@Html.Raw(dt.ToBePreserved ? "fa fa-star" : "fa fa-star-o")"></i></button>
+                    </div>
+                </a>
+            }
+        </div>
+    </div>
+
+    <nav class="Bottom">
+        <a href="/New" id="back_button" class="btn btn-link">Indietro</a>
+        @* <a href="@(HttpContext.Request.Headers["Referer"].ToString())" id="back_button" class="btn">Indietro</a> *@
+        <a href="#" class="btn btn-link" onclick="return CloseWindow()">Esci</a>
+    </nav>
+
+</div>
+
+

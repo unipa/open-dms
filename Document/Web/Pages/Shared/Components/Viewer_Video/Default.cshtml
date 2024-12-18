@@ -1,0 +1,60 @@
+﻿@using OpenDMS.Core.DTOs;
+@inject IConfiguration config
+@model IndexModel
+
+
+@if (Model != null)
+{
+    <div class="nav-toolbar-container">
+        <ul class="nav nav-toolbar">
+            @if (Model.CanAddContent)
+            {
+                <li class="">
+                    <a class="dropdown-item" onclick="return AddFile(@Model.DocumentId)" href="#">
+                        <i class="fa fa-upload"></i>
+                        <span>Carica...</span>
+                    </a>
+                </li>
+            }
+
+
+            @if (Model.Document.ContentType == OpenDMS.Domain.Enumerators.ContentType.Document && Model.Document.Image != null)
+            {
+                <li id="tbDownload">
+                    <a onclick="return Download(@Model.DocumentId, '')" class="dropdown-item" href="#"><i class="fa fa-download"></i> Scarica...</a>
+                </li>
+            }
+        </ul>
+        <label class="PreviewDocumentName"></label>
+    </div>
+    <div class="Panel">
+        <container class="ImagePage">
+            <div class="PreviewPanel">
+                <video width='100%' height='99%' controls>
+                    <source  src="/internalapi/content/download/@Model.DocumentId">
+                        Your browser does not support the video element.
+                </video>
+            </div>
+            <div class="ErrorPanel" style="display:none">
+                <h1>Si è verificato un errore durante l'estrazione del file</h1>
+                <p class="ErrorMessage"></p>
+            </div>
+            <img class="hidden PreviewImage" /> 
+        </container>
+    </div>
+    @if (Model.Document.Image != null)
+    {
+        <div class="Bottom Mobile" style="border-top:1px solid #eee">
+            <label><b>Versione: </b>@(
+        Model.Document.Image.VersionNumber
+        ).@(
+                  Model.Document.Image.RevisionNumber.ToString("00")
+                  )</label>
+            <label><b>Dimensione: </b> @Model.Document.Image.FileSize Bytes</label>
+        </div>
+    }
+}
+else
+{
+
+}

@@ -1,0 +1,33 @@
+﻿@page
+@using RemoteSignInfocert.Pages;
+@model FailedModel;
+@{
+}
+
+
+<script>
+
+    //document.addEventListener("DOMContentLoaded", () => {
+    //    countdown();
+    //});
+
+    //function countdown() {
+    //    var seconds = 5;
+
+    //    var countdownInterval = setInterval(function () {
+    //        seconds--;
+
+    //        if (seconds < 0) {
+    //            clearInterval(countdownInterval);
+    //            window.parent.postMessage({ op: "close", data: "" }, "*");
+    //        }
+    //    }, 1000);
+    //}
+
+</script>
+<div class="InfoPanel">
+    <i class="fa fa-bug" style="color:saddlebrown"></i>
+    <h1>C'è stato un problema!</h1>
+    <p>@Model.Result</p>
+</div>
+

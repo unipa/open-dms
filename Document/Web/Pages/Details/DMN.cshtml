@@ -1,0 +1,1082 @@
+﻿@page
+@using OpenDMS.Domain.Constants;
+@model DetailsDMNModel
+@{
+    ViewData["Title"] = "Matrice Decisionale";
+    if (Model.ModalView)
+        Layout = "_Layout";
+    else
+        Layout = "_MenuLayout";
+}
+
+
+<div class="Header">
+    @await  Component.InvokeAsync("CompanyLogo")
+    <i class="DocumentIcon fa @(Model.Document.ContentType == OpenDMS.Domain.Enumerators.ContentType.Folder ? "fa-folder" : @Model.Document.Icon)" style=";position:relative;color:@(Model.Document.IconColor)">
+        @Html.Raw(Model.Document.ContentType == OpenDMS.Domain.Enumerators.ContentType.Folder ? "<span style='position:absolute;margin:-21%;font-size:.4em;left:50%;top:50%;color:#fff;' class='"+Model.Document.Icon+"'></span>" : "")
+    </i>
+
+    <i class="DocumentStatusIcon @Model.DocumentStatusIcon"></i>
+    <h1>
+        <small class="DocumentType">@Model.DocumentTypeName</small>
+        <span class="Description">@Model.Document.Description</span>
+        @if (!String.IsNullOrEmpty(@Model.Document.DocumentType.Description))
+        {
+            <i class="infoButton fa fa-info-circle" title="@Model.Document.DocumentType.Description"></i>
+        }
+    </h1>
+    @if (Model.Document.ContentType == OpenDMS.Domain.Enumerators.ContentType.Folder)
+    {
+        @await  Component.InvokeAsync("DocumentFilters")
+    }
+    <div class="right-header">
+        <ul class="nav nav-toolbar">
+            @if (Model.imageId == 0)
+            {
+                @if (Model.CanAddContent && (Model.Document.ContentType == OpenDMS.Domain.Enumerators.ContentType.Folder && Model.CanAddContent && Model.Document.DocumentStatus != OpenDMS.Domain.Enumerators.DocumentStatus.Stored && Model.Document.DocumentStatus != OpenDMS.Domain.Enumerators.DocumentStatus.Deleted))
+                {
+                    <li id="tbCopy"><a href="#" class="MobileIcon" onclick="return Copy(@Model.DocumentId)"><i class="fa fa-files-o"></i> Copia</a></li>
+                    <li id="tbPaste"><a href="#" class="MobileIcon" onclick="return Paste(@Model.DocumentId)"><i class="fa fa-clipboard"></i> Incolla</a></li>
+                }
+                @if (Model.CanShare && Model.Document.ContentType == OpenDMS.Domain.Enumerators.ContentType.Document)
+                {
+                    <li id="tbFolder"><a href="#" class="MobileIcon" onclick="return AddFolder(@Model.DocumentId)"><i class="fa fa-folder"></i> Fascicola</a></li>
+                }
+
+                @if (Model.CanShare)
+                {
+                    <li id="tbShare"><a href="#" class="MobileIcon" onclick="return Share(@Model.DocumentId)"><i class="fa fa-share-alt"></i> Condividi...</a></li>
+                }
+                @if (Model.CanShare && Model.Document.ContentType == OpenDMS.Domain.Enumerators.ContentType.Document && Model.Document.Image != null)
+                {
+                    <li id="tbMail"><a href="#" class="MobileIcon" onclick="return Send(@Model.DocumentId)"><i class="fa fa-envelope"></i> Invia...</a></li>
+                }
+                @if (!Model.ModalView)
+                {
+                    @await  Component.InvokeAsync("AddDocument")
+                }
+            }
+            else
+            {
+                <li>
+                    <h1>
+                        @Html.Raw("v" +Model.Document.Image.VersionNumber + "." + Model.Document.Image.RevisionNumber)
+                    </h1>
+                </li>
+            }
+            @if (Model.ModalView)
+            {
+                <li id="tbclose"><a href="#" onclick="return CloseWindow()"><i class="fa fa-times"></i></a></li>
+            }
+        </ul>
+
+    </div>
+</div>
+<div class="nav-toolbar-container Desktop ActionToolbar">
+    <ul class="nav nav-toolbar">
+        <li class="MenuLinkPanel"><a class="" title="Collegati" onclick="return ShowPanel('LinkPanel')" href="#"><i class="fa fa-link"></i><span class="@(Model.LinksCount > 0 ? "" : "hidden") badgeLinks badge">@Model.LinksCount</span></a></li>
+    </ul>
+    <ul class="nav nav-toolbar">
+
+        @if (Model.CanViewTask)
+        {
+            <li class="MenuTasksPanel"><a onclick="return ShowPanel('TasksPanel')" title="Le tue attività..." href="#"><i class="fa fa-bell"></i> <span class="badgeTasks badge badge-info"></span></a></li>
+        }
+
+        <li class="MenuFolderPanel"><a class="" onclick="return ShowPanel('FolderPanel')" title="Fascicoli" href="#"><i class="fa fa-folder-open"></i><span class="@(Model.FoldersCount > 0 ? "" : "hidden") badgeFolders badge">@Model.FoldersCount</span></a></li>
+        <li class="MenuAuthPanel"><a class="" onclick="return ShowPanel('AuthPanel')" title="Autorizzazioni" href="#"><i class="fa fa-unlock"></i></a></li>
+
+        @if (Model.CanViewRegistry)
+        {
+            <li class="MenuHistoryPanel"><a class="" title="Registro Cronistoria" onclick="return ShowPanel('HistoryPanel')" href="#"><i class="fa fa-clock-o"></i></a></li>
+        }
+        @if (Model.Document.Image != null && (Model.Document.Image.VersionNumber > 1 || Model.Document.Image.RevisionNumber > 0))
+        {
+            <li class="MenuVersionPanel"><a class="" title="Versioni" onclick="return ShowPanel('VersionPanel')" href="#"><i class="fa fa-file-pdf-o"></i><span class="badgeVersions badge">@Model.Versions.Count</span></a></li>
+        }
+        <li class="MenuProtocolPanel"><a class="" title="Informazio di classificaione" onclick="return ShowPanel('ProtocolPanel')" href="#"><i class="fa fa-info-circle"></i></a></li>
+        <li id="tbExpand"><a href="#" onclick="return ExpandView(this,@Model.DocumentId)"><i class="fa fa-expand"></i></a></li>
+    </ul>
+</div>
+
+
+@if (Model.Document.Protocol != null && !String.IsNullOrEmpty(Model.Document.Protocol.Number))
+{
+    <div class="Content">
+        <b>Protocollo Nr.@Model.Document.Protocol.Number </b> del @Model.Document.Protocol.Date.ToString("dd/MM/yyyy hh:mm:ss")
+
+        @if (!String.IsNullOrEmpty(Model.Document.Protocol.ExternalProtocolURL))
+        {
+            <a class="btn btn-link btn-xs" href="@Model.Document.Protocol.ExternalProtocolURL" target="_blank"><i class="fa fa-qrcode"></i> Apri</a>
+        }
+    </div>
+
+}
+
+<div class="Page">
+    <div class="MainPanel Background">
+        <div class="FolderPathPanel">
+            <i class="fa fa-folder divider"></i> <a href="#" target="_top" class="" onclick="return ShowDocument(0)">Archivio Fascicoli</a>
+            @if (!String.IsNullOrEmpty(Model.Document.DocumentType.Id) && Model.Document.ContentType == OpenDMS.Domain.Enumerators.ContentType.Folder)
+            {
+                <i class="divider">\</i> <a href="/Folders/Documents?DocumentType=@Model.Document.DocumentType.Id" target="_top">@Model.Document.DocumentTypeName</a>
+            }
+            @foreach (var P in Model.Document.Path)
+            {
+                <i class="divider">\</i> <a href="#" target="_top" onclick="return ShowDocument(@P.Id)">@P.Description</a>
+            }
+            <i class="divider">\</i> <strong>@Model.Document.Description</strong>
+        </div>
+        @await  Component.InvokeAsync(Model.Viewer, Model)
+    </div>
+    <div class="hidden LeftPanel EditPanel">
+        <div id="Message_Target"></div>
+        <div class="Header">
+            <h1><i class="fa fa-keyboard-o"></i> Metadati</h1>
+            <a href="#" onclick="return ShowPanel('')" class=""><i class="fa fa-times"></i></a>
+        </div>
+        <form id="htmlform" class="MainPanel TaskForm" onsubmit="return SaveEditDocument()">
+            <div class="Panel">
+                @await  Component.InvokeAsync("EditMetaForm", Model.Document )
+            </div>
+            <div class="Bottom">
+                <button type="submit" class="btn btn-primary">Memorizza</button>
+                <a href="#" onclick="return ShowPanel('')"  class="btn">Esci</a>
+            </div>
+        </form>
+    </div>
+    <div class="hidden LeftPanel DeletePanel">
+        <div class="Header">
+            <h1><i class="fa fa-trash-o"></i> Elimina Documento</h1>
+            <a href="#" onclick="return ShowPanel('')" class=""><i class="fa fa-times"></i></a>
+        </div>
+        <div class="Panel">
+            <label>Indica una motivazione</label>
+            <input type="textbox" id="DeleteJustification" required class="required" rows=3 style="width:100%"/>
+            @if (Model.Document.ContentType == OpenDMS.Domain.Enumerators.ContentType.Folder)
+            {
+                <div>
+                    <br />
+                    <input type="checkbox" id="DeleteRecursive" value="true" /> Spunta questa casella per eliminare tutti i documenti contenuti nel fascicolo
+                    <br />
+                    <br />
+                </div>
+            }
+            <div style="padding-top:10px">
+                <a class="btn btn-secondary" onclick="return DeleteDocument(@Model.DocumentId)" href="#">Cancella</a>
+                <a class="btn btn-link" onclick="return ShowPanel('')" href="#">Annulla</a>
+            </div>
+        </div>
+    </div>
+    <div class="hidden LeftPanel VersionPanel">
+        <div class="Header">
+            <h1><i class="fa fa-file-pdf-o"></i> Registro Versioni</h1>
+            <a href="#" onclick="return ShowPanel('')" class=""><i class="fa fa-times"></i></a>
+        </div>
+        <div class="Panel">
+            @foreach (var V in Model.Versions)
+            {
+                <div class="VersionRow" onclick="ShowPreview(@Model.Document.Id, @V.ImageId)">
+                    <span class="VersionNumber">@(V.VersionNumber + "." + V.RevisionNumber)</span>
+                    @*<img class="Avatar" src="/internalapi/identity/mime/@V.FileExtension" />*@
+                    <span class="VersionName">@System.IO.Path.GetFileName(V.FileName)</span>
+                    <span class="VersionSize">@Model.FormatFileSize(V.FileSize)</span>
+                    <span class="VersionDate">@V.CreationDate.ToString("dd/MM/yyyy HH:mm").Replace(DateTime.Now.Date.ToString("dd/MM/yyyy"),"Oggi") (UTC)</span>
+                    <div style="text-align:center;width:20px">
+                        <i class="fa fa-pencil" @(V.SignatureStatus == OpenDMS.Domain.Enumerators.JobStatus.Completed ? "" : "style=display:none")></i>
+                    </div>
+
+                    <div style="text-align:center;width:20px">
+                        <i class="fa fa-send" @(V.SendingStatus == OpenDMS.Domain.Enumerators.JobStatus.Completed ? "" : "style=display:none")></i>
+                    </div>
+                    <div style="text-align:center;width:20px">
+                        @if (Model.Document.Image?.Id != V.ImageId && Model.CanAddContent)
+                        {
+                            <a href="#" class="" onclick="return RestoreVersion(@Model.Document.Id, @V.ImageId)" title="Recupera Versione..."><i class="fa fa-upload"></i></a>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="hidden LeftPanel LinkPanel">
+        <div class="Header">
+            <h1><i class="fa fa-link"></i> Collegamenti</h1>
+            @if (Model.CanAddContent)
+            {
+                <a href="#" onclick="return PasteToLink(@Model.DocumentId,false)"><i class="fa fa-plus"></i> Incolla</a>
+            }
+
+            <a href="#" onclick="return UpdateLinkPanel()" class=""><i class="fa fa-refresh"></i></a>
+            <a href="#" onclick="return ShowPanel('')" class=""><i class="fa fa-times"></i></a>
+        </div>
+        <div class="Panel">
+            <div class="Links PreviewContainer"></div>
+        </div>
+    </div>
+    <div class="hidden LeftPanel AttachmentOfPanel">
+        <div class="Header">
+            <h1><i class="fa fa-paperclip"></i> Allegato di</h1>
+            <a href="#" onclick="return UpdateAttachmentOfPanel()" class=""><i class="fa fa-refresh"></i></a>
+            <a href="#" onclick="return ShowPanel('')" class=""><i class="fa fa-times"></i></a>
+        </div>
+        <div class="Panel">
+            <div class="AttachmentsOf PreviewContainer"></div>
+        </div>
+    </div>
+ 
+    <div class="hidden LeftPanel FolderPanel">
+        <div class="Header">
+            <h1><i class="fa fa-folder"></i> Fascicoli</h1>
+            @if (Model.CanShare)
+            {
+                <a href="#" onclick="return AddFolder( @Model.DocumentId )" class=""><i class="fa fa-plus"></i> Aggiungi...</a>
+            }
+            <a href="#" onclick="return UpdateFolderPanel()" class=""><i class="fa fa-refresh"></i></a>
+            <a href="#" onclick="return ShowPanel('')" class=""><i class="fa fa-times"></i></a>
+        </div>
+        <div class="MainPanel">
+            <div class="FoldersPanel"></div>
+        </div>
+    </div>
+    <div class="hidden LeftPanel AuthPanel">
+        <div class="Header">
+            <h1><i class="fa fa-unlock"></i> Autorizzazioni</h1>
+            @if (Model.CanAuthorize)
+            {
+                <a href="#" onclick="return Permissions(@Model.DocumentId)" class=""><i class="fa fa-plus"></i> Aggiungi...</a>
+            }
+            <a href="#" onclick="return UpdateAuthPanel()" class=""><i class="fa fa-refresh"></i></a>
+            <a href="#" onclick="return ShowPanel('')" class=""><i class="fa fa-times"></i></a>
+        </div>
+        <div class="MainPanel">
+            
+            <div class="Permissions accordion"></div>
+        </div>
+    </div>
+    <div class="hidden LeftPanel ProtocolPanel">
+        <div class="Header">
+            <h1><i class="fa fa-info-circle"></i> Informazioni</h1>
+            <a href="#" onclick="return ShowPanel('')" class=""><i class="fa fa-times"></i></a>
+        </div>
+        <div class="MainPanel">
+            @if (!String.IsNullOrEmpty(Model.Document.Protocol.Number))
+            {
+                <h3>Protocollo</h3>
+                <div class="Row">
+                    <label>Nr.</label>
+                    <span>@Model.Document.Protocol.Number<code class="right-header">@Model.Document.Protocol.Date.ToString("dd/MM/yyyy HH:mm") (UTC)</code></span>
+                </div>
+                //<div class="Row">
+                //    <label>Registro</label>
+                //    <span>@@Model.Document.Protocol.Register.Description </span>
+                //</div>
+                <div class="Row">
+                    <label>Protocollatore</label>
+                    <span>@Model.Document.Protocol.ProtocolUser<code class="right-header">@Model.Document.Protocol.ProtocolUser</code></span>
+                </div>
+                //<div class="Row">
+                //    <label>Oggetto</label>
+                //    <span>@@Model.Document.Protocol.Description</span>
+                //</div>
+            }
+
+            <h3>Classificazione</h3>
+            <div class="Row">
+                <label>Categoria</label>
+                <span>@Model.Document.DocumentTypeCategory<code class="right-header">#@Model.Document.DocumentType.CategoryId</code></span>
+            </div>
+            <div class="Row">
+                <label>Tipologia</label>
+                <span>@Model.Document.DocumentTypeName<code class="right-header">#@Model.Document.DocumentType.Id</code></span>
+            </div>
+            @if (!String.IsNullOrEmpty(Model.Document.DocumentType.DocumentNumberLabel))
+            {
+                <div class="Row">
+                    <label>@Model.Document.DocumentType.DocumentNumberLabel</label>
+                    <span>@Model.Document.DocumentNumberFormattedValue<code class="right-header">@Model.Document.DocumentNumber</code></span>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.Document.DocumentType.DocumentDateLabel))
+            {
+                <div class="Row">
+                    <label>@Model.Document.DocumentType.DocumentDateLabel</label>
+                    <span>@Model.Document.DocumentDate?.ToString("dd/MM/yyyy")</span>
+                </div>
+            }
+            @if (Model.Document.RecipientList.Count() > 0)
+            {
+                <h3>Soggetti</h3>
+
+                @foreach (var R in Model.Document.RecipientList.Where(r => r.RecipientType == OpenDMS.Domain.Enumerators.RecipientType.Sender))
+                {
+                    <div class="Row">
+                        <label>Mittente</label>
+                        <span>@R.ProfileName</span>
+                    </div>
+                }
+                @if (Model.Document.RecipientList.Where(r => r.RecipientType == OpenDMS.Domain.Enumerators.RecipientType.To).Count() > 0)
+                {
+                    <div class="Row">
+                        <label>Destinatari</label>
+                        @foreach (var R in Model.Document.RecipientList.Where(r => r.RecipientType == OpenDMS.Domain.Enumerators.RecipientType.To))
+                        {
+                            <span>@R.ProfileName</span>
+                        }
+                    </div>
+                }
+
+                @if (Model.Document.RecipientList.Where(r => r.RecipientType == OpenDMS.Domain.Enumerators.RecipientType.CC).Count() > 0)
+                {
+                    <div class="Row">
+                        <label>Destinatari CC</label>
+                        @foreach (var R in Model.Document.RecipientList.Where(r => r.RecipientType == OpenDMS.Domain.Enumerators.RecipientType.CC))
+                        {
+                            <span>@R.ProfileName</span>
+                        }
+                    </div>
+                }
+                @if (Model.Document.RecipientList.Where(r => r.RecipientType == OpenDMS.Domain.Enumerators.RecipientType.CCr).Count() > 0)
+                {
+                    <div class="Row">
+                        <label>Destinatari CCr</label>
+                        @foreach (var R in Model.Document.RecipientList.Where(r => r.RecipientType == OpenDMS.Domain.Enumerators.RecipientType.CCr))
+                        {
+                            <span>@R.ProfileName</span>
+                        }
+                    </div>
+                }
+                @if (Model.Document.RecipientList.Where(r => r.RecipientType == OpenDMS.Domain.Enumerators.RecipientType.Customized).Count() > 0)
+                {
+                    <div class="Row">
+                        <label>Altri</label>
+                        @foreach (var R in Model.Document.RecipientList.Where(r => r.RecipientType == OpenDMS.Domain.Enumerators.RecipientType.Customized))
+                        {
+                            <span>@R.ProfileName</span>
+                        }
+                    </div>
+                }
+            }
+
+
+            <h3>Metadati Obbligatori</h3>
+            @if (!String.IsNullOrEmpty(Model.Document.DocumentType.DescriptionLabel))
+            {
+                <div class="Row">
+                    <label>@Model.Document.DocumentType.DescriptionLabel</label>
+                    <span>@Model.Document.Description</span>
+                </div>
+            }
+            @foreach (var M in Model.Document.FieldList.Where(m => !m.Customized))
+            {
+                <div class="Row">
+                    <label>@M.Title</label>
+                    <span>@M.LookupValue<code class="right-header">#@M.Value</code></span>
+                </div>
+            }
+            @if (Model.Document.FieldList.Any(m => m.Customized))
+            {
+                <h3>Metadati Facoltativi</h3>
+            }
+            @foreach (var M in Model.Document.FieldList.Where(m => m.Customized))
+            {
+                <div class="Row">
+                    <label>@M.Title</label>
+                    <span>@M.LookupValue<code class="right-header">#@M.Value</code></span>
+                </div>
+            }
+            @if (Model.Document.Image != null)
+            {
+                <h3>Pubblicazione</h3>
+                <div class="Row">
+                    <label>Versione</label>
+                    <span>1.00</span>
+                </div>
+                <div class="Row">
+                    <label>Data</label>
+                    <span>23/03/2023</span>
+                </div>
+            }
+
+            <h3>Riferimenti Temporali</h3>
+            <div class="Row">
+                <label>Data Registrazione</label>
+                <span>@Model.Document.CreationDate</span>
+            </div>
+
+            @if (Model.Document.ExpirationDate.HasValue)
+            {
+                <div class="Row">
+                    <label>Data Scadenza</label>
+                    <span>@(Model.Document.ExpirationDate.Value.Year < 9999 ? Model.Document.ExpirationDate?.ToString("dd/MM/yyyy") : "Nessuna")</span>
+                </div>
+            }
+            @if (Model.Document.DeletionDate.HasValue)
+            {
+                <div class="Row">
+                    <label>Data Cancellazione</label>
+                    <span>@Model.Document.DeletionDate?.ToString("dd/MM/yyyy")</span>
+                </div>
+            }
+
+            @if (Model.Document.ConsolidationDate.HasValue)
+            {
+                <div class="Row">
+                    <label>Data Consolidamento</label>
+                    <span>@Model.Document.ConsolidationDate?.ToString("dd/MM/yyyy")</span>
+                </div>
+            }
+
+        </div>
+    </div>
+    <div class="hidden LeftPanel HistoryPanel">
+        <div class="Header">
+            <h1><i class="fa fa-clock-o"></i> Cronistoria</h1>
+            @*<a onclick="return PrintHistory()" class=""><i class="fa fa-print"></i> Stampa</a>*@
+            <a href="#" onclick="return UpdateHistoryPanel()" class=""><i class="fa fa-refresh"></i></a>
+            <a href="#" onclick="return ShowPanel('')" class=""><i class="fa fa-times"></i></a>
+        </div>
+        <div class="Panel">
+            <div style="position:relative;">
+                <input type="textbox" class="HistorySearchText SearchText" placeholder="Cerca..." onchange="FilterHistory()" style="padding-right:100px" />
+                <div style="position:absolute;right:2px;top:2px;">
+                    <a href="#" role="button" class="SelectedFilter btn btn-link btn-xs dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fa fa-filter"></i>
+                    </a>
+                    <ul class="dropdown-menu HistoryFilters">
+                        <li><a class="dropdown-item" onclick="return FilterHistory(0)" href="#"><i class="fa fa-check pull-right filter0"></i> Tutti</a></li>
+                        <li><a class="dropdown-item" onclick="return FilterHistory(1)" href="#"><i class="fa fa-check pull-right hidden filter1"></i> Condivisioni</a></li>
+                        <li><a class="dropdown-item" onclick="return FilterHistory(2)" href="#"><i class="fa fa-check pull-right hidden filter2"></i> Firme</a></li>
+                        <li><a class="dropdown-item" onclick="return FilterHistory(3)" href="#"><i class="fa fa-check pull-right hidden filter3"></i> Spedizioni/Pubblicazioni</a></li>
+                        <li><a class="dropdown-item" onclick="return FilterHistory(4)" href="#"><i class="fa fa-check pull-right hidden filter4"></i> Modifiche Metadati</a></li>
+                        <li><a class="dropdown-item" onclick="return FilterHistory(5)" href="#"><i class="fa fa-check pull-right hidden filter5"></i> Modiifche Contenuto</a></li>
+                        <li><a class="dropdown-item" onclick="return FilterHistory(6)" href="#"><i class="fa fa-check pull-right hidden filter6"></i> Modifiche Relazioni</a></li>
+                        <li><a class="dropdown-item" onclick="return FilterHistory(7)" href="#"><i class="fa fa-check pull-right hidden filter7"></i> Accesso</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div><h3>Elenco ordinato di eventi registrati sul documento.</h3></div>
+            <div class="Panel">
+                <div class="Histories"></div>
+                <div class="HistoryLoader hidden">
+                    <h3><i class="fa fa-clock-o"></i> Caricamento in corso...</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="hidden LeftPanel TasksPanel">
+        <div class="Header">
+            <h1><i class="fa fa-bell"></i> Attività</h1>
+            <a href="#" onclick="return UpdateTaskPanel()" class=""><i class="fa fa-refresh"></i></a>
+            <a href="#" onclick="return ShowPanel('')" class=""><i class="fa fa-times"></i></a>
+        </div>
+        <div class="MainPanel">
+            <ul class="nav nav-list TaskList"></ul>
+            <div class="ActiveBPMLoader hidden">
+                <h3><i class="fa fa-clock-o"></i> Caricamento in corso...</h3>
+            </div>
+        </div>
+    </div>
+
+ 
+    <div class="LeftMenu">
+
+        <div style="border-left: 1px solid #ddd;padding-top:16px;" class="MainPanel">
+            <div class="sidebar-linklist-wrapper">
+                <div class="link-list-wrapper">
+                    <h3>Relazioni</h3>
+                    <ul class="link-list">
+                        <li class="MenuLinkPanel"><a onclick="return ShowPanel('LinkPanel')" href="#"><i class="fa fa-link"></i>  Collegati <span class="@(@Model.LinksCount > 0 ? "" : "hidden") badgeLinks badge badge-info">@Model.LinksCount</span></a></li>
+                        <li class="MenuFolderPanel"><a onclick="return ShowPanel('FolderPanel')" href="#"><i class="fa fa-folder"></i>  Fascicoli <span class="@(@Model.FoldersCount > 0 ? "" : "hidden") badgeFolders badge badge-info">@Model.FoldersCount</span></a></li>
+
+                        <li class="MenuAttachmentOfPanel"><a onclick="return ShowPanel('AttachmentOfPanel')" href="#"><i class="fa fa-paperclip"></i>  Allegato di... <span class="@(@Model.AttachmentsOfCount > 0 ? "" : "hidden") badgeAttachmentsOf badge badge-info">@Model.AttachmentsOfCount</span></a></li>
+                        @*<li class="MenuClonePanel"><a onclick="return ShowPanel('ClonePanel')" href="#"><i class="fa fa-files-o"></i>  Duplicati <span class="hidden badgeCopies badge badge-info"></span></a></li>*@
+                    </ul>
+                    <h3>Informazioni</h3>
+                    <ul class="link-list">
+                        @if (Model.CanViewTask)
+                        {
+                            <li class="MenuTasksPanel hidden"><a onclick="return ShowPanel('TasksPanel')" href="#"><i class="fa fa-bell"></i> Attività <span class="badgeTasks badge badge-info"></span></a></li>
+                        }
+                        @if (Model.CanEdit && Model.Document.DocumentStatus != OpenDMS.Domain.Enumerators.DocumentStatus.Stored && Model.Document.DocumentStatus != OpenDMS.Domain.Enumerators.DocumentStatus.Deleted)
+                        {
+                            <li id="MenuEditPanel"><a onclick="return ShowPanel('EditPanel')" href="#"><i class="fa fa-keyboard-o"></i> Metadati</a></li>
+                        }
+                        <li class="MenuAuthPanel"><a onclick="return ShowPanel('AuthPanel')" href="#"><i class="fa fa-unlock"></i> Autorizzazioni</a></li>
+                    </ul>
+
+                    @if (Model.CanEdit || Model.CanDelete)
+                    {
+                        <h3>Operazioni</h3>
+                        <ul class="link-list">
+                            @if (Model.CanEdit && (Model.Document.DocumentStatus == OpenDMS.Domain.Enumerators.DocumentStatus.Stored || Model.Document.DocumentStatus == OpenDMS.Domain.Enumerators.DocumentStatus.Deleted))
+                            {
+                                <li class="MenuRestorePanel"><a class="" onclick="return Restore(@Model.DocumentId)" href="#"><i class="fa fa-unlock"></i> Ripristina</a></li>
+                            }
+                            @if (Model.CanDelete && Model.Document.DocumentStatus != OpenDMS.Domain.Enumerators.DocumentStatus.Stored && Model.Document.DocumentStatus != OpenDMS.Domain.Enumerators.DocumentStatus.Deleted)
+                            {
+                                <li id="MenuDeletePanel"><a onclick="return ShowPanel('DeletePanel')" href="#"><i class="fa fa-trash-o"></i> Elimina</a></li>
+                            }
+                        </ul>
+                        <div class="customActions hidden">
+                            <ul class="link-list customActionList"></ul>
+                        </div>
+                    }
+                    <h3>Registri</h3>
+                    <ul class="link-list">
+                        @if (Model.Document.Image != null && (Model.Document.Image.VersionNumber > 1 || Model.Document.Image.RevisionNumber > 0))
+                        {
+                            <li class="MenuVersionPanel"><a onclick="return ShowPanel('VersionPanel')" href="#"><i class="fa fa-file-pdf-o"></i>  Versioni <span class="badgeVersions badge badge-info">@Model.Document.Image.VersionNumber.@Model.Document.Image.RevisionNumber </span></a></li>
+                        }
+                        @if (Model.CanViewRegistry)
+                        {
+                            <li class="MenuHistoryPanel"><a onclick="return ShowPanel('HistoryPanel')" href="#"><i class="fa fa-clock-o"></i> Cronistoria</a></li>
+                        }
+                        @{/* <li class="MenuProtocolPanel"><a onclick="return ShowPanel('ProtocolPanel')" href="#"><i class="fa fa-info-circle"></i>  Informazioni</a></li> */ }
+                    </ul>
+
+               </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script type="text/html" id="FoldersPanel">
+    {{#Folders}}
+        <div class="FolderRow">
+            {{#path}}
+                <a href="/?id={{id}}" target="_top" title="{{annotation}}"><i class="fa fa-folder"></i> {{description}}</a>
+            {{/path}}
+            <a href="/?id={{id}}" target="_top" title="{{documentTypeName}}"><i class="fa fa-folder-open"></i> {{description}}</a>
+        @if (Model.CanRemoveContent)
+        {
+                            <a class="RemoveFolder" href="#" onclick="return RemoveFolder({{id}})" title="Rimuovi il documento da questo fascicolo..."><i class="fa fa-trash-o"></i></a>
+        }
+        </div>
+    {{/Folders}}
+    {{^Folders}}
+        <div class="InfoPanel">
+            <i class="fa fa-folder"></i>
+            <h3>Il documento non è presente in alcun fascicolo</h3>
+        @if (Model.CanAddContent)
+        {
+                            <p>Per inserire il documento su uno o più fascicoli premi il pulsante <strong>Aggiungi...</strong></p>
+        }
+        </div>
+    {{/Folders}}
+</script>
+<script type="text/html" id="Permissions">
+    {{#Permissions}}
+        <div class="accordion-item">
+            <div class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#acc{{profileType}}{{profileId}}">
+                <img class="avatar" style="width:18px;height:18px;margin-right:8px" src="/internalapi/identity/avatar/{{profileType}}{{profileId}}" />
+                {{profileName}}
+                @if (Model.CanAuthorize)
+                {
+                            <a href="#" onclick="EditPermissions('{{profile}}')" style="position:absolute;right:64px;top:8px;" title="Modifica le autorizzazioni..."><i class="fa fa-pencil"></i></a>
+                }
+            </div>
+            <div id="acc{{profileType}}{{profileId}}" class="accordionbackpanel collapseOne accordion-collapse collapse">
+                {{#permissions}}
+                    <div class="CheckRow" style="padding:0 28px">
+                        {{label}}
+                        <i class="Permission{{authorization}}"></i>
+                    </div>
+                {{/permissions}}
+            </div>
+        </div>
+    {{/Permissions}}
+</script>
+<script type="text/html" id="Histories">
+    {{#HistoryEntries}}
+                <div class="HistoryItem" id="{{id}}">
+                    <img class="avatar" src="/internalapi/identity/avatar/0{{userId}}" />
+                    <div class="HistoryActor">
+                        <label>{{sender}}</label>
+                        {{#deputyUser && deputyUser != sender}}
+                            <small>({{deputyUser}})</small>
+                        {{/deputyUser && deputyUser != sender}}
+                    </div>
+                    <div class="HistoryNote">
+                        <label>{{eventType}}</label>
+
+                        <p>{{&description}}</p>
+                        {{#details}}
+                            <div class="CheckRow">
+                                <label>{{&label}}</label>
+                                <span>{{&values}}</span>
+                            </div>
+                        {{/details}}
+                        <code>{{eventDateTime}}</code>
+                    </div>
+                </div>
+    {{/HistoryEntries}}
+
+
+</script>
+<script type="text/html" id="Links">
+    {{#Links}}
+    <div class="PreviewRow" onclick="ShowPreview({{id}})">
+        <div class="PreviewDocument">
+            <image-viewer type="compatto" id="link" pages="1" documentId="{{id}}"  imageId="{{imageId}}" />
+            @if (Model.CanRemoveContent)
+            {
+                        <a href="#" onclick="return RemoveLink({{id}})" class="action PreviewRemove"><i class="fa fa-trash-o" title="Rimuovi legame"></i></a>
+            }
+        </div>
+        <span class="PreviewName">{{description}}<small>{{documentType}}</small></span>
+        {{#protocol}}
+        <span class="PreviewProtocol">PROT. {{protocol}}</span>
+        {{/protocol}}
+    </div>
+    {{/Links}}
+    {{^Links}}
+            <div class="InfoPanel">
+                <i class="fa fa-link small"></i>
+                <h3>Questo documento non ha collegamenti con altri documenti</h3>
+        @if (Model.CanAddContent)
+        {
+
+                            <p>Per creare un nuovo collegamento copia un documento negli appunti e usa <strong>Incolla</strong> per aggiungerlo qui</p>
+        }
+            </div>
+    {{/Links}}
+</script>
+<script type="text/html" id="Attachments">
+    {{#Attachments}}
+    <div class="PreviewRow" onclick="ShowPreview({{id}})">
+        <div class="PreviewDocument">
+            <image-viewer type="compatto" id="link" pages="1"  documentId="{{id}}" imageId="{{imageId}}" />
+            @if (Model.CanRemoveContent)
+            {
+                        <a class="action PreviewRemove" href="#" onclick="return RemoveAttachment({{id}})"><i class="fa fa-trash-o" title="Rimuovi legame"></i></a>
+            }
+        </div>
+        <span class="PreviewName">{{description}}<small>{{documentType}}</small></span>
+        {{#protocol}}
+        <span class="PreviewProtocol">PROT. {{protocol}}</span>
+        {{/protocol}}
+    </div>
+    {{/Attachments}}
+    {{^Attachments}}
+            <div class="InfoPanel">
+                <i class="fa fa-paperclip small"></i>
+                <h3>Questo documento non ha allegati</h3>
+        @if (Model.CanAddContent)
+        {
+                            <p>Per aggiungere un nuovo allegato usa il pulsante <strong>Crea...</strong> oppure <strong>Incolla</strong> qui un documento copiato negli appunti</p>
+        }
+            </div>
+    {{/Attachments}}
+</script>
+<script type="text/html" id="TaskItems">
+    {{#Items}}
+    <li id="{{ id }}" style="display:flex;">
+           <a href="#" onclick="openTask({{ id }})" style="display:flex;flex-direction:row;flex-grow:1;border-bottom:1px dashed #ddd">
+               <img src="/internalapi/identity/avatar/0{{ taskItemInfo.sender }}" class="avatarInList" style="margin-right:4px;" />
+               <div style="display:flex;flex-direction:column;width:100%;position:relative;align-self:normal">
+                       <b style="margin-bottom:-6px">{{ taskItemInfo.senderName }}</b>
+                           {{#taskItemInfo.toList.length}}
+                           <div style="font-size:.85rem">
+                               A: {{#taskItemInfo.toList}}
+                                   <span class="">
+                                   {{description}}</span>
+                               {{/taskItemInfo.toList}}
+                           </div>
+                           {{/taskItemInfo.toList.length}}
+                            {{#taskItemInfo.ccList.length}}
+                           <div style="font-size:.85rem">
+                               CC: {{#taskItemInfo.ccList}}
+                                   <span class="">
+                                       {{description}}</span>
+                               {{/taskItemInfo.ccList}}
+                           </div>
+                           {{/taskItemInfo.ccList.length}}
+
+                   <div style="color: #222;margin-top:4px"> <i class="fa fa-bell"></i> {{&taskItemInfo.title }}</div>
+
+                   <div style="position:absolute;top:2px;right:160px;text-align:right;font-size:.85rem;color:#888">
+                         {{ percentage }}%
+                   </div>
+
+                   <div style="position:absolute;top:2px;right:0px; text-align:right;font-size:.85rem;color:#888">
+                         {{ creationDateString }} <i class="fa fa-calendar"></i>
+                   </div>
+                   {{#expirationDateString}}
+                   <div style="position:absolute;top:28px;right:0px; text-align:right;font-size:.85rem;color:crimson">
+                         {{ expirationDateString }} <i class="fa fa-exclamation"></i>
+                   </div>
+                   {{/expirationDateString}}
+               </div>
+           </a>
+       </li>
+    {{/Items}}
+
+             {{^Items}}
+             <img src="/images/task_empty.svg" style="margin:auto;margin-top:25vh; max-width:256px" />
+             {{/Items}}
+
+
+</script>
+
+<script>
+
+    $(document).ready(() => {
+        $(".Folders").addClass("active");
+        const imageViewer = document.getElementById('documentImage');
+
+        var parentPanel = $(".Histories").parent();
+        parentPanel.on("scroll", () => {
+            if (parentPanel[0].scrollTop + parentPanel[0].clientHeight > parentPanel[0].scrollHeight * .80) {
+                LoadHistoryPage();
+            }
+        })
+        UpdateTaskPanel();
+        getCustomActions();
+    });
+
+
+    function openTask(id) {
+        if (id) {
+            OpenModal("/Tasks/Task?tid=" + id)
+        }
+    }
+
+    function getCustomActions() {
+        fetch("/internalapi/wf/getCustomActions/@Model.DocumentId")
+            .then(response => {
+                if (response.ok)
+                    return response.json();
+                throw new Error(response.statusText);
+            })
+            .then(data => {
+                if (data && data.value) {
+                    var actions = data.value.length;
+                    var panel = $(".customActions");
+                    var ul = $(".customActionList");
+                    if (actions) {
+                        var list = "";
+                        panel.removeClass("hidden");
+                        data.value.forEach((e) => {
+                            list += '<li><a title="' + e.tooltip + '" href="#" onclick="startCustomAction(\'' + e.action + '\')"><i class="' + e.icon + '"></i>' + e.label + '</a></li>';
+                        });
+                        ul.html(list);
+                    }
+                }
+            });
+
+    }
+
+    function startCustomAction(action) {
+        fetch("/internalapi/wf/startCustomAction?documentId=@Model.DocumentId&action=" + action)
+            .then(response => { return response.json(); })
+            .then(data => {
+                /*
+                 * dovrebbe ritornare l'id del processo da monitorare
+                 * In assenza di Id l'azione potrebbe avere inviato un messaggio
+                 * Se la proprietà Error non è vuota, viene mostrato l'errore.
+                 */
+                if (data.Error) {
+                    alert(data.Error);
+                } else
+                    if (data.BpmnProcessId) {
+                        OpenModal("/PostSave?Id=" + Model.DocumentId)
+                    }
+            })
+
+    }
+
+    function ShowPanel(panelToShow) {
+        var panel = $(".LeftPanel");
+        panel.addClass("hidden");
+        $(".link-list li").removeClass("active");
+        if (panelToShow) {
+            $("." + panelToShow).removeClass("hidden");
+            $(".Menu" + panelToShow).addClass("active");
+            var RefreshCallback = "Update" + panelToShow;
+            if (window[RefreshCallback] != undefined)
+                window[RefreshCallback]();
+        }
+        return false;
+    }
+    function ShowPreview(documentId, imageId) {
+        if (!imageId) imageId = "";
+        OpenModal("/?modalview=S&imageId=" + imageId + "&id=" + documentId);
+    }
+
+    var Events = 0;
+    var HistoryPage = 0;
+    var HistoryLoading = false;
+    var HistoryLoaded = 0;
+
+    function FilterHistory(eventId) {
+        if (eventId) Events = eventId; else Events = 0;
+
+        $(".HistoryFilters li i.fa-check").addClass("hidden");
+        $(".HistoryFilters li i.filter" + Events).removeClass("hidden");
+
+        LoadHistory(true, false);
+    }
+    function LoadHistoryPage() {
+        LoadHistory(false, false);
+    }
+    function LoadHistory(Reset, Print) {
+        if (HistoryLoading) return;
+        if (!Reset && HistoryLoaded == 0) return;
+        HistoryLoading = true;
+        HistoryPage = Print ? -1 : Reset ? 0 : HistoryPage + 1;
+        $(".HistoryLoader").removeClass("hidden");
+        var searchText = $(".HistorySearchText").val();
+        fetch("?handler=Histories&documentId=@Model.DocumentId&PageIndex=" + HistoryPage + "&SearchText=" + searchText + "&Events=" + Events)
+            .then(response => { return response.json(); })
+            .then(data => {
+                var template = $("#Histories").html();
+                var html = Mustache.to_html(template, { HistoryEntries: data });
+                HistoryLoaded = data.length;
+                if (Reset) {
+                    HistoryPage = 0;
+                    $(".Histories").html(html);
+                }
+                else {
+                    $(".Histories").append(html);
+                }
+                HistoryLoading = false;
+                $(".HistoryLoader").addClass("hidden");
+
+                if (Print == "Y")
+                    window.print();
+            })
+    }
+
+    function AddSign() {
+        OpenModal("/AddSign?documents=@Model.DocumentId")
+    }
+    function PasteToAttachment(documentId) {
+        return PasteToLink(documentId, true)
+    }
+    function PasteToLink(documentId, IsAttachment) {
+        var clipboardstring = localStorage.getItem("clipboard");
+        var Added = 0;
+        var selected = JSON.parse(clipboardstring);
+        if (selected) {
+            Added = selected.length;
+            if (confirm("Sei sicuro di voler incollare " + Added + " documenti come " + (IsAttachment ? "Allegati" : "Collegati") + " ?")) {
+                localStorage.removeItem("clipboard");
+                fetch("/internalapi/action/PasteAsLink?documentIds=" + clipboardstring + "&masterId=" + documentId + "&isAttachment=" + IsAttachment)
+                    .then(response => { return response.json(); })
+                    .then(data => {
+                        if (Added > 1)
+                            msg = Added + " documenti incollati dagli appunti.";
+                        else
+                            if (Added == 1)
+                                msg = Added + " documento incollato dagli appunti.";
+                        if (IsAttachment)
+                            UpdateAttachmentPanel();
+                        else
+                            UpdateLinkPanel();
+                        alert(msg);
+                    });
+            }
+        } else {
+            msg = "Nessun documento trovato negli appunti.";
+            alert(msg);
+        }
+    }
+    function DeleteDocument(documentId) {
+        var justification = $("#DeleteJustification").val();
+        var recursive = $("#DeleteRecursive:checked").length > 0;
+        return Delete(documentId, justification, recursive);
+    }
+    function RestoreVersion(documentId, imageId) {
+        if (confirm("Sei sicuro di voler recuperare questa versione ?")) {
+            fetch("?handler=RestoreVersion&documentId=" + documentId + "&imageId=" + imageId)
+                .then(response => { return response.json(); })
+                .then(data => {
+                    window.location.reload();
+                });
+        }
+        return false;
+    }
+
+    function UpdateFolderPanel() {
+        $(".FoldersPanel").html("Caricamento in corso...");
+        fetch("?handler=Folders&documentId=@Model.DocumentId")
+            .then(response => { return response.json(); })
+            .then(data => {
+                var template = $("#FoldersPanel").html();
+                var html = Mustache.to_html(template, { Folders: data });
+                $(".FoldersPanel").html(html);
+                if (data.length > 0)
+                    $(".badgeFolders").removeClass("hidden").html(data.length);
+                else
+                    $(".badgeFolders").addClass("hidden").html(data.length);
+            })
+    }
+    function UpdateHistoryPanel() {
+        FilterHistory();
+    }
+    function UpdateAuthPanel() {
+        $(".Permissions").html("Caricamento in corso...");
+        fetch("?handler=Permissions&documentId=@Model.DocumentId")
+            .then(response => { return response.json(); })
+            .then(data => {
+                var template = $("#Permissions").html();
+                var html = Mustache.to_html(template, { Permissions: data });
+                $(".Permissions").html(html);
+            })
+    }
+    function UpdateAttachmentPanel() {
+        $(".Attachments").html("Caricamento in corso...");
+        fetch("?handler=Attachments&documentId=@Model.DocumentId")
+            .then(response => { return response.json(); })
+            .then(data => {
+                var template = $("#Attachments").html();
+                var html = Mustache.to_html(template, { Attachments: data });
+                $(".Attachments").html(html);
+            })
+    }
+    function UpdateAttachmentOfPanel() {
+        $(".Attachments").html("Caricamento in corso...");
+        fetch("?handler=AttachmentsOf&documentId=@Model.DocumentId")
+            .then(response => { return response.json(); })
+            .then(data => {
+                var template = $("#Attachments").html();
+                var html = Mustache.to_html(template, { Attachments: data });
+                $(".AttachmentsOf").html(html);
+            })
+    }
+    function UpdateLinkPanel() {
+        $(".Links").html("Caricamento in corso...");
+        fetch("?handler=Links&documentId=@Model.DocumentId")
+            .then(response => { return response.json(); })
+            .then(data => {
+                var template = $("#Links").html();
+                var html = Mustache.to_html(template, { Links: data });
+                $(".Links").html(html);
+            })
+    }
+    function UpdateTaskPanel() {
+        $(".TaskList").html("Caricamento in corso...");
+        fetch("?handler=Tasks&documentId=@Model.DocumentId")
+            .then(response => { return response.json(); })
+            .then(data => {
+                var template = $("#TaskItems").html();
+                $(data).each((i, e) => {
+                    e.creationDateString = e.creationDate.substring(0, 10) + " " + e.creationDate.substring(11, 16)
+                    e.expirationDateString = e.expirationDate != undefined  ? e.expirationDate.substring(0, 10) : "";
+                })
+                var html = Mustache.to_html(template, { Items: data });
+                $(".TaskList").html(html);
+                if (data.length > 0) {
+                    $(".MenuTasksPanel").removeClass("hidden");
+                    $(".badgeTasks").text(data.length);
+                }
+                else
+                    $(".MenuTasksPanel").addClass("hidden");
+            })
+    }
+    function UpdateBPMPanel() {
+        $(".ActiveBPM").html("Caricamento in corso...");
+        fetch("?handler=BPMs&documentId=@Model.DocumentId")
+            .then(response => { return response.json(); })
+            .then(data => {
+                var template = $("#BPMItems").html();
+                $(data.active).each((i, e) => {
+                    e.creationDateString = e.creationDate.substring(0, 10) + " " + e.creationDate.substring(11, 16)
+                    e.expirationDateString = e.expirationDate != undefined ? e.expirationDate.substring(0, 10) : "";
+                })
+                $(data.closed).each((i, e) => {
+                    e.creationDateString = e.creationDate.substring(0, 10) + " " + e.creationDate.substring(11, 16)
+                    e.executionDateString = e.firstExecutionDate.substring(0, 10) + " " + e.firstExecutionDate.substring(11, 16)
+                    e.expirationDateString = e.expirationDate != undefined ? e.expirationDate.substring(0, 10) : "";
+                })
+                var html = Mustache.to_html(template, { Items: data.active });
+                $(".ActiveBPM").html(html);
+                var template2 = $("#BPMClosedItems").html();
+                var html = Mustache.to_html(template2, { Items: data.closed });
+                $(".ClosedBPM").html(html);
+            })
+    }
+
+    function EditPermissions(profile) {
+        OpenModal("/Permissions?id=[@Model.DocumentId]&Profile=" + profile, () => {
+            // Dovrei ricaricare solo i permessi
+        });
+
+    }
+    function ChangeDocumentType() {
+        OpenModal("/ChooseType?IdCategoria=@Model.Document.DocumentType.CategoryId&DocId=@Model.DocumentId");
+    }
+
+
+
+
+
+    window.addEventListener("message", (event) => {
+        if (event.data.op == "addfolder") {
+            UpdateFolderPanel();
+        } else
+            if (event.data.op == "addlink") {
+                UpdateLinkPanel();
+            }
+            else
+                if (event.data.op == "close") {
+                    $(window.Modal).find("#PopupWindow").attr("src", "");
+                    $(window.Modal).addClass("hidden");
+                }
+                else
+                    if (event.data.op == "checkin") {
+                        window.location.reload(true);
+                    } else
+                        if (event.data.op == "addattachment") {
+                            UpdateAttachmentPanel();
+                        } else
+                            if (event.data.op == "addauth") {
+                                UpdateAuthPanel();
+                            } else
+                                if (event.data.op == "addauth") {
+                                    UpdateAuthPanel();
+                                } else
+                                    if (event.data.op == "storicize") {
+                                        window.location.reload(true);
+                                    } else
+                                        if (event.data.op == "restore") {
+                                            window.location.reload(true);
+                                        } else
+                                            if (event.data.op == "delete") {
+                                                window.location.reload(true);
+                                            } else
+                                                if (event.data.op == "newdocument") {
+                                                    window.location.href = "?id=" + event.data.data;
+                                                } else
+                                                    if (event.data.op == "digitalsign") {
+                                                        window.location.href = "?id=" + event.data.data;
+                                                    } else
+                                                        if (event.data.op == "removefolder") {
+                                                            var template = $("#Folders").html();
+                                                            // Se sono nella scheda documento...
+                                                            if (template) {
+                                                                var html = Mustache.to_html(template, { Folders: event.data.data });
+                                                                $(".Folders").html(html);
+                                                                if (event.data.data.length > 0)
+                                                                    $(".badgeFolders").removeClass("hidden").html(event.data.data.length);
+                                                                else
+                                                                    $(".badgeFolders").addClass("hidden").html(event.data.data.length);
+                                                            }
+                                                        }
+        if (!$(".HistoryPanel").hasClass("hidden"))
+            UpdateHistoryPanel();
+
+    })
+
+</script>
+
+
+
+<script src="/components/ImageViewer/dist/image-viewer.js" type="module"></script>
+
+

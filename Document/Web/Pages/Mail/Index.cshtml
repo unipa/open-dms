@@ -1,0 +1,516 @@
+﻿@page
+@using OpenDMS.Domain.Entities;
+@model Web.Pages.MailConsole.MailIndexModel
+@{
+}
+@{
+    Layout = "_MenuLayout";
+}
+
+<div class="Page">
+
+    <div class="LeftMenu">
+        <div class="Header">
+            @await  Component.InvokeAsync("CompanyLogo")
+        </div>
+
+        <div class="InsidePanel MainPanel">
+                @if (Model.CanSendMail)
+                {
+                    <div class="Content">
+                        <a onclick="return newMail()" href="#" class="btn btn-primary btn-xs">
+                            <i class="fa fa-envelope"></i>
+                        <span>Nuovo Messaggio...</span>
+                        </a>
+                    </div>
+                }
+
+            <ul class="nav nav-list" id="FiltersPanel">
+             </ul>
+        </div>
+    </div>
+    <div class="MailListPanel ListPanel MainPanel">
+        <div class="Header">
+            <i class="Desktop fa fa-arrow-left" onclick="$('.MailListPanel').addClass('hidden');$('.LeftMenu').addClass('active');"></i>
+            <i id="FilterIcon" class="DocumentIcon fa fa-envelope"></i>
+            <h1>
+                <small id="FilterMail" class="DocumentType">
+                    Posta Elettronica
+                </small>
+                <span id="FilterTitle" class="Description">Tutta</span>
+            </h1>
+
+             <div class="right-header">
+                <div class="mailboxDate">
+                    <div class="inboundDate"></div>
+                    <div class="outboundDate"></div>
+                </div>
+
+                <div class="nav-toolbar">
+                    <ul class="nav nav-toolbar">
+                        <li class="xCheckMail hidden" >
+                            <a href="#" onclick="return downloadMails()" title="Controlla la posta ricevuta adesso..."><i class="fa fa-download"></i></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+ @* TODO: Mettere Gestione Filtri*@
+        </div>
+        <div class="MainPanel InsidePanel">
+            <div>
+
+            <div class="outboundPanel hidden">
+                <b>Errore in spedizione: </b><span class="outboundMessage"></span>
+            </div>
+            <div class="inboundPanel hidden">
+                <b>Errore in ricezione: </b><span class="inboundMessage"></span>
+            </div>
+            <form onsubmit="return selectFilter()" class="Content">
+                <input type="text" id="searchTextField" placeholder="Cerca..." onchange="return selectFilter()" style="width:100%" />
+                @* <a href="#" style="position:absolute; right:11px;top:11px" class="btn btn-xs btn-link" onclick="showFilters()"><i class="fa fa-lg  fa-filter"></i></a> *@
+            </form>
+        </div>
+            <div class="MainPanel InsidePanel">
+                <ul id="MailList" class="nav nav-list">
+                </ul>
+
+            </div>
+        </div>
+    </div>
+    <div class="DetailPanel Loading hidden">
+        <div class="Header">
+            <h1>
+                <small class="DocumentType">&nbsp;</small>
+                <span class="Description">&nbsp;</span>
+            </h1>
+        </div>
+        <div class="Panel">
+
+            <div class="progress-spinner progress-spinner-active" style="margin: 18vh 13vw 0 44%;width:64px;height:64px;color:#ddd">
+            </div>
+            <h1 style="margin: 10px auto">Caricamento in corso...</h1>
+        </div>
+    </div>
+
+    <div class="DetailPanel NoMail">
+        <div class="Header">
+            <h1>
+                <small class="DocumentType">&nbsp;</small>
+                <span class="Description">&nbsp;</span>
+            </h1>
+        </div>
+        <div class="InfoPanel">
+            @* TODO: Mettere Dettaglio Tasks*@
+            <i class="fa fa-envelope-o"></i>
+            <h1>Nessun messaggio selezionato</h1>
+        </div>
+
+    </div>
+    <iframe frameborder="0" class="DetailPanel MainPanel hidden" id="MailDetail" seamless style="height:100%;background: #fff"></iframe>
+</div>
+
+
+<script type="text/html" id="Mailboxes_template">
+     {{#items}}
+            <li>
+                <a href="#" onclick="toggleFilter(this)" inboxMessage="{{inboxMessage}}" outboxMessage="{{outboxMessage}}" inboxDate="{{lastInbound}}" outboxDate="{{lastOutbound}}">
+                        <i class="fa fa-caret-down hidden"></i>
+                        <i class="fa fa-caret-up"></i>
+                    <strong>{{address}}</strong>
+                    <span class="badge MailBadge" id="TotBadge_{{id}}" style="margin-right: 2px">{{badge}}</span>
+                </a>
+                <ul class="nav nav-list">
+                    {{#folders}}
+                            <li>
+                                <a href="#" onclick="selectFolder ({{mailboxId}}, '{{id}}')" fid="{{id}}" mid="{{mailboxId}}" fid="{{id}}">
+                                    <i class='{{icon}}'></i><span class="folderName"> {{name}}</span>
+                                    {{#badge}}
+                                    <span class='{{badgeClass}} badge MailBadge Badge_{{mailboxId}}_{{id}}'>{{badge}}</span>
+                                    {{/badge}}
+                                </a>
+                            </li>
+                    {{/folders}}
+                </ul>
+            </li>
+    {{/items}}
+ 
+
+</script>
+
+
+<script type="text/html" id="Items">
+    {{#items}}
+            <li id="{{ id }}" style="display:flex;">
+                <a href="#" onclick="selectMail({{ id }})" style="display:flex;flex-direction:row;flex-grow:1;">
+                    <i class="fa-lg {{mailType}}" style="margin-top:10px;width:32px;color:{{mailColor}}" />
+                    <i class="{{checkType}}" style="position:absolute; margin-top:20px;margin-left:10px;color:{{checkColor}};font-size:active.8em" />
+                    <div style="display:flex;flex-direction:column;width:100%;position:relative;align-self: flex-start;">
+                        <b>{{externalName}}</b>
+                        <p style="margin-top:-4px">{{ &title }}</p>
+                        <div style="text-align:right">
+                            {{#deliveryStatus_1}}
+                            <span title="Consegnato al provider"> <i style="color:#444" class="fa fa-truck"></i></span>
+                            {{/deliveryStatus_1}}
+                            {{#deliveryStatus_2}}
+                            <span title="Consegnato al provider"> <i style="color:#444" class="fa fa-truck"></i></span>
+                            <span title="Consegnato al destinatario"> <i style="color:green" class="fa fa-check"></i></span>
+                            {{/deliveryStatus_2}}
+                            {{#deliveryStatus_3}}
+                            <span title="Non Consegnato"> <i style="color:crimson" class="fa fa-exclamation-circle"></i></span>
+                            {{/deliveryStatus_3}}
+
+                            {{#claimUser}}
+                            <span class="label" title="Preso in carico il {{claimDate}}"> <i class="fa fa-envelope-open"></i> {{claimUser}}</span>
+                            {{/claimUser}}
+                            {{#spamUser}}
+                                <span class="label" title="Ignorato il {{claimDate}}"> <i class="fa fa-ban"></i> {{spamUser}}</span>
+                            {{/spamUser}}
+                            {{#deleteUser}}
+                            <span class="label" title="Cancellato il {{deleteDate}}"> <i class="fa fa-trash-o"></i> {{deleteUser}}</span>
+                            {{/deleteUser}}
+                        </div>
+
+                        <div style="position:absolute;top:2px;right:0px; text-align:right;font-size:.8rem;color:#999">
+                            {{#numberOfAttachments}} <i class="fa fa-paperclip" style="position:absolute;right:170px;top:8px" title="Nr.{{numberOfAttachments}} allegati"></i> {{/numberOfAttachments}}
+                            <div style="font-size:.85em;color:#aaa"> {{ messageDate }}</div>
+                        </div>
+                    </div>
+                </a>
+            </li>
+        {{/items}}
+    {{^items}}
+             <img src="/images/task_empty.svg" style="margin:auto;margin-top:25vh; max-width:256px" />
+    {{/items}}
+
+</script>
+
+
+
+
+<script>
+    var SelectedAddress = "";
+    var SelectedFolder = "";
+    
+    var context = undefined;
+    var items = undefined;
+
+    var pageIndex = 0;
+    var pageSize = 25;
+    var NoMoreRecords = false;
+    var LoadingPage = false;
+
+    var FiltersVisible = false;
+
+    function newMail() {
+        $("#MailDetail").load((data) => {
+            $("#MailDetail").removeClass("hidden");
+            $(".NoMail").addClass("hidden");
+            $(".Loading").addClass("hidden");
+            $(".MailListPanel").addClass("Mobile");
+        });
+        //$("#TaskDetail")[0].loading = "lazy";
+        $("#MailDetail")[0].src = "/mail/SendMail?mail=" + SelectedAddress+"&cmd=send";
+
+    }
+
+    var loader = undefined;
+
+    function selectMail(id)
+    {
+        if (id) {
+            $(".NoMail").addClass("hidden");
+            $(".Loading").removeClass("hidden");
+            $("#MailDetail").addClass("hidden");
+            $(".MailListPanel").addClass("Mobile");
+
+            $("#MailDetail").on("load", ()=> {
+                if (loader) window.clearTimeout(loader);
+                loader = null;
+                $("#MailDetail").removeClass("hidden");
+                $(".Loading").addClass("hidden");
+            });
+            //$("#TaskDetail")[0].loading = "lazy";
+            $("#MailDetail")[0].src = "";
+            $("#MailDetail")[0].srcDoc = "<p>Caricamento in corso...</p>";
+            $("#MailDetail")[0].src = "/Mail/ShowMail?id=" + id;
+            loder = window.setTimeout(() => {
+                 $("#MailDetail").removeClass("hidden");
+                 $(".Loading").addClass("hidden");
+            }, 1500)
+        } else {
+            $("#MailDetail").addClass("hidden");
+            $(".NoMail").removeClass("hidden");
+            $(".MailListPanel").removeClass("Mobile");
+        }
+
+    }
+
+    function ParsePage(data) { 
+        data.forEach(e => {
+            if (e.deliveryStatus == 1) 
+                e.deliveryStatus_1 = 1;
+            if (e.deliveryStatus == 2) 
+                e.deliveryStatus_2 = 1;
+            if (e.deliveryStatus == 3)
+                e.deliveryStatus_3 = 1;
+
+            if (e.isInfected) {
+                 e.checkType = "fa fa-bug";
+                 e.checkColor = "crimson";
+            }
+            if (e.status == @((int)MailStatus.Claimed)) {
+                e.checkType = "fa fa-envelope-open";
+                e.checkColor = "#48f";
+            }
+
+            else if (e.status == @((int)MailStatus.Deleted)) {
+                e.checkType = "fa fa-trash-o";
+                e.checkColor = "#444";
+                e.claimUser = "";
+            }
+            else if (e.status == @((int)MailStatus.Spam)) {
+                e.checkType = "fa fa-ban";
+                e.checkColor = "crimson";
+                e.spamUser = e.claimUser;
+                e.claimUser = "";
+            }
+            else
+                if (e.status == @((int)MailStatus.Draft)) {
+                e.checkType = "fa fa-pencil";
+                e.checkColor = "purple";
+            }
+            else
+            if (e.status == @((int)MailStatus.WaitingForApproval)) {
+                e.checkType = "fa fa-question-circle";
+                e.checkColor = "gold";
+            }
+            else
+            if (e.status == @((int)MailStatus.Failed)){
+                e.checkType = "fa fa-times-circle";
+                e.checkColor = "crimson";
+            }
+            else
+                if (e.subType == 1) {
+                    e.checkType = "fa fa-rocket";
+                    e.checkColor = "purple";
+                }
+                else
+                    if (e.subType == 2) {
+                        e.checkType = "fa fa-envelope";
+                        e.checkColor = "limegreen";
+                    }
+                    else
+                        if (e.subType == 3) {
+                            e.checkType = "fa fa-bug";
+                            e.checkColor = "crimson";
+                        }
+                                    else
+                                        if (e.subType == 4) {
+                                            e.checkType = "fa fa-times-circle";
+                                            e.checkColor = "crimson";
+                                        }
+
+            if (e.status == @((int)MailStatus.Received) 
+                || e.status == @((int)MailStatus.Claimed) 
+                || e.status == @((int)MailStatus.Spam)) {
+                e.mailType = "fa fa-inbox";
+                e.mailColor = "orange";
+            }
+            else
+            if (e.status == @((int)MailStatus.Sending)) {
+                e.mailType = "fa fa-rocket";
+                e.mailColor = "purple";
+            }
+            else {
+                e.mailType = "fa fa-envelope-o";
+                e.mailColor = "#adf";
+            }
+        });
+        return data;
+    }
+
+    function toggleFilter(anchor) {
+        var $a = $(anchor);
+        $a.find("i").toggleClass("hidden");
+        $a.next("ul").toggleClass("hidden");
+    }
+
+    function selectFilter() { 
+        selectFolder(SelectedAddress, SelectedFolder);
+        return false;
+    }
+
+    function updateBadges(next) {
+
+        fetch("?handler=Badges")
+            .then(r => { return r.json() })
+            .then(data => {
+
+                items = data;
+                var template = $("#Mailboxes_template").html();
+                var html = Mustache.to_html(template, { items: data });
+                $("#FiltersPanel").html(html);
+                if (next) next();
+            });
+
+    }
+
+    function downloadMails() {
+
+        $(".NoMail").addClass("hidden");
+        $("#MailDetail").addClass("hidden");
+        $(".Loading").removeClass("hidden");
+        fetch("?handler=CheckInbox&mailboxId=" + SelectedAddress + "&folderId=" + SelectedFolder)
+            .then(r => { return r.json() })
+            .then(data => {
+                $(".Loading").removeClass("hidden");
+                selectFolder(SelectedAddress, SelectedFolder);
+            });
+    }
+
+
+    function selectFolder(mid, fid) {
+
+        SelectedAddress = mid;
+        SelectedFolder = fid;
+        selectMail();
+        $("#FiltersPanel li a").removeClass("active");
+        $("#FiltersPanel li ul ").addClass("hidden");
+        $("#FiltersPanel li i.fa-caret-up").addClass("hidden");
+        $("#FiltersPanel li i.fa-caret-down").removeClass("hidden");
+        var $folder = $("#FiltersPanel li ul li a[mid=" + mid + "][fid=" + fid + "]");
+        $folder.addClass("active");
+        var fn = $folder.find("span.folderName").text();
+        var $list = $folder.parent().parent();
+        $list.removeClass("hidden");
+        var $mail = $list.parent();
+        var fm = $mail.find("a b").text();
+
+
+
+        
+        var inErr = $mail.find("a").attr("inboxMessage");
+        var inDate = $mail.find("a").attr("inboxDate");
+        var outErr = $mail.find("a").attr("outboxMessage");
+        var outDate = $mail.find("a").attr("outboxDate");
+
+        if (inErr)
+            $(".inboundPanel").removeClass("hidden");
+            else
+            $(".inboundPanel").addClass("hidden");
+        if (outErr)
+            $(".outboundPanel").removeClass("hidden");
+        else
+            $(".outboundPanel").addClass("hidden");
+        
+        if (inDate)
+            inDate = "<span class='fa fa-inbox'></span> " + inDate;
+        if (outDate)
+            outDate = "<span class='fa fa-rocket'></span> " + outDate;
+        $(".inboundMessage").text(inErr);
+        $(".inboundDate").html(inDate);
+        $(".outboundMessage").text(outErr);
+        $(".outboundDate").html(outDate);
+
+        $mail.find("i.fa-caret-up").removeClass("hidden");
+        $mail.find("i.fa-caret-down").addClass("hidden");
+
+        if (SelectedFolder == "INBOX")
+            $(".CheckMail").removeClass("hidden");
+        else
+            $(".CheckMail").addClass("hidden");
+
+        var text = $("#searchTextField").val();
+
+        $("#FilterMail").text(fm);
+        $("#FilterTitle").text(fn);
+
+        pageIndex = 0;
+        fetch("?handler=Entries&mailboxId=" + SelectedAddress + "&folderId=" + SelectedFolder + "&pageIndex=" + pageIndex + "&pageSize=" + pageSize+"&Filter="+text)
+            .then(r => { return r.json() })
+            .then(data => {
+
+                items = data;
+                var template = $("#Items").html();
+                var html = Mustache.to_html(template, { items: ParsePage(data) });
+                $("#MailList").html(html);
+                $('.MailListPanel').removeClass("hidden");
+                $('.LeftMenu').removeClass('active');
+                NoMoreRecords = data.length == 0;
+                Loading = false;
+                $("#MailList").parent().on("scroll", () => {
+                    var container = $("#MailList").parent();
+                    // Scrollo appena raggiungo il 25% finale dell'elenco...
+                    if (container.scrollTop() >= container[0].scrollHeight - container.height() * 1.25 && !NoMoreRecords && !LoadingPage) {
+                        LoadingPage = true;
+                        pageIndex++;
+                        var text = $("#searchTextField").val();
+                        fetch("?handler=Entries&mailboxId=" + SelectedAddress + "&folderId=" + SelectedFolder + "&pageIndex=" + pageIndex + "&pageSize=" + pageSize + "&Filter=" + text)
+                            // {
+                            //     method: 'get',
+                            //     headers: {
+                            //         RequestVerificationToken: VerificationCode,
+                            //         'Content-Type': 'application/json',
+                            //         Accept: 'application/json',
+                            //     },
+                            //     body: JSON.stringify(sr2)
+                            // })
+                            .then(response => {
+                                return response.json();
+                            })
+                            .then(data => {
+                                NoMoreRecords = data.length == 0;
+                                if (!NoMoreRecords) {
+                                    //items = [items,...data];
+                                    var template = $("#Items").html();
+                                    var html = Mustache.to_html(template, { items: ParsePage(data) });
+                                    $("#MailList").append(html);
+                                }
+                                LoadingPage = false;
+                                $("#MailList").parent().trigger("scroll");
+
+                            });
+                    }
+                });
+                $("#MailList").parent().trigger("scroll");
+
+
+            });
+    }
+
+    $(document).ready(() =>{
+
+            $(".Mail").addClass("active");
+        //TODO: Selezionare la prima mail e il primo folder
+        updateBadges(() => { 
+            var $accordion = $("#FiltersPanel li ul a");
+            if ($accordion.length > 0)
+            {
+                //Seleziono la prima mail e il primo folder
+                var $a = $accordion[0];
+
+                // var mid = $a.attr("mid");
+                // $a.removeClass("collapsed");
+
+                // var $folders = $(".folders_"+mid);
+                // $folders.addClass("in");
+                // var $f = $($folders.find ("li a")[0]);
+                // $f.addClass("active");
+                $a.click();//.trigger("click");
+            }
+        });
+    });
+
+
+    window.addEventListener("message", (event) => {
+        if (event.data.op == "updatebadge") {
+            updateBadges(() => {
+                if (event.data.data == SelectedFolder)
+                    selectFolder(SelectedAddress, SelectedFolder);
+            })
+        }
+    });
+
+
+</script>

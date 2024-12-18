@@ -1,0 +1,70 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <RuntimeIdentifiers>win-x64;linux-x64;osx-x64</RuntimeIdentifiers>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..\Core</DockerfileContext>
+    <UserSecretsId>1566d868-ff29-4e25-b1ae-f3b734c27dd6</UserSecretsId>
+    <ApplicationIcon>wwwroot\favicon.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="wwwroot\css\logo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Pkcs11Interop" Version="5.1.2" />
+    <PackageReference Include="Pkcs11Interop.X509Store" Version="0.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\Library\Core.DigitalSignature\Core.DigitalSignature.csproj" />
+    <ProjectReference Include="..\..\Core\OpenDMS.Core\OpenDMS.Core.csproj" />
+    <ProjectReference Include="..\..\Core\OpenDMS.PdfManager\OpenDMS.PdfManager.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="wwwroot\css\site.css">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\js\mustache.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\js\site.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Elmi.Core.DataAccess.Interfaces">
+      <HintPath>..\..\..\Componenti Riutilizzabili\Elmi.Core.DataAccess\Elmi.Core.DataAccess.Interfaces\bin\Debug\net6.0\Elmi.Core.DataAccess.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="SecureBlackbox">
+      <HintPath>BusinessLogic\SecureBlackBox\SecureBlackBox_Lib\SecureBlackbox.dll</HintPath>
+    </Reference>
+    <Reference Include="SecureBlackbox.HTTP">
+      <HintPath>BusinessLogic\SecureBlackBox\SecureBlackBox_Lib\SecureBlackbox.HTTP.dll</HintPath>
+    </Reference>
+    <Reference Include="SecureBlackbox.HTTPCommon">
+      <HintPath>BusinessLogic\SecureBlackBox\SecureBlackBox_Lib\SecureBlackbox.HTTPCommon.dll</HintPath>
+    </Reference>
+    <Reference Include="SecureBlackbox.PDF">
+      <HintPath>BusinessLogic\SecureBlackBox\SecureBlackBox_Lib\SecureBlackbox.PDF.dll</HintPath>
+    </Reference>
+    <Reference Include="SecureBlackbox.PKI">
+      <HintPath>BusinessLogic\SecureBlackBox\SecureBlackBox_Lib\SecureBlackbox.PKI.dll</HintPath>
+    </Reference>
+    <Reference Include="SecureBlackbox.PKIPDF">
+      <HintPath>BusinessLogic\SecureBlackBox\SecureBlackBox_Lib\SecureBlackbox.PKIPDF.dll</HintPath>
+    </Reference>
+    <Reference Include="SecureBlackbox.SSLClient">
+      <HintPath>BusinessLogic\SecureBlackBox\SecureBlackBox_Lib\SecureBlackbox.SSLClient.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

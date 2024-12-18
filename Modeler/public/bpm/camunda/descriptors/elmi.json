@@ -1,0 +1,361 @@
+{
+  "name": "elmi",
+  "prefix": "elmi",
+  "uri": "http://example.com/elmi",
+  "xml": {
+    "tagAlias": "lowerCase"
+  },
+  "associations": [],
+  "types": [
+    {
+      "name": "elmi:abortTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Task Utente"
+    },
+    {
+      "name": "elmi:AbortTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Task Utente"
+    },
+    {
+      "name": "elmi:requestForEventTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Task Utente"
+    },
+    {
+      "name": "elmi:RequestForEventTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Task Utente"
+    },
+    {
+      "name": "elmi:requestForApprovalTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Task Utente"
+    },
+    {
+      "name": "elmi:RequestForApprovalTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Task Utente"
+    },
+    {
+      "name": "elmi:formTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Task Utente"
+    },
+    {
+      "name": "elmi:FormTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Task Utente"
+    },
+    {
+      "name": "elmi:userTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Task Utente"
+    },
+    {
+      "name": "elmi:UserTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Task Utente"
+    },
+    {
+      "name": "elmi:userMessageTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Task Utente"
+    },
+    {
+      "name": "elmi:UserMessageTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Task Utente"
+    },
+    {
+      "name": "elmi:sqlTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Database"
+    },
+    {
+      "name": "elmi:SqlTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Database"
+    },
+    {
+      "name": "elmi:sqlReaderTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Database"
+    },
+    {
+      "name": "elmi:SqlReaderTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Database"
+    },
+    {
+      "name": "elmi:addAttachmentTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Documenti"
+    },
+    {
+      "name": "elmi:AddAttachmentTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Documenti"
+    },
+    {
+      "name": "elmi:addContentTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Documenti"
+    },
+    {
+      "name": "elmi:AddContentTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Documenti"
+    },
+    {
+      "name": "elmi:addToFolderTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Documenti"
+    },
+    {
+      "name": "elmi:AddToFolderTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Documenti"
+    },
+    {
+      "name": "elmi:changeDocumentStatusTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Documenti"
+    },
+    {
+      "name": "elmi:ChangeDocumentStatusTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Documenti"
+    },
+    {
+      "name": "elmi:createDocumentTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Documenti"
+    },
+    {
+      "name": "elmi:CreateDocumentTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Documenti"
+    },
+    {
+      "name": "elmi:fillTemplateTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Documenti"
+    },
+    {
+      "name": "elmi:FillTemplateTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Documenti"
+    },
+    {
+      "name": "elmi:findDocumentsTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Documenti"
+    },
+    {
+      "name": "elmi:FindDocumentsTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Documenti"
+    },
+    {
+      "name": "elmi:getDocumentTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Documenti"
+    },
+    {
+      "name": "elmi:GetDocumentTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Documenti"
+    },
+    {
+      "name": "elmi:setPermissionTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Documenti"
+    },
+    {
+      "name": "elmi:SetPermissionTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Documenti"
+    },
+    {
+      "name": "elmi:getDocumentContentTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Documenti"
+    },
+    {
+      "name": "elmi:GetDocumentContentTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Documenti"
+    },
+    {
+      "name": "elmi:FileConverterTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Documenti"
+    },
+    {
+      "name": "elmi:FileConverterTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Documenti"
+    },
+    {
+      "name": "elmi:GetOrganizationRoleTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Organigramma"
+    },
+    {
+      "name": "elmi:GetOrganizationRoleTask",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Organigramma"
+    },
+    {
+      "name": "elmi:MaximoOpenSR",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Maximo"
+    },
+    {
+      "name": "elmi:MaximoOpenSR",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Maximo"
+    },
+    {
+      "name": "elmi:CreateDocumentInDMS",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Titulus"
+    },
+    {
+      "name": "elmi:CreateDocumentInDMS",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Titulus"
+    },
+    {
+      "name": "elmi:GetDocumentFromTitulus",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Titulus"
+    },
+    {
+      "name": "elmi:GetDocumentFromTitulus",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Titulus"
+    },
+    {
+      "name": "elmi:AddFilesToDocumentInDMS",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Titulus"
+    },
+    {
+      "name": "elmi:AddFilesToDocumentInDMS",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Titulus"
+    },
+    {
+      "name": "elmi:CreateDocumentInTitulus",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Titulus"
+    },
+    {
+      "name": "elmi:CreateDocumentInTitulus",
+      "superClass": [
+        "bpmn:ServiceTask"
+      ],
+      "group": "Titulus"
+    }
+  ]
+}

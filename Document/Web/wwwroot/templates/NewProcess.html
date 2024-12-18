@@ -1,0 +1,141 @@
+<div class="MainPanel">
+    <input type="hidden" document="documentDate" value="{{yyyy-MM-dd}}" />
+    <div style="display:flex;flex-direction:row;">
+        <div style="width:68%;">
+            <label class="active">Descrizione</label>
+            <span>
+                <input type="text"
+                       maxlength="255"
+                       name="Description"
+                       id="Description"
+                       document="description"
+                       required 
+                       onchange="return updateDescription()" />
+            </span>
+        </div>
+        <div style="width:30%;margin-left:2%;">
+            <label class="active">Identificativo Univoco</label>
+            <span>
+                <input type="text"
+                       name="ExternalId"
+                       id="ExternalId"
+                       document="externalId"
+                       required
+                        />
+            </span>
+        </div>
+    </div>
+    <div>
+        <label class="active">Modello</label>
+        <select id="FormTemplate" name="FormTemplate" style="width:100%" onchange="return selectFormTemplate()">
+        </select>
+    </div>
+    <a class="accordion" href="#" onclick="$('.responsabili').toggleClass('hidden')">
+        <h3>
+            <i class="fa fa-bell"></i> Notifiche Automatiche
+            <i class="responsabili hidden fa fa-caret-up pull-right"></i>
+            <i class="responsabili fa fa-caret-down pull-right"></i>
+        </h3>
+    </a>
+    <div id="Preview" class="hidden"></div>
+
+    <div class="responsabili hidden">
+        <div>
+            <label>
+                <strong>Responsabili</strong>
+            </label>
+            <input id="referentList"
+                   document="referentList"
+                   type="lookup"
+                   placeholder="utenti / ruoli / strutture..."
+                   tableId="$ug"
+                   tag="true"
+                   visible="true" />
+        </div>
+
+        <div>
+            <label>
+                <strong>Referenti C.C.</strong>
+            </label>
+            <input id="ReferentListCC"
+                   document="ReferentListCC"
+                   tag="true"
+                   type="lookup"
+                   placeholder="utenti / ruoli / strutture..."
+                   tableId="$ug"
+                   visible="true" />
+        </div>
+    </div>
+
+</div>
+
+
+    <script>
+
+        function selectFormTemplate() {
+            var $s = $("#FormTemplate");
+            FileContentName = $s.val();
+            FileContent = "";
+            try {
+                $("#Preview").html("");
+                fetch("/internalapi/Template/process/" + FileContentName)
+                     .then(r => { if (r.ok) { return r.text() } else new Error("Form non trovato") })
+                    .then(data => {
+                        if (data) {
+                            data = atob(data);
+                            FileContent = data;
+                            data = data.replace(/function Start/ig, "function _start").replace(/function Validate/ig, "function _validate");
+                            $("#Preview").html(data);
+                        }
+                        else
+                            $("#Preview").html("");
+                    })
+                    .catch(err => { $("#Preview").html(err); });
+            } catch (ex) {
+                $("#Preview").html(ex);
+            };
+        }
+
+        function updateDescription()
+    {
+        if (!$("#ExternalId").val())
+        {
+            var id = $("#Description").val().replace(/ /ig,'');
+            $("#ExternalId").val(id);
+        }
+    }
+
+
+        function Start() {
+            // Questa funzione viene richiamata prima di renderizzare il form
+            // Può essere utilizzata per effettuare chiamate http e recuperare dati esterni
+            // o mostrare o nascondere informazioni in base al valore delle variabili.
+            fetch("/internalapi/Template/process")
+                .then(r => r.json())
+                .then(d => {
+                    var sel = $("#FormTemplate")[0];
+
+                    $(d).each((i, e) => {
+                        var name = e;
+                        name = name.substr(0, name.lastIndexOf('.'));
+                        var option = document.createElement("option");
+                        option.value = e;
+                        option.text = name
+                        sel.add(option);
+                    });
+                    selectFormTemplate();
+                });
+            ContentType = 3;
+        }
+
+
+        function Validate() {
+            // Questa funzione viene richiamata prima di salvare il form per validare i dati.
+            //
+            // Valore di ritorno:
+            // true  = Ok, prosegue con il salvataggio
+            // false = Annulla il salvataggio. La visualizzaizone di eventuali errori è a carico di questa funzione
+            return FileContentName;
+        }
+
+    </script>

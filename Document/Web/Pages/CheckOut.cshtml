@@ -1,0 +1,138 @@
+﻿@page
+@model Web.Pages.CheckOutModel
+@{
+
+}
+
+
+<div class="Header">
+    <i class="DocumentIcon fa fa-pencil"></i>
+    <h1>
+        <small>Apertura Client Locale</small>
+        <span>Modifica Documento</span>
+    </h1>
+    <div class="right-header">
+        <a class="btn btn-link" href="#" onclick="CloseWindow()"><i class="fa fa-times"></i></a>
+    </div>
+</div>
+
+
+<div class="SelectDocumentType MainPanel">
+    <div class="Panel">
+        <div class="RicercaClient">
+            <div class="InfoPanel">
+                <i class="fa fa-search"></i>
+                <h1>Attivazione del Client Locale</h1>
+                <p>Ricerca del client in corso. Attendere prego...</p>
+                <br/>
+                <h3 class="Progresso"></h3>
+            </div> 
+        </div>
+        <div class="WaitClient" style="display:none">
+            <div class="InfoPanel">
+                <i class="fa fa-Pencil"></i>
+                <h1>In attesa del documento modificato</h1>
+                <p>Questa finesta si chiuderà automaticamente alla ricezione del documento modificato.</p>
+            </div>
+        </div>
+    </div>
+    <nav class="Bottom">
+        <a href="#" onclick="return CloseWindow()" class="btn">Esci</a>
+    </nav>
+
+</div>
+
+<script>
+ AbortSignal.timeout ??= function timeout(ms) {
+  const ctrl = new AbortController()
+  setTimeout(() => ctrl.abort(), ms)
+  return ctrl.signal
+}
+
+    $(document).ready(() => { 
+
+        TryPort(@Model.UserPort, @Model.UserPort, @Model.DocumentId, () => {
+            TryPort(5000, 7000, @Model.DocumentId, () => {
+                alert("Il client locale non è attivo");
+            });
+        }, 2000);
+    });
+
+    function CloseAndUpdate() { 
+        CloseWindow(true);
+    }
+
+    function ShowCheckOut() { 
+        $(".WaitClient").show();
+        $(".RicercaClient").hide();
+
+    }
+
+    function MonitorStatus(guid,port) { 
+        setTimeout(() => {
+            fetch("https://localhost:" + port + "/api/content/check?processGuid=" + guid)
+                .then(r => {
+                    if (r.ok)
+                        return r.text();
+                    else {
+                        /* Sbloccare il file */
+                        CloseAndUpdate();
+                    }
+                })
+                .then(data => {
+                    if (data != "false")
+                        CloseAndUpdate();
+                    else
+                        MonitorStatus(guid,port)
+                })
+                .catch(data => {
+                    //alert("Non è stato possibile aprire il documento o l'applicazione necessaria per modificarlo");
+                    CloseAndUpdate();
+                })
+        }, 2000);
+    }
+
+
+ function TryPort (port, max, documents, callback, timeout)
+    {
+        if (!timeout) timeout = 500;
+        $(".Progresso").html( parseInt ((port-5000)*100/(max-4999))+"%");
+        fetch("https://localhost:" + port + "/ping", { signal: AbortSignal.timeout(timeout) })
+            .then(response =>
+                {
+                    if (response.status = 200) { 
+                        fetch ("https://localhost:" + port + "/api/content/Open?documentId=" + documents + "&host=" +escape(window.location.origin))
+                        .then(r => {
+                            if (r.ok)
+                                return r.text();
+                            else { 
+                                /* Sbloccare il file */
+                                alert("Non è stato possibile aprire il documento o l'applicazione necessaria per modificarlo");
+                                CloseWindow();
+                            }
+                        })
+                        .then(data => {
+                            ShowCheckOut();
+                            MonitorStatus (data, port)
+                        })
+                        .catch(data => {
+                            alert("Non è stato possibile aprire il documento o l'applicazione necessaria per modificarlo");
+                            CloseWindow();
+                        })
+
+                }
+                }
+            )
+            .catch(function (error) {
+                if (port < max)
+                    TryPort( port + 1, max, documents, callback)
+                else
+                {
+                    callback(); 
+                }
+            });
+    }
+
+
+
+</script>

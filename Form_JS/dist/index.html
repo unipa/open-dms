@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Form JS</title>
+	<meta charset="UTF-8">
+<link rel="stylesheet" href="/bpm/form/form.d6f5eb50.css"></head>
+
+<body>
+	<div id="app"></div>
+	<div id="dropzone" class="dropzone hidden"></div>
+	<div id="buttons" style="text-align: center;">
+		<button id="importButton">Importa JSON</button>
+		<button id="exportButton">Esporta JSON</button><br>
+		<button id="viewJsonButton">Visualizza JSON</button>
+	</div>
+	<div style="background-color: transparent;" id="apibuttons" class="panel"></div> 
+	<div id="jsonModal" class="modal">
+		<div class="modal-content">
+		<h2>JSON generato</h2>
+		<textarea id="jsonTextArea" readonly=""></textarea>
+		<button id="closeModalButton" class="close-button">Chiudi</button>
+		</div>
+	</div>	  
+	<script src="/bpm/form/form.d6f5eb50.js"></script>
+    <script src="/bpm/form/data-entry.32febdfc.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</body>
+
+</html>

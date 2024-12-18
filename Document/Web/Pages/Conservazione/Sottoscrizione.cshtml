@@ -1,0 +1,180 @@
+﻿@page
+@model Web.Pages.SottoscrizioneModel
+@{
+    ViewData["Title"] = "Pagina di conservazione";
+    Layout = "_ConservazioneLayout";
+}
+
+
+<style>
+    .nav.nav-pills li {
+        list-style-type: none;
+        display: inline-block;
+        margin-right: 10px;
+        background-color: #aad4f5;
+        transition: background-color 0.3s;
+        padding: 5px 10px;
+    }
+
+        .nav.nav-pills li a {
+            text-decoration: none;
+        }
+
+        .nav.nav-pills li.selected {
+            background-color: #0066cc;
+            color: white;
+        }
+
+            .nav.nav-pills li.selected a {
+                color: white;
+            }
+
+</style>
+
+<div class="MainWindow">
+    <div class="Header">
+        <i class="fa fa-pencil"></i>
+        <h1>
+            <small>
+                Sottoscrizione
+            </small>
+            <span id="HeaderTitle">Documenti da Firmare</span>
+        </h1>
+        <div class="right-header">
+            <a href="#" onclick="return CloseWindow()"><i class="fa fa-times"></i></a>
+        </div>
+    </div>
+
+
+    <div id="ContentPanel" class="MainPanel FullHeight" style="height: 517px; position: relative;">
+
+
+        <div id="Table" class="FullHeight" style="height: 517px; position: relative;">
+            <div style="padding-top:10px">
+                <ul class="nav nav-pills" id="Anni">
+                    @for (int i = DateTime.Now.Year; i >= DateTime.Now.Year - 10; i--)
+                    {
+                        <li>
+                            <a href="#" data-anno="@i" onclick="CambiaAnno('@i')">@i</a>
+                        </li>
+                    }
+                </ul>
+
+            </div>
+
+            <div style="position: absolute; width: 400px; top: 10px; right: 10px; text-align: right; vertical-align: baseline">
+                <div style="display: flex; gap: 10px;">
+                    <div style="border-radius: 3px; border: 1px solid #ccc; display: inline-block;">
+                        <input type="date" id="dateInizio" name="dateInizio" style="width: 150px; min-height: 28px; border: 1px;">
+                    </div>
+
+                    <div style="border-radius: 3px; border: 1px solid #ccc; display: inline-block">
+                        <input type="date" id="dateFine" name="dateFine" style="width: 150px; min-height: 28px; border: 1px;">
+                    </div>
+
+                    <button type="submit" class="btn" onclick="return loadData()">
+                        <i class="tbRefresh"></i>Aggiorna
+                    </button>
+                </div>
+            </div>
+
+            <div style="position: relative; padding-top: 10px" class="FullHeight">
+                <table id="Grid" class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th class="nowrap">Tipologia</th>
+                            <th class="text-left nowrap" style="max-width: 100px; min-width: 100px">Gruppo</th>
+                            <th class="text-left nowrap" style="max-width: 80px; min-width: 80px">Periodo</th>
+                            <th class="text-left nowrap" style="min-width: 120px">Da Firmare</th>
+                            <th class="text-left nowrap" style="min-width: 120px">Documenti</th>
+                        </tr>
+                    </thead>
+                    <tbody id="TableBody" style="opacity: 1;"></tbody>
+                </table>
+
+            </div>
+
+
+
+        </div>
+
+
+
+
+</div>
+</div>
+
+<script>
+
+        var selectedYear = new Date().getFullYear();
+
+        function CambiaAnno(anno) {
+            selectedYear = anno;
+            loadData();
+        }
+
+        function PopolaTabella(data) {
+            var tableBody = $("#TableBody");
+            tableBody.empty();
+
+            for (var i = 0; i < data.length; i++) {
+                if (new Date(data[i].periodo.startDate).getFullYear() === selectedYear) {
+                    var row = $("<tr>");
+                    row.append($("<td>").text(data[i].tipologia));
+                    row.append($("<td>").text(data[i].gruppo));
+                    row.append($("<td>").text(formatPeriod(data[i].periodo.startDate, data[i].periodo.endDate)));
+                    row.append($("<td>").text(data[i].daFirmare));
+                    row.append($("<td>").text(data[i].documenti));
+                    tableBody.append(row);
+                }
+            }
+        }
+
+
+        function formatDate(date) {
+            if (typeof date === 'string') {
+                date = new Date(date);
+            }
+
+            if (!(date instanceof Date)) {
+                return 'Data non valida';
+            }
+
+            var day = date.getDate();
+            var month = date.getMonth() + 1;
+            var year = date.getFullYear();
+            return (day < 10 ? '0' : '') + day + '/' + (month < 10 ? '0' : '') + month + '/' + year;
+        }
+
+        function formatPeriod(startDate, endDate) {
+            var formattedInizio = formatDate(startDate);
+            var formattedFine = formatDate(endDate);
+            return formattedInizio + " - " + formattedFine;
+        }
+
+        function loadData() {
+            $.ajax({
+                url: "@Model.EndPoint",
+                type: "GET",
+                success: function (data) {
+                    PopolaTabella(data);
+                },
+                error: function (error) {
+                    console.log("Errore nella chiamata API:", error);
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            
+            loadData();            
+            $(".nav.nav-pills li a").on("click", function (e) {
+                e.preventDefault();
+                CambiaAnno($(this).data("anno"));
+            });
+        });
+
+</script>
+
+
+

@@ -1,0 +1,19 @@
+﻿@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@{
+    ViewData["Title"] = "Errore";
+    Layout = "_MenuLayout";
+}
+
+<div class="Header">
+    @await  Component.InvokeAsync("CompanyLogo")
+</div>
+
+<div class="Panel">
+    <h1><i class="fa fa-bug"></i>VIEW Errore</h1>
+    <p>Si è verificata una condizione di errore non prevista.</p>
+    <a class="mt-5" href="#" onclick="return history.back()">
+        <button type="button" class="btn btn-secondary">Torna indietro</button>
+    </a>
+</div>
+

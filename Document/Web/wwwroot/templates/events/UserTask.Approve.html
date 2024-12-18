@@ -1,0 +1,28 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <div class="Content">
+        <div>
+            <input type="radio" id="si" name="choise" value="1" checked />&nbsp;Si
+        <div>
+        </div>
+            <input type="radio" id="no" name="choise" value="0" />&nbsp;No
+        </div>
+        </div>
+    <div class="Panel">
+        <label visibleFor="{choise}==0">Indica la motivazione del rifiuto</label>
+        <label visibleFor="{choise}!=0">Note facoltative</label>
+        <textarea required id="Justification" name="Justification" rows="5"></textarea>
+    </div>
+    <script>
+        function Start() {
+            InizializzaTextEditor("#Justification", "", null, "200px");
+        }
+
+    </script>
+</body>
+</html>

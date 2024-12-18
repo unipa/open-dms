@@ -1,0 +1,339 @@
+﻿@using Web.DTOs
+@using static Web.Pages.Shared.Components.ProcessInfoView.ProcessInfoViewComponent
+@model ProcessInfoModel
+
+
+<script>
+
+    function restartTask(id)
+    {
+        fetch("/internalapi/wf/RestartJob/" + id)
+            .then(response => {
+                if (response.status === 200) {
+                    return response.json();
+                } else {
+                    return response.text().then(text => { throw new Error(text) });
+                }
+            })
+            .then(data => {
+                UpdateBPMPanel();
+            })
+            .catch(err => {
+                alert(err);
+            })
+    }
+
+
+
+    function retryJob(id, job, a) { 
+        
+        $(a).html("AVVIO IN CORSO...");
+        $(a).removeAttr("click");
+        $(a).attr("secondi", 5);
+        fetch("/internalapi/wf/restartJob/" + id + "/" + job)
+            .then(response => { return response.text(); })
+            .then(data => {
+                window.setInterval(() => {
+                    let secondi = parseInt( $(a).attr("secondi"));
+                    $(a).html("RIAVVIO IN "+secondi+"s...");
+                    secondi--;
+                    $(a).attr("secondi", secondi);
+                    if (secondi == 0) { 
+                        UpdateBPMPanel();
+                        clearInterval();
+                    }
+                }, 1000)
+            })
+    }
+    function setVariable (id, a, varName) { 
+        if (!varName) varName = prompt("Indicare il nome della variabile da modificare o creare", "");
+        if (varName) {
+            $(processi).each((i,p) => { 
+                var processId = p.id;
+                var elementKey = p.id;
+                var incidentjob = 0;
+
+                $(p.problems).each((i, e) => {
+                    if (e.id == id) {
+                        // Trovato problema
+                        incidentjob = e.jobKey;
+                        elementKey = e.elementKey;
+                    }
+                });
+
+                var varValue = p.variables[varName];
+                if (varValue == undefined)
+                    varValue = prompt("Valore Nuova Variabile: "+ varName, varValue);
+                else
+                    varValue = prompt("Nuovo valore di: "+varName, varValue);
+                     
+                if (varValue == undefined || varValue == null) return;
+
+//                if (isNaN(parseFloat(varValue)))
+//                    varValue = '"' + varValue + '"';
+                $(a).html("AVVIO IN CORSO...");
+                $(a).removeAttr("click");
+                $(a).attr("secondi", 5);
+                fetch("/internalapi/wf/setVariable/" + processId + "/" + elementKey + "/" + id + "/" + incidentjob + "/?variableName=" + varName + "&Value=" + varValue)
+                    .then(response => { return response.text(); })
+                    .then(data => {
+                        window.setInterval(() => {
+                            let secondi = parseInt($(a).attr("secondi"));
+                            $(a).html("RIAVVIO IN " + secondi + "s...");
+                            secondi--;
+                            $(a).attr("secondi", secondi);
+                            if (secondi == 0) {
+                                UpdateBPMPanel();
+                                clearInterval();
+                            }
+                        }, 1000)
+                    })
+            })
+        }
+    }
+
+    var processi = [];
+    function UpdateBPMPanel() {
+        $(".Processes").html("<h3>Caricamento in corso...</h3>");
+        fetch("/internalapi/wf/getProcessesByDocumentId/@Model.DocumentId")
+            .then(response => { return response.json(); })
+            .then(data => {
+                var template = $("#ProcessInfo").html();
+                $(data).each((i, p) => {
+                    $(p.activeTasks).each((i, e) => {
+                        e.creationDateString = FormatDate (e.creationDate.substring(0, 10)) + " " + e.creationDate.substring(11, 16)
+                        e.expirationDateString = e.expirationDate != undefined ? FormatDate(e.expirationDate.substring(0, 10)) : "";
+                        e.days = Math.round((new Date() - new Date(e.creationDate)) / (1000 * 60 * 60 * 24));
+                    })
+                    $(p.closedTasks).each((i, e) => {
+                        e.creationDateString = FormatDate(e.creationDate.substring(0, 10)) + " " + e.creationDate.substring(11, 16)
+                        e.executionDateString = FormatDate(e.firstExecutionDate.substring(0, 10)) + " " + e.firstExecutionDate.substring(11, 16)
+                        e.expirationDateString = e.expirationDate != undefined ? FormatDate(e.expirationDate.substring(0, 10)) : "";
+                        e.days = Math.round((new Date(e.firstExecutionDate) - new Date(e.creationDate)) / (1000 * 60 * 60 * 24));
+                    })
+                    p.vars = [];
+                    Object.keys(p.variables).forEach((e, i) => {
+                        p.vars[i] = { key: e, value: p.variables[e] };
+                    });
+                    p.creationDateString = p.startTime;
+                    // p.canWriteTo = !(p.taskItemInfo.toList.includes('@User.Identity?.Name'));
+                });
+                processi = data;
+                var html = Mustache.to_html(template, { processes: data });
+                $(".Processes").html(html);
+            })
+
+    };
+      
+
+   
+    //}
+
+</script>
+
+
+
+<div class="Header">
+    <h1><i class="fa fa-cogs"></i> Workflow</h1>
+    <a href="#" onclick="return UpdateBPMPanel()" class=""><i class="fa fa-refresh"></i></a>
+    <a href="#" onclick="return ShowPanel('')" class=""><i class="fa fa-times"></i></a>
+</div>
+<div class="MainPanel Processes">
+</div>
+
+
+<script type="text/html" id="ProcessInfo">
+    <div class="accordion">
+    {{#processes}}
+        <div class="accordion-item">
+            <div class="accordion-button"  data-bs-toggle="collapse" data-bs-target="#process_{{id}}">
+                <i class="fa fa-sitemap" style="color:#aab;width:20px;margin-right:8px"></i> <strong>{{description}}</strong>
+                <span style="justify-content: end;flex-grow: 1;display: flex;">
+                @if (Model.IsAdmin)
+                {
+                    <a href="#" title="Modifica una Variabile di processo" onclick="setVariable('{{ id }}',this)" style="padding:2px 8px;margin-right:8px">
+                        <span class="fa fa-pencil"></span>
+                    </a>
+
+                    @Html.Raw("{{#problems.length}}")
+                    <a href="#" title="Riavvia task in errore" onclick="retryJob('{{ id }}','{{ problems.0.jobKey }}',this)" class="btn btn-xs btn-outline-primary" style="padding:4px 8px;margin-right:8px">
+                        <span class="fa fa-retweet"></span>
+                    </a>
+                    @Html.Raw("{{/problems.length}}")
+                    <span style="padding:2px 10px;font:1em">
+                        v{{version}}
+                    </span>
+                }
+                </span>
+            </div>
+
+            <ul id="process_{{id}}" class="nav nav-list collapseOne accordion-collapse collapse show">
+                {{#problems}}
+                    <li id="{{ id }}" class="ErrorTaskStep">
+                        <a>
+                            <div style="display:flex;flex-direction:column;width:100%;position:relative;align-self:normal;color:crimson">
+                                <b style="margin-bottom:-2px">{{ errorType }} - {{ status }}</b>
+                                <div style="font-size:.85rem;font-weight:600;color:#888">
+                                    DA: {{ elementId }}
+                                </div>
+                                <div style="font-size:.85rem;font-weight:600;">
+                                    <span class="fa fa-bug"></span>{{errorMessage}}
+                                </div>
+                                <div style="position:absolute;top:2px;right:4px; text-align:right;font-size:.85rem;color:#888" title="Data creazione dell'attività">
+                                        {{ creationDateString }} <i class="fa fa-calendar"></i>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                {{/problems}}
+
+                {{#activeTasks}}
+                <li id="{{ id }}" style="display:flex;" class="ActiveTaskStep">
+                    <a href="#" onclick="openTask({{ id }})">
+                        <div style="display:flex;flex-direction:column;width:100%;position:relative;align-self:normal">
+                                {{#taskItemInfo.toList.length}}
+                                <b style="margin-bottom:-2px">
+                                    {{#taskItemInfo.toList}}
+                                        <span>{{description}}</span>
+                                    {{/taskItemInfo.toList}}
+                                    @* <span>{{ roleName }} / {{ groupName }}</span> *@
+                                </b>
+                                {{/taskItemInfo.toList.length}}
+                                {{#taskItemInfo.ccList.length}}
+                                    <div style="font-size:.85rem">
+                                        CC: {{#taskItemInfo.ccList}}
+                                            <span>{{description}}</span>
+                                        {{/taskItemInfo.ccList}}
+                                    </div>
+                                {{/taskItemInfo.ccList.length}}
+                                <div style="font-size:.85rem;font-weight:600;color:#222">
+                                    DA: {{ taskItemInfo.senderName }}
+                                </div>
+
+                                <div style="color: #222;font-size:.85rem;"><i class="fa fa-comment"></i> {{&taskItemInfo.title }}</div>
+                                <div style="position:absolute;top:28px;right:174px;text-align:right;font-size:.85rem;color:#888">
+                                        {{ percentage }}%
+                                </div>
+
+                                <div style="position:absolute;top:2px;right:4px; text-align:right;font-size:.85rem;color:#888">
+                                        {{ creationDateString }} <i class="fa fa-calendar"></i>
+                                </div>
+                                <div style="position:absolute;top:2px;right:174px;text-align:right;font-size:.85rem;color:#888" title="Percentuale di completamento dell'attività">
+                                        {{ days }}gg
+                                </div>
+                                {{#expirationDateString }}
+                                <div style="position:absolute;top:28px;right:4px; text-align:right;font-size:.85rem;color:crimson">
+                                        {{ expirationDateString }} <i class="fa fa-exclamation"></i>
+                                </div>
+                                {{/expirationDateString }}
+                        </div>
+                    </a>
+
+                </li>
+                {{/activeTasks}}
+                {{#closedTasks}}
+                <li id="{{ id }}" style="display:flex;" class="ClosedTaskStep">
+
+                @if (Model.IsAdmin)
+                {
+                    <a href="#" title="Avvia processo bloccato" onclick="restartTask({{ closedTasks.0.id }})"  style="position:absolute; right:145px; top:7px;padding:4px 8px;width:24px;">
+                        <span class="fa fa-play"></span>
+                    </a>
+                }
+                    <a href="#" onclick="openTask({{ id }})" >
+                         <div style="display:flex;flex-direction:column;width:100%;position:relative">
+                                <b style="margin-bottom:-2px">{{ userName }}</b>
+                                {{#taskItemInfo.toList.length}}
+                                <div style="font-size:.85rem;font-weight:600;color:#222">
+                                    A: 
+                                    {{#taskItemInfo.toList}}
+                                        <span>{{description}}</span>
+                                    {{/taskItemInfo.toList}}
+                                </div>
+                                {{/taskItemInfo.toList.length}}
+                                <div style="font-size:.85rem;font-weight:600;color:#222">
+                                    DA: {{ taskItemInfo.senderName }}
+                                </div>
+                                <div style="color: #222;font-size:.85rem" title="Titolo dell'attività"><i class="fa fa-comment" ></i> {{&taskItemInfo.title }}</div>
+                                {{#taskItemInfo.progress.length}}
+                                <div style="font-size:.85rem;color:#444;font-weight:700"  title="Esito dell'attività">
+                                    <i class="fa fa-check"></i>
+                                    {{#taskItemInfo.event.description }}
+                                        {{&taskItemInfo.event.description }}:
+                                    {{/taskItemInfo.event.description }}
+
+                                    {{&taskItemInfo.progress.0.message }}
+                                </div>
+                                {{/taskItemInfo.progress.length}}
+
+                                <div style="position:absolute;top:28px;right:174px;text-align:right;font-size:.85rem;color:#888" title="Percentuale di completamento dell'attività">
+                                        {{ percentage }}%
+                                </div>
+
+                                <div style="position:absolute;top:2px;right:4px; text-align:right;font-size:.85rem;color:#888" title="Data creazione dell'attività">
+                                        {{ creationDateString }} <span class="fa fa-calendar"></span>
+                                </div>
+
+                                <div style="position:absolute;top:2px;right:174px;text-align:right;font-size:.85rem;color:#888" title="Percentuale di completamento dell'attività">
+                                        {{ days }} gg
+                                </div>
+
+                                {{#expirationDateString }}
+                                <div style="position:absolute;top:54px;right:4px; text-align:right;font-size:.85rem;color:crimson" title="Data scadenza dell'attività">
+                                        {{ expirationDateString }} <span class="fa fa-exclamation"></span>
+                                </div>
+                                {{/expirationDateString }}
+
+                                {{#executionDateString }}
+                                <div style="position:absolute;top:28px;right:4px; text-align:right;font-size:.85rem;color:#888" title="Data completamento dell'attività">
+                                        {{ executionDateString }} <span class="fa fa-check"></span>
+                                </div>
+                                {{/executionDateString }}
+
+                        </div>
+                    </a>
+                </li>
+                {{/closedTasks}}
+
+                <li id="{{ id }}" class="ClosedTaskStep">
+                    <a href="#">
+                        <div style="display:flex;flex-direction:column;width:100%;position:relative;align-self:normal">
+                            <b style="margin-bottom:-2px">Avvio Processo - #{{ id }}</b>
+                            <div style="font-size:.85rem;font-weight:600">
+                                    DA: {{ startUserName }}
+                            </div>
+                            <div style="position:absolute;top:2px;right:4px; text-align:right;font-size:.85rem;color:#888">
+                                    {{ creationDateString }} <i class="fa fa-calendar"></i>
+                            </div>
+                         </div>
+                    </a>
+                </li>
+                {{#vars.length}}
+                <li >
+                    <div style="font-size:.8rem;color:#888;margin-left:24px">
+                    <h6>VARIABILI DEL PROCESSO</h6>
+                    {{#vars}}
+                    <div class="Row" style="flex-direction:row">
+                        <label>{{key}}</label> <span style="overflow-x:hidden">{{value}}</span>
+
+                        @if (Model.IsAdmin)
+                        {
+                            <a href="#" title="Modifica una Variabile di processo" onclick="setVariable('{{ id }}',this,'{{key}}')" style="margin-top:10px;padding:3px 0px;width:24px">
+                                <i class="fa fa-pencil"></i>
+                            </a>
+                        }
+                        </div>
+                    {{/vars}}
+                    </div>
+                </li>
+                {{/vars.length}}
+            </ul>
+        </div>
+
+    {{/processes}}
+    </div>
+
+</script>
+
+
+

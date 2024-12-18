@@ -1,0 +1,233 @@
+﻿@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@using OpenDMS.Domain.Entities;
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@using Web.Model.Admin;
+@using OpenDMS.Domain.Entities.Settings;
+@model TabelleInterneViewModel;
+@{
+    ViewData["Title"] = "Tabelle Personalizzate";
+    Layout = "_AdminLayout";
+
+    var RegistroDelleTabelle = Model.Tables.FirstOrDefault(t => t.Id == "$TABLES$");
+
+}
+<script>
+
+    $(document).ready(function () {
+        $(function () {
+
+            $(".mnuAdminTabelleInterne").addClass("active");
+
+            if (`@Model.ErrorMessage` !== '') ShowMessage('alert', `@Html.Raw(Model.ErrorMessage)`, 'Message_Target', '/Admin/TabelleInterne/Index?TableId=@Model.TableId');
+            if (`@Model.SuccessMessage` !== '') ShowMessage('success', `@Html.Raw(Model.SuccessMessage)`, 'Message_Target', null);
+
+            //Per aggiungere e togliere la classe Active agli elementi della lista laterale
+            Carica("@Model.TableId");
+
+            //codice per far svanire i messaggi di successo
+            FadeOutSuccessMessagge(10000);
+
+            var selected = null;
+
+            //funzionamento button per l'apertura dell'area di modifica modifica
+            //* "td:first-child,td:nth-child(2)" :
+            // evito l'attivazione al click sulle zone
+            // dove ci sono i pulsanti di delete e gestione tabelle
+            $('tr.display td:first-child,td:nth-child(2)').click(function () {
+                var baseId = $(this).closest('tr').attr('id');//.replace(/$/g, "").replace(/./g, "");
+                if (baseId !== selected) {
+
+                    //resetto ciò che è aperto
+                    $('.display').show();
+                    $('.form').hide();
+
+                    //apro quello che è stato cliccato
+                    selected = baseId;
+
+                    $('#' + baseId + '.display').toggle();
+                    $('#' + baseId + '.form').toggle();
+                }
+            })
+
+            //funzionamento  button di chiusura
+            $('a.close').click(function () {
+                var baseId = $(this).attr('id');//.replace(/$/g, "").replace(/./g, "");
+                //chiudo ciò che ho cliccato
+                $('#' + baseId + '.form').hide();
+                $('#' + baseId + '.display').show();
+
+                selected = null;
+            })
+
+        });
+    })
+
+    function ConfermaEliminaModal(TableId, Id, nome) {
+        Confirm(`Stai per cancellare questa @((Model.TableId == "$TABLES$") ? "tabella" : "elemento"): ${nome} ?`, "Message_Target", function () {
+            window.location = `/Admin/TabelleInterne/Delete?TableId=${TableId}&Id=${Id}`;
+        }, null);
+    }
+</script>
+
+@section HeaderTitle
+    {
+    Tabelle Interne
+}
+
+
+<div class="Page">
+    <div class="MainPanel ListMenu InsidePanel">
+        <ul class="nav nav-list">
+
+            <li codice="@RegistroDelleTabelle.Id" class="">
+                <a class="left-icon px-2" href="/Admin/TabelleInterne/Index?TableId=@RegistroDelleTabelle.Id">
+                    <span class="list-item-title-icon-wrapper me-0">
+                        <i class="fa fa-pencil"></i>
+                        <span class="m-0">
+                            Gestisci tabelle@*@RegistroDelleTabelle.Description*@
+                        </span>
+                    </span>
+                </a>
+            </li>
+
+            <li><span class="divider"></span></li>
+
+            @foreach (LookupTable tableId in Model.Tables.Where(t => t.Id != RegistroDelleTabelle.Id))
+            {
+                <li codice="@tableId.Id" class="">
+                    <a class="left-icon px-2" href="/Admin/TabelleInterne/Index?TableId=@tableId.Id">
+                        <span class="list-item-title-icon-wrapper me-0">
+                            <i class="fa fa-table"></i>
+                            <span class="m-0">
+                                @tableId.Description
+                            </span>
+                        </span>
+                    </a>
+                </li>
+            }
+
+        </ul>
+    </div>
+
+    <div class="Panel">
+            <div id="Message_Target"></div>
+
+            <div class="">
+                <h2>
+                    <i class="fa fa-@((Model.TableId == "$TABLES$") ? "list" : "table")"></i>
+                    &nbsp;@Model.Description
+                </h2>
+            </div>
+
+            @*Modifica Uniformità con l'elemento BackPanel presente anche in Processes,Permessi e Permessi Globali*@
+
+            <div class="row-fluid">
+            </div>
+
+            <div class="Panel">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Descrizione</th>
+                            <th>Codice</th>
+                            <th>&nbsp;</th>
+                            <th>&nbsp;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <form asp-controller="TabelleInterne" asp-action="Memorizza">
+                        <tr>
+                            <td>
+                                <input type="hidden" name="TableId" value="@Model.TableId" />
+                                <input name="Description" type="text" class="form-control" required id="formDescription" placeholder="Descrizione">
+                            </td>
+                            <td colspan="3">
+                                <input name="Id" type="text" class="form-control" id="formId" placeholder="Codice">
+                            </td>
+                            <td>
+                        </tr>
+                        <tr>
+                            <td colspan=2>
+                                <textarea name="Annotation" id="formAnnotation" rows="1" placeholter="Note" ></textarea>
+                            </td>
+                            <td colspan="2" class="pull-right">
+                                <button class="btn btn-xs btn-primary" type="submit">Aggiungi</button>
+                            </td>
+                        </tr>
+                        </form>
+
+
+                        @{
+                            if (Model.LookupTables.Where(t => t.Id != RegistroDelleTabelle.Id).ToList().Count == 0)
+                            {
+                                <tr>
+                                    <td colspan="4" class="rigaricerca">
+                                        Non sono presenti @((Model.TableId == "$TABLES$") ? "tabelle" : "elementi")
+                                    </td>
+                                </tr>
+                            }
+                            foreach (var LookupTable in Model.LookupTables.Where(t => t.Id != RegistroDelleTabelle.Id))
+                            {
+                                var codice = @LookupTable.TableId.Replace("$", "") + "_" + @LookupTable.Id.Replace("$", "");
+                                <tr id="container_@codice.Replace(".","").Replace(" ","_")" style="border-bottom: 1px solid #ccc" class="display">
+                                    <td class="rigaricerca" style="width:70%;">
+                                        <strong>@LookupTable.Description </strong>
+                                        <br>
+                                        <small class="mt-2">@LookupTable.Annotation</small>
+                                    </td>
+                                    <td style="width:25%;">
+                                        @LookupTable.Id
+                                    </td>
+                                    <td style="width:3%;">
+                                        @if (@LookupTable.TableId.Equals("$TABLES$"))
+                                        {
+                                            @using (Html.BeginForm("Index", "TabelleInterne"))
+                                            {
+                                                <input type="hidden" name="TableId" value="@LookupTable.Id" />
+                                                <button class="mt-1" style="border: none; background-color: transparent" type="submit">
+                                                    <i class="fa fa-folder"></i>
+                                                </button>
+                                            }
+                                        }
+                                    </td>
+                                    <td align="right" style="width:3%;">
+                                        @if (!LookupTable.Id.Equals("$TABLES$"))
+                                        {
+                                            <button onclick='ConfermaEliminaModal("@LookupTable.TableId","@LookupTable.Id","@LookupTable.Description")' style="background-color: transparent; border: none; ">
+                                                <i class="fs-5 fa fa-trash-o"></i>
+                                            </button>
+                                        }
+                                    </td>
+                                </tr>
+                                <tr id="container_@codice.Replace(".","").Replace(" ","_")" class="form bg-light" style="display:none">
+                                    <form asp-controller="TabelleInterne" asp-action="Aggiorna">
+                                        <input type="hidden" value="@LookupTable.TableId" name="TableId" />
+                                        <input type="hidden" value="@LookupTable.Id" name="Id" />
+
+                                    <td class="rigaricerca" style="width:70%;">
+                                        <input type="text" value="@LookupTable.Description" maxlength="50" name="Description" class="span12">
+                                        <textarea rows="2" cols="20" maxlength="250" name="Annotation" class="span12" placeholder="Note" style="margin-top: 2px">@LookupTable.Annotation</textarea>
+                                    </td>
+                                    <td style="width:25%;">
+                                        <span>@LookupTable.Id</span>
+                                    </td>
+                                    <td style="width:3%;">
+                                    </td>
+                                    <td class="p-3" align="right" style="width:3%;position: relative !important;">
+                                        <a id="container_@codice.Replace(".","")" class="ps-2 pe-1 close btn" style="box-shadow: none;position: absolute;top: 0rem;right: 1.2rem;">
+                                            <i class="fs-5 fa fa-times"></i>
+                                        </a>
+                                        <button class="p-1 me-1" style="background-color: transparent; border: none;position: absolute;bottom: 1rem;right: 1rem;">
+                                            <i class="fs-5 fa fa-save"></i>
+                                        </button>
+                                    </td>
+                                    </form>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+    </div>
+</div>

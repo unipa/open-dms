@@ -1,0 +1,189 @@
+﻿@page
+@model Web.Pages.ResponsabileDelegatiModel
+@{
+    ViewData["Title"] = "Pagina Responsabile & Delegati";
+    Layout = "_ConservazioneLayout";
+}
+
+<div class="MainWindow">
+    <div class="Header">
+        <i class="fa fa-users"></i>
+        <h1>
+            <small>
+                Responsabile & Delegati
+            </small>
+            <span id="HeaderTitle">Elenco utenti autorizzati alla conservazione</span>
+        </h1>
+        <div class="right-header">
+            <a href="#" onclick="return CloseWindow()"><i class="fa fa-times"></i></a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col col-md-4" style="height: calc(100vh - 53px);overflow-y:auto;">
+                <h4 style="color:#06c">Lista Utenti</h4>
+                <br/>
+                <ul id="userList" class="list-group">
+                </ul>
+            </div>
+            <div class="col col-md-8">
+                <h4 style="color:#06c">Dettagli Utente</h4>
+                <br/>
+                <h2 id="userHeader">
+                    <img id="userAvatar" class="avatar" src="" style="float: left; margin-right: 10px; width: 32px;">
+                    <span id="userName" ></span>
+                    <small id="userRole"></small>
+                </h2>
+                <br/>
+                <form>
+                    <div class="row border-bottom">
+                        <div class="col-3" style="font-weight: bold;">
+                            <label for="nome" style="color:#06c">Nome:</label>
+                        </div>
+                        <div class="col-6">
+                            <div>
+                                <input id="nome" class="form-control align-items-center" style="border:1px solid; margin: 10px 0; background-color: #eee" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row border-bottom">
+                        <div class="col-3" style="font-weight: bold;">
+                            <label for="cognome" style="color:#06c; ">Cognome:</label>
+                        </div>
+                        <div class="col-6">
+                            <div>
+                                <input id="cognome" class="form-control" style="border:1px solid; margin: 10px 0; background-color: #eee" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row border-bottom">
+                        <div class="col-3" style="font-weight: bold;">
+                            <label for="tipoDocumento" style="color:#06c;">Tipo Documento:</label>
+                        </div>
+                        <div class="col-6">
+                            <div>
+                                <select id="tipoDocumento" class="form-control" style="border:1px solid; margin: 10px 0;">
+                                    <option>Documento di Identità</option>
+                                    <option>Codice Fiscale</option>
+                                    <option>Passaporto</option>
+                                    <option>Partita IVA</option>
+                                    <option>Registrazione Camera di Commercio</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row border-bottom">
+                        <div class="col-3" style="font-weight: bold;">
+                            <label for="documento" style="color:#06c">Documento:</label>
+                        </div>
+                        <div class="col-6">
+                            <div>
+                                <input id="documento" class="form-control" style="border:1px solid; margin: 10px 0; background-color: #eee" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row border-bottom">
+                        <div class="col-3" style="font-weight: bold;">
+                            <label for="countryId" style="color:#06c">Sigla Nazionale:</label>
+                        </div>
+                        <div class="col-6">
+                            <div>
+                                <input id="countryId" class="form-control" style="border:1px solid; width: 3em; margin: 10px 0; background-color: #eee" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="padding-top: 10px;">
+                        <div class="col-12">
+                            <div id="SavePanel">
+                                <input type="submit" name="ctl00$ctl00$ctl00$ctl00$ctl00$MainPlaceHolder$MainPlaceHolder$MainPlaceHolder$MainPlaceHolder$ContentPlaceHolder1$Button1" value="Memorizza" id="ctl00_ctl00_ctl00_ctl00_ctl00_MainPlaceHolder_MainPlaceHolder_MainPlaceHolder_MainPlaceHolder_ContentPlaceHolder1_Button1" class="btn btn-primary">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script>
+
+        const userList = document.getElementById('userList');
+        const nomeInput = document.getElementById('nome');
+        const cognomeInput = document.getElementById('cognome');
+        const countryIdInput = document.getElementById('countryId');
+        const userAvatarImg = document.getElementById('userAvatar');
+        const userRole = document.getElementById('userRole');
+        const userName = document.getElementById('userName');
+
+        
+        function getUserImage(userId) {
+            return `/internalapi/identity/avatar/0admin`; //quando avrò degli id validi e non quelli della mia API di test, modificare con: /${userId}
+        }
+
+        fetch('@Model.EndPointRespDelegati')
+            .then(response => response.json())
+            .then(users => {
+                users.forEach(async (user, index) => {
+                    const listItem = document.createElement('li');
+                    listItem.classList.add('list-group-item', 'd-flex', 'align-items-center');
+                    listItem.setAttribute('data-userid', user.id);
+
+                    
+                    const userImageSrc = getUserImage(user.id);
+
+                    listItem.innerHTML = `
+                                <img src="${userImageSrc}" class="user-image mr-3" style="max-width: 45px; max-height: 45px; width: auto; height: auto; padding-right: 10px;">
+                                <div>
+                                    <p class="mb-0" style="color: #0066CC;">${user.nome} ${user.cognome}</p>
+                                </div>
+                            `;
+
+                    
+                    listItem.addEventListener('mouseenter', () => {
+                        listItem.style.backgroundColor = '#f0f0f0'; 
+                    });
+
+                    listItem.addEventListener('mouseleave', () => {
+                        listItem.style.backgroundColor = ''; 
+                    });
+
+                    userList.appendChild(listItem);
+
+                    
+                    if (index === 0) {
+                        listItem.click();
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Errore durante la richiesta dei dettagli utente:', error);
+            });
+
+        userList.addEventListener('click', (event) => {
+            const userId = event.target.dataset.userid;
+            if (userId) {
+                fetch(`@Model.EndPointRespDelegatiDetails/${userId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        userName.textContent = `${data.nome}`;
+                        nomeInput.value = data.nome;
+                        cognomeInput.value = data.cognome;
+                        countryIdInput.value = data.countryCode;
+                        userAvatarImg.src = getUserImage(userId);
+                        userRole.textContent = data.role;
+                    })
+                    .catch(error => {
+                        console.error('Errore durante la richiesta dei dettagli utente:', error);
+                    });
+            }
+        });
+
+    </script>
+}

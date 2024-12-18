@@ -1,0 +1,54 @@
+<h1>Form Vuoto</h1>
+<div>
+    <h3>Variabile User</h3>
+    <div style="display: flex; flex-direction: row; gap: 10px">
+        <div style="width:30%">
+            <label>UserId</label>
+            <span><input type="text" name="userid" value="{{UserId}}" /></span>
+        </div>
+        <div style="width:50%">
+            <label>Nome Completo</label>
+            <span><input type="text" name="username" value="{{UserName}}" /></span>
+        </div>
+        <div style="width:20%">
+            <label>Data Odierna</label>
+            <span><input type="date" name="documentDate" Id="documentDate" disabled value="{{yyyy-MM-dd}}" /></span>
+        </div>
+    </div>
+    <div>
+        <label>Descrizione</label>
+        <span><input type="textbox" rows="3" maxlength="4095" name="description" Id="description" /></span>
+    </div>
+</div>
+<div style="display:flex;flex-direction:row;gap:10px">
+    <div style="width:50%" class="select-wrapper">
+        <label>Ruolo</label>
+        <span><select name="ruolo_utente">{{Roles}}</select></span>
+    </div>
+    <div style="width:50%" class="select-wrapper">
+        <label>Struttura</label>
+        <span><select name="struttura_utente">{{Groups}}</select></span>
+    </div>
+</div>
+
+
+<script>
+
+    function Start() {
+        // Questa funzione viene richiamata prima di renderizzare il form
+        // Può essere utilizzata per effettuare chiamate http e recuperare dati esterni
+        // o mostrare o nascondere informazioni in base al valore delle variabili.
+    }
+
+
+    function Validate() {
+        // Questa funzione viene richiamata prima di salvare il form per validare i dati.
+        //
+        // Valore di ritorno:
+        // true  = Ok, prosegue con il salvataggio
+        // false = Annulla il salvataggio. La visualizzaizone di eventuali errori è a carico di questa funzione
+        return true;
+    }
+
+
+</script>

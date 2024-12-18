@@ -1,0 +1,289 @@
+﻿@using Microsoft.Extensions.Configuration
+@using Web.Model.Admin;
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@inject IConfiguration Configuration
+@model MailServerViewModel;
+
+@{
+    ViewData["Title"] = "Server di posta";
+    Layout = "_AdminLayout";
+}
+<script>
+
+    $(document).ready(function () {
+        $(function () {
+
+            $(".mnuAdminMailServer").addClass("active");
+
+            if (`@Model.ErrorMessage` !== '') ShowMessage('alert', `@Html.Raw(Model.ErrorMessage)`, 'Message_Target', 'TemplateNotifiche');
+            if (`@Model.SuccessMessage` !== '') ShowMessage('success', `@Html.Raw(Model.SuccessMessage)`, 'Message_Target', null);
+
+            Carica(@Model.Id);
+
+            $("#Helper").change(function () {
+                Helper($("#Helper").val());
+            });
+
+            AuthToggle()
+            $("#Auth").change(function () {
+                AuthToggle();
+            })
+
+        });
+    })
+
+    function AuthToggle() {
+        // chiude o apre le sezioni necessarie in caso di AuthenticationType
+        //Microsoft Modern Authentication e Google Modern Authentication
+        $("#UAuthPanel1").hide();
+        if ($("#Auth").val() == "Microsoft_OAuth") {
+            $("#UAuthPanel1").show();
+        }
+        else if ($("#Auth").val() == "Google_OAuth") {
+            $("#UAuthPanel1").show();
+        }
+    }
+
+    function Helper(select) {
+        //funzione per autocompilare i campi
+        const DICT = [
+            { "key": "", "Domain": "", "MailType": "MAIL", "InboxServer": "", "InboxProtocol": "IMAP", "InboxServerPort": "993", "SMTPServer": "", "SMTPServerPort": "465", "SMTPServerSSL": "0" },
+            { "key": "gmail", "Domain": "gmail.com", "MailType": "MAIL", "InboxServer": "imap.gmail.com", "InboxProtocol": "IMAP", "InboxServerPort": "993", "SMTPServer": "smtp.gmail.com", "SMTPServerPort": "465", "SMTPServerSSL": "0" },
+            { "key": "gmail (pop3)", "Domain": "gmail.com", "MailType": "MAIL", "InboxServer": "pop.gmail.com", "InboxProtocol": "POP3", "InboxServerPort": "995", "SMTPServer": "smtp.gmail.com", "SMTPServerPort": "465", "SMTPServerSSL": "0" },
+            { "key": "aruba", "Domain": "aruba.it", "MailType": "MAIL", "InboxServer": "pop3s.aruba.i", "InboxProtocol": "POP3", "InboxServerPort": "995", "SMTPServer": "smtps.aruba.it", "SMTPServerPort": "465", "SMTPServerSSL": "0" },
+            { "key": "arubapec", "Domain": "pec.it", "MailType": "PEC", "InboxServer": "pop3s.pec.aruba.i", "InboxProtocol": "POP3", "InboxServerPort": "995", "SMTPServer": "smtps.pec.aruba.it", "SMTPServerPort": "465", "SMTPServerSSL": "0" },
+            { "key": "infocert", "Domain": "legalmail.it", "MailType": "PEC", "InboxServer": "mbox.cert.legalmail.it", "InboxProtocol": "IMAP", "InboxServerPort": "993", "SMTPServer": "send.cert.legalmail.it", "SMTPServerPort": "465", "SMTPServerSSL": "0" },
+            { "key": "postecert", "Domain": "", "MailType": "PEC", "InboxServer": "mail.postecert.it", "InboxProtocol": "IMAP", "InboxServerPort": "993", "SMTPServer": "mail.postecert.it", "SMTPServerPort": "465", "SMTPServerSSL": "0" },
+            { "key": "office365", "Domain": "", "MailType": "MAIL", "InboxServer": "imap-outlook.com", "InboxProtocol": "IMAP", "InboxServerPort": "993", "SMTPServer": "smtp-outlook.com", "SMTPServerPort": "465", "SMTPServerSSL": "1" }
+        ]
+
+        var selected = DICT.find(s => s.key == select);
+
+
+        //$("input[name=Domain]").parent().focus();
+        $("input[name=Domain]").val(selected.Domain);
+        $("select[name=MailType]").val(selected.MailType);
+        $("input[name=InboxServer]").val(selected.InboxServer);
+        $("select[name=InboxProtocol]").val(selected.InboxProtocol);
+        $("input[name=InboxServerPort]").val(selected.InboxServerPort);
+        $("input[name=SMTPServer]").val(selected.SMTPServer);
+        $("input[name=SMTPServerPort]").val(selected.SMTPServerPort);
+        $("input[name=SMTPServerSSL]").val(selected.SMTPServerSSL);
+
+    }
+
+    function ConfermaEliminazione(href, Dominio) {
+        Confirm(`Stai per cancellare il MailServer: ${Dominio}?`, "Message_Target", function () {
+            window.location = href;
+        }, null);
+    }
+
+</script>
+
+@section HeaderTitle
+    {
+    Server di Posta
+}
+
+<div id="Message_Target"></div>
+<div class="Page">
+    <div class="MainPanel ListMenu InsidePanel">
+        <ul class="nav nav-list">
+
+            <li codice="" class="">
+                <a class="left-icon px-2" href="/Admin/MailServer/Index?Id=0">
+                    <span class="list-item-title-icon-wrapper me-0">
+                        <i class="fa fa-inbox"></i>
+                        <span class="m-0">
+                            Configura nuovo server di posta
+                        </span>
+                    </span>
+                </a>
+            </li>
+
+            <li class="nav-separator"></li>
+
+            @foreach (var mb in Model.MailServers)
+            {
+                <li codice="@mb.Id" class="">
+                    <a class="left-icon px-2" href="/Admin/MailServer/Index?Id=@mb.Id">
+                        <span class="list-item-title-icon-wrapper me-0">
+                            <i class="fa fa-inbox"></i>
+                            <span class="m-0">
+                                @mb.Domain
+                            </span>
+                        </span>
+                    </a>
+                </li>
+            }
+
+        </ul>
+    </div>
+    <div class="MainPanel">
+        <div class="Panel">
+            @{
+                    <form asp-controller="MailServer" asp-action="Memorizza">
+                    <div class="Row">
+                        <h2>
+                            <i class="fa fa-inbox"></i>
+                            @{
+                                if (!String.IsNullOrEmpty(Model.Domain))
+                                {
+                                    @Model.Domain
+                                }
+                                else
+                                    @Html.Raw("Configurazione di una nuova casella di posta")
+                                ;
+                            }
+                            <br />
+                            <small>Configurazione per l'accesso alla posta in ingresso e per l'invio di nuovi messaggi</small>
+                        </h2>
+                    </div>
+
+                    <div class="MainPanel">
+
+                            <div class="row mt-3">
+
+
+                                <div class="form-group col-5  pe-0 mb-4">
+                                    <input type="hidden" name="Id" id="Id" value="@Model.Id">
+                                    <label class="active" for="Domain">Dominio</label>
+                                    <input name="Domain" class="form-control" required type="text" value="@Model.Domain" id="Domain">
+                                    <span class="text-danger" asp-validation-for="Domain"></span>
+                                </div>
+
+                                <div class="select-wrapper col-3">
+                                    <select name="Helper" class="submenu" id="Helper">
+                                    <option selected="selected" value="">Personalizzata</option>
+                                    <option value="gmail">GMail</option>
+                                    <option value="gmail (pop3)">GMail (pop3)</option>
+                                    <option value="aruba">Aruba Mail</option>
+                                    <option value="arubapec">Aruba PEC</option>
+                                    <option value="infocert">Infocert LegalMail</option>
+                                    <option value="postecert">Postecert</option>
+                                    <option value="office365">Office 365</option>
+                                    </select>
+                                </div>
+
+                                <div class="select-wrapper col-2 ">
+                                    <label class="active" for="MailType">Etichetta</label>
+                                    <select name="MailType" id="MailType" required asp-for="MailType" asp-items="Model.ElencoMailType"></select>
+                                </div>
+
+                                <div class="select-wrapper col-2 ">
+                                    <label class="active" for="Status">Stato</label>
+                                    <select name="Status" id="Status" required asp-for="Status" asp-items="Model.ElencoStatus"></select>
+                                </div>
+
+                            </div>
+
+                            <h4>Autenticazione</h4>
+                            <div class="row mt-5">
+                                <div class="select-wrapper col-12 mb-4">
+                                    <label class="active" for="Auth">Tipo Autenticazione</label>
+                                    <select name="AuthenticationType" id="Auth" class="span12" asp-for="AuthenticationType" asp-items="Model.ElencoAuthenticationType"></select>
+                                </div>
+                            </div>
+                            <div id="UAuthPanel1" style="display:none">
+                                <div id="OAUTPanel">
+                                    <div class="row mt-4">
+                                        <div class="form-group col-md-6 mb-4">
+                                            <label class="active" for="TenantID">Tenant ID</label>
+                                            <input name="TenantID" class="form-control" type="text" value="@Model.TenantID" id="TenantID">
+                                        </div>
+
+                                        <div class="form-group col-md-6 mb-4">
+                                            <label class="active" for="ClientID">Client ID</label>
+                                            <input name="ClientID" class="form-control" type="text" value="@Model.ClientID" id="ClientID">
+                                        </div>
+                                    </div>
+                                    <div class="row mt-4">
+                                        <div class="form-group col mb-1">
+                                            <label class="active" for="ClientSecret">Client Secret</label>
+                                            <input name="ClientSecret" class="form-control" type="text" value="@Model.ClientSecret" id="ClientSecret">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h4>Server ricezione</h4>
+
+                            <div class="row mt-4">
+
+                                <div class="form-group col-6 mb-4">
+                                    <label class="active" for="InboxServer">Hostname o Indirizzo IP / Cartella</label>
+                                    <input name="InboxServer" class="form-control" type="text" value="@Model.InboxServer" id="InboxServer">
+                                    <span class="text-danger" asp-validation-for="InboxServer"></span>
+                                </div>
+
+                                <div class="select-wrapper col-2 mb-4">
+                                    <label class="active" for="InboxProtocol">Protocollo</label>
+                                    <select name="InboxProtocol" id="InboxProtocol" required asp-for="InboxProtocol" asp-items="Model.ElencoInboxProtocol"></select>
+                                </div>
+
+                                <div class="form-group col-2 mb-4">
+                                    <label class="input-number-label active" for="InboxServerPort">Porta</label>
+                                    <input type="number" data-bs-input class="form-control" name="InboxServerPort" id="InboxServerPort" value="@Model.InboxServerPort" required>
+                                    <span class="text-danger" asp-validation-for="InboxServerPort"></span>
+                                </div>
+
+                                <div class="col-2  mb-4">
+                                    <input type="checkbox" id="InboxSSL" value="true" name="InboxSSL" checked="@Model.InboxSSL">
+                                    <label class="active" class="form-check-label" for="InboxSSL">
+                                        SSL
+                                    </label>
+                                </div>
+
+                            </div>
+
+                            <h4>Server invio</h4>
+
+                            <div class="row mt-4">
+
+                                <div class="form-group col-6 mb-4">
+                                    <label class="active" for="SMTPServer">Hostname o Indirizzo IP / Cartella</label>
+                                    <input name="SMTPServer" class="form-control"  type="text" value="@Model.SMTPServer" id="SMTPServer">
+                                    <span class="text-danger" asp-validation-for="SMTPServer"></span>
+                                </div>
+
+
+                                <div class="select-wrapper col-2 mb-4">
+                                    <label for="InboxProtocol">Protocollo</label>
+                                    <input disabled type="text" value="SMTP" />
+                                </div>
+
+                                <div class="form-group col-2 mb-4">
+                                    <label class="active" class="input-number-label" for="SMTPServerPort">Porta</label>
+                                    <input type="number" data-bs-input class="form-control" id="SMTPServerPort" name="SMTPServerPort" value="@Model.SMTPServerPort" required>
+                                    <span class="text-danger" asp-validation-for="SMTPServerPort"></span>
+                                </div>
+
+                                <div class="col-2 mb-4">
+                                    <input  type="checkbox" id="SMTPServerSSL" value="true" name="SMTPServerSSL" checked="@Model.SMTPServerSSL">
+                                    <label class="active" class="form-check-label" for="SMTPServerSSL">
+                                        SSL
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                    <div class="Bottom">
+                            <button type="submit" class="btn btn-primary">Memorizza</button>
+
+                            @{
+                                if (!String.IsNullOrEmpty(Model.Domain))
+                                {
+                                    <a href="#" class="btn btn-link" onclick="ConfermaEliminazione('/Admin/MailServer/Delete?Id=@Model.Id','@Model.Domain')">
+                                            <i class="fa fa-lg fa-trash-o"></i> Elimina
+                                    </a>
+                                }
+                            }
+                    </div>
+
+                </form>
+            }
+
+        </div>
+
+    </div>
+</div>

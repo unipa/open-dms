@@ -1,0 +1,209 @@
+﻿@page
+@using OpenDMS.Domain.Constants;
+@using Web.Constant;
+@model FolderModel
+@{
+    ViewData["Title"] = "Archivio Fascicoli";
+    Layout = "_FolderLayout";
+}
+@section Icon       {
+        <i class="fa fa-folder"></i>
+    }
+@section Header     {
+    @Web.Constant.Labels.Folders
+  }
+@section SubHeader  {
+    Dashboard
+ }
+
+
+
+
+
+<div class="Page">
+    <div class="MainPanel Background">
+        <div class="Content">
+            <div class="accordion">
+                @if (Model.MenuItems.Count > 0)
+                {
+
+               <div class="accordion-item">
+                    <div class="accordion-button" data-bs-toggle="collapse" data-bs-target="#menuaction0">
+                        <i class="fa fa-sitemap" style="color:#aab;width:20px;margin-right:8px"></i> <strong>Dashboard Processi</strong>
+                    </div>
+                    <div id="menuaction0" class="collapseOne accordion-collapse collapse show">
+                        <div class="PreviewContainer">
+                            @foreach (var p in Model.MenuItems)
+                            {
+                                <div class="PreviewRow" @(string.IsNullOrEmpty(p.URL) ? (string.IsNullOrEmpty(p.Title) ? "class='divider'" : "class='nav-header'") : "class=" + p.PageId)>
+                                    <a href="@p.URL" target="@p.Target" title="@p.Title">
+                                        <div class="PreviewImage LowProfile">
+                                            @Html.Raw(p.Icon)
+                                            @if (!string.IsNullOrEmpty(p.BadgeURL))
+                                            {
+                                                <span style="display:none" class="badge badge-@p.PageId @p.BadgeCss"></span>
+                                            }
+                                        </div>
+                                        <div class="PreviewName">
+                                            @p.Title
+                                            <small>@p.Tooltip</small>
+                                        </div>
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                }
+
+                <div class="accordion-item">
+                    <div class="accordion-button" data-bs-toggle="collapse" data-bs-target="#taskaction0">
+                        <i class="fa fa-folder-o" style="color:#aab;width:20px;margin-right:8px"></i> <strong>Fascicoli</strong>
+                    </div>
+                    <div id="taskaction0" class="collapseOne accordion-collapse collapse show">
+                        <div class="PreviewContainer">
+                            @foreach (var f in Model.PersonalFolder)
+                            {
+                                <div class="PreviewRow" onclick="ShowDocument(@f.Id)">
+                                    <div class="PreviewImage">
+                                        <img class="ImagePage" src="~/images/previews/FolderFile.png" />
+                                        @* <i style="color: orange" class="fa fa-folder"></i> *@
+                                        <i class="innerIcon @f.Icon"></i>
+                                    </div>
+                                    <div class="PreviewName">
+                                        @f.Name.Replace("Fascicolo ", "")
+                                        <small>@Web.Constant.Labels.PersonalFolder</small>
+                                    </div>
+                                </div>
+                            }
+                            @if (Model.SharedFolder.Count > 0)
+                            {
+                                @foreach (var f in Model.SharedFolder)
+                                {
+                                    <div class="PreviewRow" onclick="ShowDocument(@f.Id)">
+                                        <div class="PreviewImage">
+                                            @*violet*@
+                                            <img class="ImagePage" src="~/images/previews/FolderFile.png" style="filter: hue-rotate(45deg)" />
+                                            @* <i style="color: violet" class="fa fa-folder"></i> *@
+                                            <i class="innerIcon @f.Icon"></i>
+                                        </div>
+                                        <div class="PreviewName">
+                                            @f.Name.Replace("Fascicolo ", "")
+                                            <small>@Web.Constant.Labels.SharedFolder</small>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            @if (Model.FolderTypes.Count > 0)
+                            {
+                                @foreach (var f in Model.FolderTypes)
+                                {
+                                    <div class="PreviewRow" onclick="ShowView('Documents?DocumentType=@f.DocumentType')">
+                                        <div class="PreviewImage ">
+                                            @*darkblue*@
+                                            <img class="ImagePage" src="~/images/previews/FolderFile.png" style="filter: hue-rotate(135deg)" />
+                                            @* <i style="color: deepskyblue" class="fa fa-folder"></i> *@
+                                            <i class="innerIcon @f.Icon"></i>
+                                        </div>
+                                        <div class="PreviewName">
+                                            @f.Name.Replace("Fascicolo ", "")
+                                            <small>@Web.Constant.Labels.SpecialFolder</small>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            <div class="PreviewRow" onclick="return ShowView('Categories')">
+                                <div class="PreviewImage">
+                                    @* coral *@
+                                    <img class="ImagePage" src="~/images/previews/FolderFile.png" style="filter: saturate(0)" />
+                                    @* <i style="color: coral" class="fa fa-folder"></i> *@
+                                    <i class="innerIcon fa fa-tags"></i>
+                                </div>
+                                <div class="PreviewName">
+                                    @Labels.Categories
+                                    <small>@Web.Constant.Labels.VirtualFolder</small>
+                                </div>
+                            </div>
+                            <div class="PreviewRow" onclick="return ShowView('Documents/?Status=2')">
+                                <div class="PreviewImage">
+                                    @* coral *@
+                                    <img class="ImagePage" src="~/images/previews/FolderFile.png" style="filter: saturate(0)" />
+                                    <i class="innerIcon fa fa-tags"></i>
+                                </div>
+                                <div class="PreviewName">
+                                    @Labels.Draft
+                                    <small>@Web.Constant.Labels.VirtualFolder</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+@*                 <div class="accordion-item">
+                    <div class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#taskaction1">
+                        <i class="fa fa-eye" style="color:#aab;width:20px;margin-right:8px"></i> <strong>Ultimi Documenti Consultati</strong>
+                    </div>
+                    <div id="taskaction1" class="collapseOne accordion-collapse collapsed collapse">
+                        @await Component.InvokeAsync("FileExplorer", Model.RecentlyViewed)
+
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#taskaction2">
+                        <i class="fa fa-magic" style="color:#aab;width:20px;margin-right:8px"></i> <strong>Ultimi Documenti Creati</strong>
+                    </div>
+                    <div id="taskaction2" class="collapseOne accordion-collapse collapsed collapse">
+                        @await Component.InvokeAsync("FileExplorer", Model.LastAdded)
+                    </div>
+                </div>
+ *@          
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<script>
+    // function selectTask()
+    // {
+    //     if (this.window.Modal) {
+    //         this.window.Modal.addClass("hidden");
+    //     }
+
+    // }
+
+
+    window.addEventListener("message", (event) => {
+        //if (event.data.op == "newdocument") {
+        //    window.location.reload();
+        //}
+        if (event.data.op == "close") {
+            if (window.Modal)
+            {
+                $(window.Modal).find("#PopupWindow").attr("src", "");
+                $(window.Modal).addClass("hidden");
+                window.Modal = undefined;
+            }
+        }
+        if (event.data.op == "refresh") {
+            if (window.Modal)
+            {
+                $(window.Modal).find("#PopupWindow").attr("src", "");
+                $(window.Modal).addClass("hidden");
+                window.Modal = undefined;
+            }
+            window.location.reload();
+        }
+
+    })
+
+    $(document).ready(() => {
+        $(".Folders").addClass("active");
+    });
+</script>
+

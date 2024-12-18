@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ImageViewer</title>
+  </head>
+  <body>
+
+    <!-- Inserisco il componente custom -->
+    <image-viewer type="esteso" id="image-viewer" n_pages="10" zoomFactor="0.25" maxZoomIn="248" minZoomOut="4" />
+    
+    <!-- Prendo l'id dell'immagine dall'url e lo imposto come attributo al web component -->
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      const imageId = urlParams.get('id');
+      const imageViewer = document.getElementById('image-viewer');
+      imageViewer.setAttribute('imageid', imageId);
+    </script>
+    
+    <script src="dist/image-viewer.js" type="module"></script>
+    
+  </body>
+</html>
+

@@ -1,0 +1,8 @@
+{
+  "urls": [
+    {
+      "domain": "localhost:",
+      "getformapi": "form-schema.json"
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+﻿@page
+@using OpenDMS.Domain.Entities;
+@model NewProcessModel
+@inject IConfiguration Configuration
+@{
+    ViewData["Title"] = "Nuovo Processo";
+}
+
+
+<div class="MainWindow">
+    <div id="Message_Target"></div>
+
+    <div class="Header">
+        <i class="fa fa-magic"></i>
+        <h1>
+            <small>
+                Nuovo Processo
+            </small>
+            <span>Scegli il processo da avviare ...</span>
+        </h1>
+        <div class="right-header">
+            <a href="#" class="btn btn-link" onclick="return CloseWindow()"><i class="fa fa-times"></i></a>
+        </div>
+    </div>
+    <div class="Content">
+        <input type="text" onkeyup="Filter(this)" placeholder="Filtra..." class="SearchText" data-focus-mouse="false">
+    </div>
+    <div class="Panel" id="evidenza">
+
+        @if (Model.Processi.Count > 0)
+        {
+            <h3>Processi</h3>
+            <div class="PreviewContainer">
+                @foreach (var dt in Model.Processi)
+                {
+                    <div class="tipologie PreviewRow">
+                        <a href="~/RunProcess?pid=@dt.Id&FolderId=@Model.FolderId">
+                            <div class="PreviewImage">
+                                <i class="@(string.IsNullOrEmpty(dt.Icon) ? (dt.ContentType == OpenDMS.Domain.Enumerators.ContentType.Folder ? "fa fa-folder" : "fa fa-sitemap") : dt.Icon)"
+                                   style="color: @(string.IsNullOrEmpty(dt.IconColor) ? (dt.ContentType == OpenDMS.Domain.Enumerators.ContentType.Folder ? "orange" : "purple") : dt.IconColor)"></i>
+                            </div>
+                            <div class="PreviewName">@dt.Description</div>
+                        </a>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <nav class="Bottom">
+        <a href="#" onclick="return CloseWindow()" class="btn">Esci</a>
+    </nav>
+
+</div>
+
+
+<script>
+
+    $(document).ready(function () {
+        if ("@Model.ErrorMessage" !== '') ShowMessage('alert', '@Model.ErrorMessage', 'Message_Target', 'Index');
+    })
+
+    function Filter(me) {
+        var v = $(me).val().toLowerCase();
+        var l = $(".tipologie");
+        $(l).each(function (i, e) {
+            var ok = $(e).find("div.PreviewName").text().toLowerCase().indexOf(v) >= 0;
+            if (!ok)
+                $(e).css("display", "none");
+            else
+                $(e).css("display", "");
+
+        });
+    }
+
+</script>
+

@@ -1,0 +1,27 @@
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
+WORKDIR /app
+EXPOSE 443
+
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+WORKDIR /src
+COPY ["/API/OpenDMS.Search.API/OpenDMS.Search.API/OpenDMS.Search.API.csproj", "OpenDMS.Search.API/"]
+COPY ["/Core/OpenDMS.Core/OpenDMS.Core.csproj", "OpenDMS.Core/"]
+COPY ["/Core/OpenDMS.Infrastructure.Database/OpenDMS.Infrastructure.Database.csproj", "OpenDMS.Infrastructure.Database/"]
+COPY ["/Core/OpenDMS.Infrastructure.Services/OpenDMS.Infrastructure.Services.csproj", "OpenDMS.Infrastructure.Services/"]
+COPY ["/Core/OpenDMS.Infrastructure.VirtualFileSystem/OpenDMS.Infrastructure.VirtualFileSystem.csproj", "OpenDMS.Infrastructure.VirtualFileSystem/"]
+COPY ["/Core/OpenDMS.Domain/OpenDMS.Domain.csproj", "OpenDMS.Domain/"]
+COPY ["/Core/OpenDMS.Startup/OpenDMS.Startup.csproj", "OpenDMS.Startup/"]
+COPY . .
+RUN dotnet build "API/OpenDMS.Search.API/OpenDMS.Search.API/OpenDMS.Search.API.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "API/OpenDMS.Search.API/OpenDMS.Search.API/OpenDMS.Search.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+COPY certs/dms_cert.pfx .
+
+ENV ASPNETCORE_URLS=https://+;http://+
+ENV ASPNETCORE_HTTPS_PORT=443
+ENTRYPOINT ["dotnet", "OpenDMS.Search.API.dll"]

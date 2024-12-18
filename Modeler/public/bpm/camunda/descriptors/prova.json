@@ -1,0 +1,24 @@
+{
+  "name": "ZeebeModdle",
+  "uri": "http://zeebe.io/schema/bpmn",
+  "prefix": "zeebe",
+  "xml": {
+    "tagAlias": "lowerCase"
+  },
+  "types": [
+    {
+      "name": "Input",
+      "superClass": [ "Element" ],
+      "meta": {
+        "allowedIn": [ "zeebe:IoMapping" ]
+      },
+      "properties": [
+        {
+          "name": "required",
+          "isAttr": true,
+          "type": "Boolean"
+        }
+      ]
+    }
+  ]
+}

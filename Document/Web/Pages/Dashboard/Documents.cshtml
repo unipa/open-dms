@@ -1,0 +1,90 @@
+﻿@page
+@using OpenDMS.Domain.Constants;
+@model DocumentsDashboardModel
+@{
+    ViewData["Title"] = "Dashboard @Model.DocumentType.Name";
+    Layout = "_FolderLayout";
+}
+@section Icon       {    <i class="fa @Model.Icon"></i>    }
+@section Header     {    @Model.DocumentTypeName }
+@section SubHeader  {    @Web.Constant.Labels.Category: @Model.GroupName }
+@section Folders
+{
+}
+
+<div class="Page">
+    <div class="Background LeftMenu InsidePanel">
+        <div class="accordion">
+            <div class="accordion-item">
+                <div class="accordion-button" data-bs-toggle="collapsed" data-bs-target="#filters">
+                    <i class="fa fa-search" style="color:#aab;width:20px;margin-right:8px"></i> <strong>Filtri</strong>
+                </div>
+                <div id="filters" class="Background Content collapseOne accordion-collapse ">
+                    @foreach (var m in Model.DocumentType.Fields.Where(f => !f.Deleted && !f.FieldTypeId.StartsWith("$$")))
+                    {
+                        <label>@m.Title</label>
+                        <input type="Lookup" class="field" name="field_@m.FieldName" fieldId="@m.FieldName" tableId="@m.FieldTypeId" />
+                    }
+                </div>
+            </div>
+            <div class="accordion-item">
+                <div class="accordion-button" data-bs-toggle="collapse" data-bs-target="#status">
+                    <i class="fa fa-question-circle" style="color:#aab;width:20px;margin-right:8px"></i> <strong>Stato Documenti</strong>
+                </div>
+                <div id="status" class="Background Content collapseOne accordion-collapse collapse">
+                    <ul class="nav nav-list">
+                        <li>
+                            <a href="#"><i class="fa fa-folder-o"></i> Documenti Attivi</a>
+                        </li>
+                        <li>
+                            <a href="#"><i class="fa fa-folder"></i> Documenti Archiviati</a>
+                        </li>
+                        <li>
+                            <a href="#"><i class="fa fa-trash-o"></i> Documenti Cancellati</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="MainPanel Background">
+        <div class="FolderPathPanel Background">
+            <a href="#" class="" onclick="return ShowDocument(0)"><i class="fa fa-folder divider"></i> @Web.Constant.Labels.Folders</a>
+            <a href="#" class="" onclick="return ShowView('Categories')"><i class="fa fa-folder divider"></i> @Web.Constant.Labels.Categories</a>
+            @if (!String.IsNullOrEmpty(Model.GroupType))
+            {
+                <a href="#" class="" onclick="return ShowView('DocumentTypes?GroupType=@Model.GroupType')"><i class="fa fa-folder divider"></i> @Model.GroupName</a>
+            }
+            <i class="fa fa-folder divider"></i> @Model.DocumentTypeName
+        </div>
+
+        @await Component.InvokeAsync("FileExplorer", Model.FileFilters)
+    </div>
+
+</div>
+<script>
+    $(document).ready(() => {
+        $(".Dashboard-@(Model.DocumentTypeId)").addClass("active");
+    });
+
+    function Update(name, value) { 
+    
+    }
+</script>
+
+
+<script>
+    window.addEventListener("message", (event) => {
+        if (event.data.op == "newdocument" && event.data.type == "@Model.DocumentTypeId") {
+            window.location.reload();
+        } else
+        if (event.data.op == "delete") {
+            window.location.reload(true);
+        } else
+                if (event.data.op == "close") {
+                    $(window.Modal).find("#PopupWindow").attr("src", "");
+                    $(window.Modal).addClass("hidden");
+                }
+
+    })
+</script>

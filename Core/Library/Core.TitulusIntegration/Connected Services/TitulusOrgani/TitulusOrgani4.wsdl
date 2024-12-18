@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:impl="https://titulus-polipa.pp.cineca.it/titulus_ws/services/TitulusOrgani4" xmlns:tns1="http://www.kion.it/titulus" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:intf="https://titulus-polipa.pp.cineca.it/titulus_ws/services/TitulusOrgani4" targetNamespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/TitulusOrgani4" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <xsd:schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.kion.it/titulus">
+      <xsd:import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
+      <xsd:complexType name="ESParams">
+        <xsd:sequence>
+          <xsd:element name="codOrgano" nillable="true" type="soapenc:string" />
+          <xsd:element name="cod_ammaoo" nillable="true" type="soapenc:string" />
+          <xsd:element name="data" nillable="true" type="soapenc:string" />
+          <xsd:element name="dime" type="xsd:boolean" />
+          <xsd:element name="idSeduta" nillable="true" type="soapenc:string" />
+          <xsd:element name="soloAllegatiDelibera" type="xsd:boolean" />
+          <xsd:element name="straordinaria" type="xsd:boolean" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="AttachmentBean">
+        <xsd:sequence>
+          <xsd:element name="content" nillable="true" type="soapenc:base64Binary" />
+          <xsd:element name="contentProviderId" nillable="true" type="soapenc:string" />
+          <xsd:element name="contentProviderParams" nillable="true" type="xsd:anyType" />
+          <xsd:element name="contentUri" nillable="true" type="soapenc:string" />
+          <xsd:element name="description" nillable="true" type="soapenc:string" />
+          <xsd:element name="fileName" nillable="true" type="soapenc:string" />
+          <xsd:element name="id" nillable="true" type="soapenc:string" />
+          <xsd:element name="mimeType" nillable="true" type="soapenc:string" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="CSParams">
+        <xsd:sequence>
+          <xsd:element name="includeOmissis" type="xsd:boolean" />
+          <xsd:element name="viewAllAttch" type="xsd:boolean" />
+        </xsd:sequence>
+      </xsd:complexType>
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="cercaSeduteResponse">
+    <wsdl:part name="cercaSeduteReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="nextTitlePageRequest" />
+  <wsdl:message name="elencoOrganiRequest">
+    <wsdl:part name="codAOO" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="lastTitlePageRequest" />
+  <wsdl:message name="exportSedutaRequest">
+    <wsdl:part name="params" type="tns1:ESParams" />
+  </wsdl:message>
+  <wsdl:message name="exportSedutaResponse">
+    <wsdl:part name="exportSedutaReturn" type="tns1:AttachmentBean" />
+  </wsdl:message>
+  <wsdl:message name="caricaSedutaResponse">
+    <wsdl:part name="caricaSedutaReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="elencoOrganiResponse">
+    <wsdl:part name="elencoOrganiReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="firstTitlePageResponse">
+    <wsdl:part name="firstTitlePageReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="lastTitlePageResponse">
+    <wsdl:part name="lastTitlePageReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="setWSUserResponse">
+    <wsdl:part name="setWSUserReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="caricaSedutaRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+    <wsdl:part name="params" type="tns1:CSParams" />
+  </wsdl:message>
+  <wsdl:message name="setWSUserRequest">
+    <wsdl:part name="user" type="soapenc:string" />
+    <wsdl:part name="pnumber" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="getAttachmentRequest">
+    <wsdl:part name="fileId" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="cercaSeduteRequest">
+    <wsdl:part name="allaFirma" type="xsd:boolean" />
+    <wsdl:part name="chiuse" type="xsd:boolean" />
+    <wsdl:part name="aperte" type="xsd:boolean" />
+    <wsdl:part name="pubblicazioneApertaAllaData" type="soapenc:string" />
+    <wsdl:part name="data" type="soapenc:string" />
+    <wsdl:part name="codOrgano" type="soapenc:string" />
+    <wsdl:part name="reverseOrder" type="xsd:boolean" />
+    <wsdl:part name="titlePageSize" type="xsd:int" />
+  </wsdl:message>
+  <wsdl:message name="titlePageResponse">
+    <wsdl:part name="titlePageReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="currentTitlePageResponse">
+    <wsdl:part name="currentTitlePageReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="getAttachmentResponse">
+    <wsdl:part name="getAttachmentReturn" type="tns1:AttachmentBean" />
+  </wsdl:message>
+  <wsdl:message name="titlePageRequest">
+    <wsdl:part name="pageIndex" type="xsd:int" />
+  </wsdl:message>
+  <wsdl:message name="prevTitlePageRequest" />
+  <wsdl:message name="prevTitlePageResponse">
+    <wsdl:part name="prevTitlePageReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="firstTitlePageRequest" />
+  <wsdl:message name="currentTitlePageRequest" />
+  <wsdl:message name="nextTitlePageResponse">
+    <wsdl:part name="nextTitlePageReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:portType name="TitulusOrgani4">
+    <wsdl:operation name="exportSeduta" parameterOrder="params">
+      <wsdl:input name="exportSedutaRequest" message="intf:exportSedutaRequest" />
+      <wsdl:output name="exportSedutaResponse" message="intf:exportSedutaResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="cercaSedute" parameterOrder="allaFirma chiuse aperte pubblicazioneApertaAllaData data codOrgano reverseOrder titlePageSize">
+      <wsdl:input name="cercaSeduteRequest" message="intf:cercaSeduteRequest" />
+      <wsdl:output name="cercaSeduteResponse" message="intf:cercaSeduteResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="titlePage" parameterOrder="pageIndex">
+      <wsdl:input name="titlePageRequest" message="intf:titlePageRequest" />
+      <wsdl:output name="titlePageResponse" message="intf:titlePageResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="firstTitlePage">
+      <wsdl:input name="firstTitlePageRequest" message="intf:firstTitlePageRequest" />
+      <wsdl:output name="firstTitlePageResponse" message="intf:firstTitlePageResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="nextTitlePage">
+      <wsdl:input name="nextTitlePageRequest" message="intf:nextTitlePageRequest" />
+      <wsdl:output name="nextTitlePageResponse" message="intf:nextTitlePageResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="prevTitlePage">
+      <wsdl:input name="prevTitlePageRequest" message="intf:prevTitlePageRequest" />
+      <wsdl:output name="prevTitlePageResponse" message="intf:prevTitlePageResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="lastTitlePage">
+      <wsdl:input name="lastTitlePageRequest" message="intf:lastTitlePageRequest" />
+      <wsdl:output name="lastTitlePageResponse" message="intf:lastTitlePageResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="currentTitlePage">
+      <wsdl:input name="currentTitlePageRequest" message="intf:currentTitlePageRequest" />
+      <wsdl:output name="currentTitlePageResponse" message="intf:currentTitlePageResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="getAttachment" parameterOrder="fileId">
+      <wsdl:input name="getAttachmentRequest" message="intf:getAttachmentRequest" />
+      <wsdl:output name="getAttachmentResponse" message="intf:getAttachmentResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="caricaSeduta" parameterOrder="id params">
+      <wsdl:input name="caricaSedutaRequest" message="intf:caricaSedutaRequest" />
+      <wsdl:output name="caricaSedutaResponse" message="intf:caricaSedutaResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="elencoOrgani" parameterOrder="codAOO">
+      <wsdl:input name="elencoOrganiRequest" message="intf:elencoOrganiRequest" />
+      <wsdl:output name="elencoOrganiResponse" message="intf:elencoOrganiResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="setWSUser" parameterOrder="user pnumber">
+      <wsdl:input name="setWSUserRequest" message="intf:setWSUserRequest" />
+      <wsdl:output name="setWSUserResponse" message="intf:setWSUserResponse" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="TitulusOrgani4SoapBinding" type="intf:TitulusOrgani4">
+    <wsdlsoap:binding transport="http://schemas.xmlsoap.org/soap/http" style="rpc" />
+    <wsdl:operation name="exportSeduta">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="exportSedutaRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="exportSedutaResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/TitulusOrgani4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="cercaSedute">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="cercaSeduteRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="cercaSeduteResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/TitulusOrgani4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="titlePage">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="titlePageRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="titlePageResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/TitulusOrgani4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="firstTitlePage">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="firstTitlePageRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="firstTitlePageResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/TitulusOrgani4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nextTitlePage">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="nextTitlePageRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="nextTitlePageResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/TitulusOrgani4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="prevTitlePage">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="prevTitlePageRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="prevTitlePageResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/TitulusOrgani4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="lastTitlePage">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="lastTitlePageRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="lastTitlePageResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/TitulusOrgani4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="currentTitlePage">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="currentTitlePageRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="currentTitlePageResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/TitulusOrgani4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getAttachment">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="getAttachmentRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="getAttachmentResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/TitulusOrgani4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="caricaSeduta">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="caricaSedutaRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="caricaSedutaResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/TitulusOrgani4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="elencoOrgani">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="elencoOrganiRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="elencoOrganiResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/TitulusOrgani4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="setWSUser">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="setWSUserRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="setWSUserResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/TitulusOrgani4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="TitulusOrgani4Service">
+    <wsdl:port name="TitulusOrgani4" binding="intf:TitulusOrgani4SoapBinding">
+      <wsdlsoap:address location="https://titulus-polipa.pp.cineca.it/titulus_ws/services/TitulusOrgani4" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

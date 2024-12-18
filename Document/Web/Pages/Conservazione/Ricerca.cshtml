@@ -1,0 +1,250 @@
+﻿@page
+@model Web.Pages.RicercaModel
+@{
+    ViewData["Title"] = "Pagina di Ricerca";
+    Layout = "_ConservazioneLayout";
+}
+
+<style>
+    .nav.nav-pills li {
+        list-style-type: none;
+        display: inline-block;
+        margin-right: 10px;
+        background-color: #aad4f5;
+        transition: background-color 0.3s;
+        padding: 5px 10px;
+    }
+
+        .nav.nav-pills li a {
+            text-decoration: none;
+        }
+
+        .nav.nav-pills li.selected {
+            background-color: #0066cc;
+            color: white;
+        }
+
+            .nav.nav-pills li.selected a {
+                color: white;
+            }
+
+    
+    #AnniTable tr {
+        border: none;
+    }
+
+        
+        #AnniTable tr:hover {
+            background-color: #f0f0f0; 
+        }
+
+    
+    #AnniTable {
+        border-right: 2px solid black; 
+    }
+
+
+</style>
+
+<div class="Header">
+    <i class="fa fa-search"></i>
+    <h1>
+        <small>
+            Ricerca
+        </small>
+        <span id="HeaderTitle">Cerca documenti conservati</span>
+    </h1>
+    <div class="right-header">
+        <a href="#" onclick="return CloseWindow()"><i class="fa fa-times"></i></a>
+    </div>
+</div>
+
+<div class="nav-container" style="padding-top:10px">
+    <ul class="nav nav-pills" style="display:flex;flex-direction:row;flex-wrap:nowrap;gap:10px;">
+        <li class="active"><a id="p0" href="#">Archivio</a></li>
+        <li><a id="p2" href="#">Documenti da distribuire <span class="label label-warning"></span></a></li>
+    </ul>
+</div>
+
+
+
+<div id="pp1">
+    <div style="display: flex; justify-content: space-between;">
+        <!-- Tabella per gli anni -->
+        <table class="table" style="width: 49%;">
+            <thead>
+                <tr>
+                    <th>Anni</th>
+                </tr>
+            </thead>
+            <tbody id="AnniTable">
+  
+            </tbody>
+        </table>
+
+        <!-- Tabella per le tipologie -->
+        <table class="table" style="width: 49%;">
+            <thead>
+                <tr>
+                    <th>Tipologie</th>
+                </tr>
+            </thead>
+            <tbody id="TipologieTable">
+                
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="pp3" style="display: none;">
+    <!-- Contenuto della vista "Documenti da distribuire" -->
+    <div style="display:flex;flex-direction:row;flex-wrap:nowrap;justify-content:space-between;padding-right:15px;">
+        <h2>Documenti da distribuire</h2>
+        <div><a href="#" class="btn btn-primary" onclick="CreaPDD()"><i class="fa fa-gift"></i> Crea Pacchetto di Distribuzione</a></div>
+    </div>
+    <br>
+    <table id="Grid" class="table table-hover">
+        <thead>
+            <tr>
+                <th style="width: 70px; text-align: right">Anno</th>
+                <th style="width: 100px; text-align: right">VDC</th>
+                <th style="width: 100px;">Tipologia</th>
+                <th style="width: 100%">Descrizione</th>
+                <th style="width: 150px;">Rif.Temporale</th>
+                <th>Impronta</th>
+                <th style="width: 20px;"></th>
+            </tr>
+        </thead>
+        <tbody class="RighePDD"></tbody>
+    </table>
+</div>
+
+
+
+
+
+<script>
+    
+    function loadAnniFromAPI() {
+        $.ajax({
+            url: "@Model.EndPointRicercaArchivio",
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                var anniTable = $("#AnniTable");
+
+                anniTable.empty();
+
+                data.forEach(item => {
+                    var anno = item.anno;
+
+
+                    var row = $("<tr></tr>");
+                    row.append("<td class='anno-item'>" + anno + "</td>");
+
+
+                    anniTable.append(row);
+                    row.click(function () {
+                        var tipologie = item.tipologie;
+                        loadTipologieForAnno(tipologie);
+                    });
+                });
+
+
+                anniTable.find("tr").css("border", "none");                
+                anniTable.find("tr:first").trigger('click');
+            },
+            error: function (error) {
+                console.error("Errore durante la chiamata all'API:", error);
+            }
+        });
+    }
+
+
+    function loadTipologieForAnno(tipologie) {
+        var tipologieTable = $("#TipologieTable");
+
+
+        tipologieTable.empty();
+
+
+        tipologie.forEach(tipologia => {
+
+            var row = $("<tr></tr>");
+            row.append("<td>" + tipologia + "</td>");
+            tipologieTable.append(row);
+        });
+    }
+
+    function loadDocumentiDaDistribuireFromAPI() {
+        $.ajax({
+            url: "@Model.EndPointRicercaDoc",
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                var tableBody = $(".RighePDD");
+
+                tableBody.empty();
+
+                data.forEach(item => {
+                    var anno = item.anno;
+                    var vdc = item.vdc;  
+                    var tipologia = item.tipologia;
+                    var descrizione = item.descrizione;
+                    var rifTemporale = item.rifTemporale;
+                    var impronta = item.impronta;
+
+                    var row = $("<tr></tr>");
+                    row.append("<td>" + anno + "</td>");
+                    row.append("<td>" + vdc + "</td>");
+                    row.append("<td>" + tipologia + "</td>");
+                    row.append("<td>" + descrizione + "</td>");
+                    row.append("<td>" + rifTemporale + "</td>");
+                    row.append("<td>" + impronta + "</td>");
+
+                    tableBody.append(row);
+                });
+            },
+            error: function (error) {
+                console.error("Errore durante la chiamata all'API:", error);
+            }
+        });
+    }
+
+
+
+
+
+    $(document).ready(() => {
+        
+        $(".mnuRicerca").addClass("active");
+
+        
+        $("#pp1").show();
+        $("#pp3").hide();
+
+        
+        $("#p0").click(() => {
+            $("#pp1").show();
+            $("#pp3").hide();
+
+        
+            loadAnniFromAPI();
+        });
+
+        
+        $("#p2").click(() => {
+            $("#pp1").hide();
+            $("#pp3").show();
+
+        
+            loadDocumentiDaDistribuireFromAPI();
+        });
+
+        
+        loadAnniFromAPI();
+    });
+
+
+
+</script>

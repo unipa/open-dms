@@ -1,0 +1,127 @@
+﻿@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@using OpenDMS.Domain.Entities;
+@model Web.Model.Customize.AvatarViewModel;
+@{
+    ViewData["Title"] = "Immagine del profilo";
+    Layout = "_AdminSystemUserLayout";
+
+}
+
+
+<script>
+
+    $(document).ready(function () {
+        //SelezionaMenu("fa-table");
+
+        $(function () {
+
+            //Per aggiungere e togliere la classe Active agli elementi della lista laterale
+            Carica("liCustomize-Avatar");
+
+            if (`@Model.ErrorMessage` !== '') ShowMessage('alert', `@Html.Raw(Model.ErrorMessage)`, 'Message_Target', 'Customize/Firme');
+            if (`@Model.SuccessMessage` !== '') ShowMessage('success', '@Html.Raw(Model.SuccessMessage)', 'Message_Target', null);
+
+            //codice per far svanire i messaggi di successo
+            FadeOutSuccessMessagge(3000);
+
+            //Codice per triggerare il form automaticamente
+            var InputUpload = document.querySelector("#upload8");
+            var form = document.getElementById("UploadAvatarForm")
+
+            InputUpload.addEventListener("change", (event) => {
+                form.submit();
+            })
+
+        });
+    })
+
+    function Redirect(href) {
+        window.location = href;
+    }
+
+</script>
+
+<style>
+    .avatar:hover {
+        border: 2px dashed #06c;
+        cursor: pointer;
+    }
+
+    .avatar:focus:not(.focus--mouse), .avatar:target, .avatar:active, .avatar:visited {
+        border: 1px solid #995c00 !important;
+        box-shadow: 0 0 0 2px #995c00 !important;
+        outline: none !important;
+    }
+</style>
+<div class="MainPanel">
+
+    <div class="container">
+        <h3>
+            <i class="fa fa-image"></i>
+            <span>Immagine del Profilo</span>
+        </h3>
+        <div class="pull-right">
+            <ul class="nav nav-toolbar">
+                <li>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div id="Message_Target"></div>
+
+    <div class="Panel">
+
+        <div id="Avatars">
+
+            <div class="mt-2 d-flex flex-wrap gap-2">
+
+
+                @foreach (var uploadedAvatar in Model.UploadedAvatars)
+                {
+                    <div style="position: relative;width:110px;height:110px;">
+                        @*<a href="/Customize/SetAvatar?imagePath=@uploadedAvatar.Item1">*@
+                        <div class="avatar" style="width:100px;height:100px;" onclick="Redirect('/Admin/SystemUser/SetAvatar?imagePath=@uploadedAvatar.Item1')">
+                            <img src="@uploadedAvatar.Item2" alt="Avatar personalizzato">
+                        </div>
+                        @*</a>*@
+                        <a href="/Admin/SystemUser/DeleteAvatar?guid=@uploadedAvatar.Item1" style="position: absolute; right: 10px; bottom: 10px">
+                            <i class="fa fa-lg fa-trash-o"></i>
+                        </a>
+                    </div>
+                }
+                @for (int i = 0; i <= 6; i++)
+                {
+                    <div style="position: relative;width:110px;height:110px;">
+                        @*<a href="/Customize/SetAvatar?imagePath=/images/avatars/noavatar@(@i).png">*@
+                        <div class="avatar" style="width:100px;height:100px;" onclick="Redirect('/Admin/SystemUser/SetAvatar?imagePath=/images/avatars/noavatar@(@i).png')">
+                            <img src="/images/avatars/noavatar@(@i).png" alt="Avatar di default @i">
+                        </div>
+                        @*</a>*@
+                    </div>
+                }
+
+                <form asp-controller="Customize" asp-action="UploadAvatar" id="UploadAvatarForm" enctype="multipart/form-data">
+                    <ul class="upload-pictures-wall">
+                        <li>
+                            <input type="file" name="imageFile" id="upload8" class="upload pictures-wall" />
+                            <label for="upload8" style="width:102px;height:102px;border-radius:50%">
+                                <svg class="icon icon-sm" aria-hidden="true" style="margin-bottom:-4px">
+                                    <use href="/bootstrap-italia/svg/sprites.svg#it-plus"></use>
+                                </svg>
+                                <span>Carica foto</span>
+                            </label>
+                        </li>
+                    </ul>
+                    <input value="Submit" type="submit" class="d-none" />
+                </form>
+
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+

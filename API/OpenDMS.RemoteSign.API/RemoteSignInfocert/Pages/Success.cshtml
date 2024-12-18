@@ -1,0 +1,35 @@
+﻿@page
+@using RemoteSignInfocert.Pages;
+@model SuccessModel;
+@{
+}
+
+
+<script>
+
+    //document.addEventListener("DOMContentLoaded", () => {
+    //    countdown();
+    //});
+
+    //function countdown() {
+    //    var seconds = 5;
+
+    //    var countdownInterval = setInterval(function () {
+    //        seconds--;
+
+    //        if (seconds < 0) {
+    //            clearInterval(countdownInterval);
+    //            window.parent.postMessage({ op: "close", data: "" }, "*");
+    //        }
+    //    }, 1000);
+    //}
+
+</script>
+<div class="InfoPanel">
+    <i class="fa fa-check" style="color:limegreen"></i>
+    <h1>Firma Applicata con Successo!</h1>
+    <p>@Model.Result</p>
+</div>
+
+
+

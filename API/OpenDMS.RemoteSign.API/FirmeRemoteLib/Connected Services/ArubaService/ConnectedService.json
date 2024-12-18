@@ -1,0 +1,20 @@
+{
+  "ExtendedData": {
+    "inputs": [
+      "https://arss.demo.firma-automatica.it/ArubaSignService/ArubaSignService?wsdl"
+    ],
+    "collectionTypes": [
+      "System.Array",
+      "System.Collections.Generic.Dictionary`2"
+    ],
+    "namespaceMappings": [
+      "*, ArubaService"
+    ],
+    "references": [
+      "Z:\\Sorgenti\\DPM-NET4.7.2_New\\DPM-NET4.7.2\\Librerie\\FirmeRemoteLib\\bin\\Debug\\net6.0\\Microsoft.Extensions.Configuration.Abstractions.dll",
+      "Z:\\Sorgenti\\DPM-NET4.7.2_New\\DPM-NET4.7.2\\Librerie\\FirmeRemoteLib\\bin\\Debug\\net6.0\\Microsoft.Extensions.Logging.Abstractions.dll"
+    ],
+    "targetFramework": "net6.0",
+    "typeReuseMode": "All"
+  }
+}

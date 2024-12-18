@@ -1,0 +1,20 @@
+﻿@using OpenDMS.Core.DTOs;
+@inject IConfiguration config
+@model IndexModel
+
+
+@if (Model != null)
+{
+
+    <div class="InfoPanel">
+            @try
+            {
+            @await Component.InvokeAsync(Model.ArchivingStrategy.ToString(),new { DocId = Model.DocumentId })
+            ;
+            }catch(Exception ex){  }
+
+
+    </div>
+}
+
+

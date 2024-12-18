@@ -1,0 +1,143 @@
+﻿@page
+@inject IConfiguration Configuration
+@model Web.Pages.RemoteSign.IndexModel
+@{
+    var uid = User.Identity.Name;
+}
+
+<script src="~/js/pdf/pdfactions.js"></script>
+<script>
+    function Loader() {
+        return true;
+    }
+
+</script>
+<div class="Header">
+    <i class="fa fa-pencil"></i>
+    <h1>
+        <small class="DocumentType">
+            @((!String.IsNullOrEmpty(Model.Provider)) ? "Servizio di Firma Remota " + Model.Provider : "Firma Digitale Remota")
+
+        </small>
+        <span class="Description">
+            Firma Remota
+        </span>
+    </h1>
+    <div class="right-header">
+        <a href="#" class="btn btn-link" onclick="return CloseWindow()"><i class="fa fa-times"></i></a>
+    </div>
+</div>
+
+
+
+<div class="MainPanel">
+    <div id="Message_Target"></div>
+    <div id="Loader" class="InfoPanel hidden">
+        <i class="fa fa-spinner fa-spin"></i>
+        <h3>Caricamento in corso...</h3>
+    </div>
+    @using (Html.BeginForm(FormMethod.Post, new { @class = "Panel", id = "form" }))
+    {
+        @Html.Hidden("SignType", Model.SignType)
+        @Html.Hidden("documents", Model.Documents)
+        @Html.Hidden("fromActivity", Model.fromActivity)
+        <div id="content" class="MainPanel">
+            <h1>Stai per firmare nr.@(Model.Files.Count(c => !c.Excluded)) documenti</h1>
+            <p>Qui sotto sono evidenziati i documenti sui quali non è possibile applicare la tipologia di firma scelta e le motivazioni che ne impediscono l'applicazione'</p>
+            <div class="MainPanel">
+                <h3 style="margin-top: 5px;">
+                    Documenti da firmare
+                </h3>
+                <div class="MainPanel" style="border:2px solid var(--primary-bg-b1);border-radius:6px;padding:10px;margin-bottom:10px">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th>Documento</th>
+                                <th>Utente</th>
+                                <th style="text-align:right">Stato</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var f in Model.Files)
+                            {
+                                <tr data-rowid='@f.Id'>
+                                    <td></td>
+                                    <td><i class="fa @(f.Excluded ? "fa-times" : "fa fa-check")" style="color:@(f.Excluded ? "crimson" : "lime")"></i> </td>
+                                    <td>
+                                        <b>@f.Name</b><br />
+                                        @f.DocType @f.Nr del @f.Date
+                                    </td>
+                                    <td>@f.Owner</td>
+                                    <td style="text-align:right" class="status">@f.Motivation</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                @if (!String.IsNullOrEmpty(Model.ErrorMessage))
+                {
+                    <div class="alert alert-danger">
+                        <strong>Si è verificato un errore</strong>
+                        <p>@Html.Raw(Model.ErrorMessage)</p>
+                    </div>
+                    <div class="Bottom" style="gap:8px;">
+                        <a href="#" class="btn btn-primary" onclick="window.location.reload()">Riprova</a>
+                        <a href="/Customize/Firme" target="_blank" class="btn btn-outline-primary">Configura la Firma Digitale</a>
+                        <a href="#" class="btn btn-link" onclick="return CloseWindow()">Esci</a>
+                    </div>
+
+                }
+                else
+                {
+                    @if (!String.IsNullOrEmpty(Model.WarningMessage))
+                    {
+                        <div class="alert alert-warning">
+                            <p>@Html.Raw(Model.WarningMessage)</p>
+                        </div>
+                    }
+                    <form asp-page-handler="Confirm" method="post">
+                        @if (Model.SignType == IndexModel.SignTypes.Pades)
+                        {
+                            <div class="row">
+                                <h3 style="margin-top: 2%;">Seleziona un campo di firma</h3>
+                                <div>
+                                    <select required id="@nameof(Model.signField)" name="@nameof(Model.signField)" style="width:100%">
+                                        @if (Model.CommonFields.Count == 0)
+                                        {
+                                            @if (Model.Documents.Split(',').Length > 1)
+                                            {
+                                                <option value="" selected="selected">I documenti selezionati non hanno campi di firma in comune</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="" selected="selected">Il documento non contiene un campo di firma</option>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <option value="@Model.signField" selected="selected">Seleziona un campo firma</option>
+                                            @foreach (var f in Model.CommonFields)
+                                            {
+                                                <option value="@f.Name"> @f.Description </option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        }
+                        @if (!(Model.SignType == IndexModel.SignTypes.Pades && Model.CommonFields.Count == 0))
+                        {
+                            <div class="Bottom" style="gap:8px;">
+
+                                <button class="btn btn-primary" asp-page-handler="Confirm" asp-route-type="@Model.SignType" id="btnConferma" onclick="Loader()" style="">Procedi</button>
+                                <a href="#" class="btn btn-link" onclick="return CloseWindow()">Esci</a>
+                            </div>
+                        }
+                    </form>
+                }
+            </div>
+        </div>
+    }
+</div>

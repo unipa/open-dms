@@ -1,0 +1,214 @@
+﻿@page
+@model Web.Pages.BPMMonitor.DocumentTasksModel
+@{
+}
+@{
+    ViewData["Title"] = "Dashboard Processi";
+    Layout = "_MenuLayout";
+}
+
+<div class="Page">
+<div class="LeftMenu">
+    <div class="Header">
+        <img class="logo" src="" />
+
+    </div>
+    <div class="InsidePanel">
+        <ul class="nav nav-list" id="FiltersPanel">
+            <li>
+                <a href="#" onclick="selectFilter(0)"><i class="fa fa-cogs"></i> Processi Attivi</a>
+            </li>
+                <li>
+                    <a href="#" onclick="selectFilter(1)"><i class="fa fa-lock"></i> Processi Conclusi</a>
+                </li>
+            </ul>
+    </div>
+</div>
+
+<div class="TaskListPanel MainPanel">
+    <div class="Header">
+        <i class="Desktop fa fa-arrow-left" onclick="$('.TaskListPanel').addClass('hidden');$('.LeftMenu').addClass('active');"></i>
+        <i id="FilterIcon" class="DocumentIcon fa fa-sitemap"></i>
+        <h1>
+            <small class="DocumentType">
+                Statistiche
+            </small>
+            <span id="FilterTitle" class="Description"></span>
+        </h1>
+    </div>
+
+    <div class="Panel">
+            <div class="processlist_0" style="position:relative;display:hidden">
+                <div>
+                    <div id="ActiveProcesses"></div>
+                </div>
+            </div>
+            <div class="processlist_1" style="position:relative;display:hidden">
+                <div class="Content">
+                    <select id="year" onchange="UpdateClosedProcess()" style="width:100%">
+                        <option value="0">Mese Corrente</option>
+                        <option value="1">Mese Precedente</option>
+                        <option value="10">Anno Corrente</option>
+                        <option value="11">Anno Precedente</option>
+                        <option value="20">Ultimi 2 anni</option>
+                        <option value="21">Ultimi 3 anni</option>
+                        <option value="255">Tutti</option>
+                    </select>
+                </div>
+                <div>
+                    <div id="ClosedProcesses"></div>
+                </div>
+            </div>
+    
+    </div>
+</div>
+<div class="DetailPanel NoTask">
+    <div class="Header">
+        <h1>
+            <small class="DocumentType">&nbsp;</small>
+            <span class="Description">&nbsp;</span>
+        </h1>
+        <div class="right-header">
+            <ul class="nav-toolbar">
+            </ul>
+        </div>
+    </div>
+    <div class="Panel">
+        @* TODO: Mettere Dettaglio Tasks*@
+        <img style="margin: 15vh 11vw 0 11vw;" src="/images/no-process.jpg" />
+        <h1 style="margin: 10px auto;text-align:center">Clicca su un processo per maggiori dettagli</h1>
+    </div>
+
+</div>
+<iframe frameborder="0" class="DetailPanel MainPanel hidden" id="TaskDetail" style="height:100%"></iframe>
+</div>
+
+
+
+
+<script type="text/html" id="ProcessRow">
+    {{#items}}
+        <a href="#" onclick="return selectTask('{{ businessProcessId }}', {{ type }})" class="ProcessRow">
+            <label>
+                    {{description}}
+
+            </label>
+
+            <div class="charts">
+                <div class="chart-container">
+                    <div class="chart">
+                    <div class="intime-chart-bar" style="width:{{ notExpiredPercentage }}%"></div>
+                    <div class="intime-chart-legend">{{ notExpiredPercentage }}%</div>
+                    <div class="delayed-chart-bar" style="width:{{ expiredPercentage }}%"></div>
+                    <div class="delayed-chart-legend">{{ expiredPercentage }}%</div>
+                    </div>
+                </div>
+                    <span class="Istances">
+                            {{ count }}
+                    </span>
+            </div>
+        </a>
+    {{/items}}
+
+</script>
+
+
+
+<script>
+
+
+    var fakeData = {
+        items: [
+            { description: "Segnalazione Ticket", version: "1.01", id: "A01", count: 450, intimeInstances: 75, delayedInstances: 25 },
+            { description: "RDA", version: "1.00", id: "A02", count: 320, intimeInstances: 0, delayedInstances: 100 },
+            { description: "Missioni", version: "2.00", id: "A03", count: 152, intimeInstances: 100, delayedInstances: 0 },
+            { description: "Protocollo", version: "1.15", id: "A04", count: 31, intimeInstances: 70, delayedInstances: 30 },
+            { description: "Immatricolazioni", version: "1.00", id: "A05", count: 8, intimeInstances: 10, delayedInstances: 90 },
+            { description: "Contestazioni", version: "3.00", id: "A06", count: 2, intimeInstances: 100, delayedInstances: 0 }
+        ]
+    }
+
+    $(document).ready(() => {
+        selectFilter (0);
+            $(".WF").addClass("active");
+
+    });
+
+    function selectFilter (type)
+    {
+        $('.TaskListPanel').removeClass("hidden");
+        $('.LeftMenu').removeClass('active');
+
+        if (type == 0) {
+            UpdateActiveProcess();
+        }
+        if (type == 1) {
+            UpdateClosedProcess();
+        }
+        return false;
+    }
+
+    function selectTask(id, type) {
+        if (id) {
+            var year = $("#year").val();
+            $("#TaskDetail").load((data) => {
+                $("#TaskDetail").removeClass("hidden");
+                $(".NoTask").addClass("hidden");
+                $(".TaskListPanel").addClass("Mobile");
+            });
+            $("#TaskDetail")[0].src = "/BPMMonitor/ProcessDetail_"+type+"?period="+year+"&pid=" + id;
+        } else {
+            if (window.Modal) {
+                $(window.Modal).find("#PopupWindow").attr("src", "");
+                $(window..Modal).addClass("hidden");
+            }
+            $("#TaskDetail").addClass("hidden");
+            $(".NoTask").removeClass("hidden");
+            $(".TaskListPanel").removeClass("Mobile");
+        }
+        return false;
+    }
+
+    function CreatePercentage(data, type) {
+        data.forEach((e) => {
+            e.count = e.expired + e.notExpired;
+            e.type = type;
+            if (e.count > 0) {
+                e.expiredPercentage = Math.trunc(e.expired * 100 / e.count);
+                e.notExpiredPercentage = Math.round(e.notExpired * 100 / e.count);
+            }
+        });
+        return data;
+    }
+
+    function UpdateActiveProcess() {
+        $("#FilterTitle").text("Processi Attivi");
+        $(".processlist_1").hide();
+        $(".processlist_0").show();
+        fetch("/internalapi/wf/ActiveProcess?pid=")
+            .then(response => response.json())
+            .then(data => {
+                var template = $("#ProcessRow").html();
+                var html = Mustache.to_html(template, { items: CreatePercentage(data, 0) });
+                $("#ActiveProcesses").html(html);
+
+            });
+    }
+
+
+    function UpdateClosedProcess() {
+        var year = $("#year").val();
+        $("#FilterTitle").text("Processi Conclusi");
+        $(".processlist_0").hide();
+        $(".processlist_1").show();
+        fetch("/internalapi/wf/ClosedProcess?period=" + year+"&pid=")
+            .then(response => response.json())
+            .then(data => {
+                var template = $("#ProcessRow").html();
+                var html = Mustache.to_html(template, { items: CreatePercentage(data, 1) });
+                $("#ClosedProcesses").html(html);
+
+            });
+    }
+
+</script>

@@ -1,0 +1,188 @@
+<h1>Form Base</h1>		
+<div>
+
+        <h3>Variabile User</h3>
+        <div class=""Row>
+            <label>UserId</label>
+            <span><input type="text" name="userid" value="{{UserId}}"/></span>
+        </div>
+        <div class=""Row>
+            <label>Nome Completo</label>
+            <span><input type="text" name="username" value="{{UserName}}"/></span>
+        </div>
+        <div class=""Row>
+            <label>Nome Completo (alternativa)</label>
+            <span><input type="text" name="cognome" value="{{User.FullName}}"/></span>
+        </div>
+        <div class=""Row>
+            <label>Nome</label>
+            <span><input type="text" name="nome" value="{{User.FirstName}}"/></span>
+        </div>
+        <div class=""Row>
+            <label>Cognome</label>
+            <span><input type="text" name="cognome" value="{{User.SurName}}"/></span>
+        </div>
+
+        <h3>Impostazioni Utente dinamiche</h3>
+        <p>Queste informazioni vengono memorizzate sul profilo dell'utente</p>
+        <!-- l'attributo "userSetting" viene utilizzato insieme con all'attributo "name"  -->
+        <!-- per definire una impostazione utente come "categoria/nome_variabile"         -->
+        <div class=""Row>
+            <label>Codice fiscale</label>
+            <span><input type="text" name="codice_fiscale" userSetting="anagrafica"/></span>
+        </div>
+        <div class=""Row>
+            <label>Data di Nascita</label>
+            <span><input type="date" name="data_nascita" userSetting="anagrafica"/></span>
+        </div>
+        <div class=""Row>
+            <label>Sede di lavoro</label>
+            <span><input type="date" name="data_nascita" userSetting="lavoro"/></span>
+        </div>
+
+		<h3>Segnaposto</h3>
+        <div class="Row select-wrapper">
+            <label>Ruolo</label>
+            <span><select name="ruolo_utente">{{Roles}}</select></span>
+        </div>
+        <div class=""Row>
+            <label>Data Odierna (yyyy-MM-dd)</label>
+            <span>{{yyyy-MM-dd}}</span>
+        </div>
+
+		<h3>Allegati</h3>
+        <div class=""Row>
+            <label>File singolo</label>
+            <span></span>
+        </div>
+        <div class=""Row>
+            <label>File multipli su unica variabile</label>
+            <span></span>
+        </div>
+        <div class=""Row>
+            <label>File multipli su variabili diverse</label>
+            <span></span>
+        </div>
+
+		<h3>Metadati</h3>
+        <div class=""Row>
+            <label>Utente</label>
+            <span><input name="utente" tableid="$us" type="lookup"/></span>
+        </div>
+        <div class=""Row>
+            <label>Ruolo</label>
+            <span><input name="ruolo" tableid="$ro" type="lookup"/></span>
+        </div>
+        <div class=""Row>
+            <label>Gruppo</label>
+            <span><input name="gruppo" tableid="$gr" type="lookup"/></span>
+        </div>
+        <div class=""Row>
+            <label>Profilo</label>
+            <span><input name="profilo" tableid="$ug" type="lookup"/></span>
+        </div>
+        <div class=""Row>
+            <label>Email</label>
+            <span><input name="email" tableid="$$@" type="lookup"/></span>
+        </div>
+
+		<h3>Formule</h3>
+        <p>puoi creare aree invisibili o disabilitate in base al valore dei campi</p>
+        <div class="Row">
+            <label>Visibilità (visibleFor/hiddenFor))</label>
+            <span>
+                <input type="checkbox" value="S" name="altro"/>Altro
+                <input type="text" placeholder="indicare cos'altro" visibleFor="{altro}" />
+            </span>
+        </div>
+        <div class="Row">
+            <label>Abilitazione (enabledFor/disabledFor)</label>
+            <span>
+                <input type="checkbox" value="S" name="altro2"/>Altro
+                <input type="text" formula="'{altro2}' ? 'Editabile' : 'ReadOnly'" enabledFor="{altro2}" />
+            </span>
+        </div>
+
+        <div class="Row">
+            <label>Decodifica (lookup)</label>
+            <span>
+                <input type="text" placeholder="indica un codice utente"  name="utente2"/>
+                Decodifica: <i lookup="$us" formula="'{utente2}'"></i>
+            </span>
+        </div>
+
+
+		<h3>Righe Dinamiche</h3>
+        <table border="0" width="100%" style="table-layout: fixed">
+			<tr>
+                <td  style="width: 100%;" align='center'>DESCRIZIONE</td>
+				<td nowrap style="width: 70px" align='center'>Q.TA'</td>
+				<td nowrap style="width: 150px;" align='center'>IMPORTO</td>
+				<td nowrap style="width: 70px;" align='center'>%IVA</td>
+				<td nowrap style="width: 150px;" align='center'>IMPORTO IVATO</td>
+				<td nowrap style="width: 30px;" align='center'></td>
+			</tr>
+			<tbody>
+			<tr template="servizi">
+                <td>  <input name="descr"   type="text"   style="width:100%" /> </td>
+                <td>  <input name="qta"     type="number" style="width:100%" /> </td>
+                <td>  <input name="prezzou" type="number" style="width:100%" /> </td>
+                <td>  <input name="iva"     type="number" style="width:100%" /> </td>
+                <!-- l'attributo "formula" permette di automatizzare il valore di un controllo.  -->
+                <!-- I nomi indicati tra parentesi graffe rappresentano i valori dei controlli   -->
+                <!-- da utilizzare per calcolare la formula.                                     -->
+                <!-- I controlli vengono individuati attraverso l'attributo "name", ricercando   -->
+                <!-- tra i controlli paritetici o dei livelli superiori. Se vengono riscontrati  -->
+                <!-- più controlli con lo stesso attributo il sistema somma tutti i loro valori. -->
+
+                <!-- L'attributo "empryValue" definisce il valore da attribuire quando il valore -->
+                <!-- calcolato della formaula è vuoto                                            -->
+
+                <!-- L'attributo "decimal" definisce il numero di decimali da utilizzare nelle   -->
+                <!-- formule che restituiscono valori numerici                                   -->
+                <td>  <input name="totaleriga" step=".01" formula="{qta}*{prezzou}*(1+({iva}/100))" decimal="2" emptyvalue="0" type="number" style="width:100%" /> </td>
+				<td><a href="#" class="hidden removeRow btn btn-link btn-xs" update="{total}" title="Cancella la riga"><i class="fa fa-minus"></i></a></td>
+			</tr>
+			</tbody>
+			<tfoot>
+			<tr>
+                <!-- la funzione "addRow(templateId)" duplica l'oggetto indicato dall'attributo  -->
+                <!-- template="templateId" aggiungendolo in coda a quest'ultimo                  -->
+                <!-- Se nel template è presente la classe "removeRow" questa viene resa visibile -->
+                <!-- e utilizzata per rimuovere l'oggetto aggiunto                               -->
+				<td><a href="#" addRow="servizi" class="btn btn-link">Aggiungi Riga</a>  </td>
+				<td>  </td>
+				<td>  </td>	
+				<td><b>Totale</b></td>
+				<td><input type="number" min="0" step=".01" max="999999999" style="width:100%" formula="{totaleriga}" decimal="2" emptyvalue="0" id="totale" name="totale" value="" placeholder="Totale" /></td>
+				<td></td>	
+			</tr>
+			</tfoot>
+		</table>
+
+</div>
+
+
+<script>
+
+
+function Start()
+{
+    // Questa funzione viene richiamata prima di renderizzare il form
+    // Può essere utilizzata per effettuare chiamate http e recuperare dati esterni
+    // o mostrare o nascondere informazioni in base al valore delle variabili.
+}
+
+
+function Validate()
+{
+    // Questa funzione viene richiamata prima di salvare il form per validare i dati.
+    // 
+    // Valore di ritorno:
+    // true  = Ok, prosegue con il salvataggio
+    // false = Annulla il salvataggio. La visualizzaizone di eventuali errori è a carico di questa funzione 
+    return true;
+}
+
+
+</script>

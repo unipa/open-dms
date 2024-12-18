@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "OpenDMS.Infrastructure.Database.Tests": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:57900;http://localhost:57901"
+    }
+  }
+}

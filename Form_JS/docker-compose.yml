@@ -1,0 +1,7 @@
+version: '3.3'
+
+services:
+  myapp:
+    build: .
+    ports:
+      - "5100:5100"

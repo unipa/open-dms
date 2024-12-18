@@ -1,0 +1,71 @@
+﻿@using Microsoft.Extensions.Configuration
+@using OpenDMS.Domain.Entities;
+@using Web.DTOs;
+@model Homepages_DTO;
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "Scelta della Home Page";
+    Layout = "_CustomizeLayout";
+}
+
+<script>
+
+    $(document).ready(function () {
+        $(function () {
+
+            Carica("liCustomize-HomePage");
+
+        });
+    });
+
+
+    function SetHomePage (home) {
+        fetch("/internalapi/ui/Setting/?name=HomePage&value=" + encodeURI(home))
+            .then(r => r.text)
+            .then(data => {
+                window.location.reload();
+            })
+        return false;
+    }
+
+</script>
+
+
+
+<div class="MainPanel">
+    <div class="Header">
+        <span style="padding:16px 12px" class="Desktop fa fa-bars" onclick="$('.ListPanel').addClass('hiddenOnMobile');$('.LeftMenu').addClass('active');"></span>
+        <i class="fa fa-home"></i>
+        <h1>
+            <small>Profilo Utente</small>
+            <span>Home Page</span>
+        </h1>
+    </div>
+
+    <div id="Message_Target"></div>
+
+    <div class="Panel">
+    
+        <h2>Scegli la tua home page</h2>
+        <ul class="nav nav-list">
+            @foreach (var p in Model.Pages)
+            {
+                <li id="@p.PageId">
+                    <a href="#" onclick="SetHomePage('@p.URL')">
+                        <div style="min-width:32px"> @Html.Raw(p.Icon)</div>
+                        <strong>@p.Title</strong>
+                        <small style="right:48px">@p.Tooltip</small>
+                            @if (@Model.HomePage == @p.URL)
+                            {
+                            <sub>
+                            <i class="fa fa-check green"></i>
+                            </sub>
+                        }
+                    </a>
+                </li>
+            }
+        </ul>
+
+    </div>
+
+</div>

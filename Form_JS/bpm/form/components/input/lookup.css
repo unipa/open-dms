@@ -1,0 +1,235 @@
+.lookup-container
+{
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-wrap: nowrap;
+    flex-direction: column;
+    position: relative;
+    border-bottom:1px solid #aaa;
+    box-sizing: border-box;
+}
+.lookup-container label
+{
+    margin:2px;
+    margin-left: 0;
+
+    font-weight: 700;
+    font-size: .65em;
+    text-transform: uppercase;
+}
+.lookup-control
+{
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+    background-color: #eee;
+}
+.lookup-control a
+{
+    flex-grow: 0;
+    border-radius: 3px;
+}
+.lookup-control:hover,
+.lookup-control:focus,
+.lookup-control:focus-within
+{
+    background-color: #eee;
+    outline: 2px solid  #333;
+}
+
+.lookup-control input,
+.lookup-control textarea,
+.lookup-control select
+{
+    background-color: transparent;
+    outline: none;
+    min-height: 19px;
+}
+.lookup-control input
+{
+    flex-grow: 1;
+    width: auto;
+    border: transparent;
+    padding: 8px 4px;
+    width: 0;
+    min-width: 80px;
+}
+.lookup-control textarea
+{
+    flex-grow: 1;
+    width: auto;
+    border: transparent;
+    padding: 8px 4px;
+    --padding-right: 92px;
+    width: 0;
+    min-width: 0;
+    line-height: 20px;
+    resize:none;
+}
+
+
+.lookup-control a:hover,
+.lookup-control a:focus
+{
+    background-color: #eee;
+}
+.lookup-control .lookup-clear-button,
+.lookup-control .lookup-info-button,
+.lookup-control .lookup-search-button
+{
+    --position: absolute;
+    flex-grow: 0;
+    padding: 3px 5px;
+    margin: 4px;
+    width: 18px;
+    text-align: center;
+}
+.lookup-control .lookup-loader
+{
+    display: none;
+}
+
+
+
+.lookup-control button
+{
+    margin-top: 18px;
+    margin-left: 2px;
+    border-radius: 2px;
+    border:0;
+    flex-shrink: 0;
+}
+.lookup-control button.primary
+{
+    background-color: cornflowerblue;
+    color: white;
+    font-weight: 700;
+}
+
+.lookup-search-box
+{
+    font-size: .85rem;
+    z-index: 100;
+    position: absolute;
+    top: 100%;
+    margin-top: 4px;
+    left: 0;
+    right: 0;
+    border-radius: 4px;
+    box-shadow: 0 1px 2px 0 rgba(0,0,0,.3);
+    padding: 8px;
+    background-color: rgba(255,255,255,.95);
+}
+
+.lookup-search-box ul{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+.lookup-search-box ul li a{
+    padding: 6px 8px;
+    text-decoration: none;
+    display: flex;
+    color: #222;
+    position: relative;
+}
+.lookup-search-box ul li a small{
+    position: absolute;
+    color: #888;
+    right:8px;
+    top:8px;
+    max-width: 30%;
+    text-overflow: ellipsis;
+    overflow-x: hidden;
+    white-space: nowrap;
+    display: block;
+    text-align: right;
+
+}
+.lookup-search-box ul li a:hover,
+.lookup-search-box ul li a:focus{
+    background-color: #eee;
+}
+
+.lookup-tags
+{
+    display: flex;
+    flex-direction: row;
+    font-size: 0.75rem;
+    align-items: center;
+    margin-left: 2px;
+    color: #333;
+}
+.lookup-tag
+{
+    background-color: #eee;
+    border-radius: 3px;
+    margin: 4px 2px;
+    padding: 4px 4px;
+}
+.lookup-tag a
+{
+    display: inline-block;
+    text-decoration: none;
+    padding: 0 4px;
+    color: #777;
+}
+
+.lookup-prefix,
+.lookup-suffix
+{
+    padding-top: 7px;
+    font-size:.85rem;
+    font-weight: 500;
+    padding-left: 8px;
+}
+.lookup-suffix
+{
+    padding-left: 0px;
+    padding-right: 8px;
+}
+.lookup-prefix:empty,
+.lookup-suffix:empty
+{
+    display: none;
+}
+
+
+input[type='date']
+{
+    width:100%;
+}
+
+  input[type='date']:not(:focus):in-range::-webkit-datetime-edit-year-field,
+  input[type='date']:not(:focus):in-range::-webkit-datetime-edit-month-field,
+  input[type='date']:not(:focus):in-range::-webkit-datetime-edit-day-field,
+  input[type='date']:not(:focus):in-range::-webkit-datetime-edit-textsss {
+    color: transparent;
+  }
+
+/* iOS background fix */
+  & > input[type='date']:empty {
+    background-color: #f9f9f6;
+  }
+
+  /* iOS fix for text alignment */
+  & > input::-webkit-date-and-time-value {
+    text-align: left;
+    color: var(--sg-black);
+  }
+
+  /* iOS date-placeholder fix */
+  & > input[type='date']:not(:focus):empty:after {
+    position: absolute;
+    color: #aaa;
+    content: attr(placeholder);
+  }
+
+  ::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    cursor: pointer; /* optional */
+ }

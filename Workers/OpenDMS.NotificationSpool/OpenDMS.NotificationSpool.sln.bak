@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32421.90
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenDMS.NotificationManager.API", "OpenDMS.NotificationManager.API\OpenDMS.NotificationManager.API.csproj", "{4C338F9F-BE40-40C8-BBA9-A71B5A669683}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenDMS.NotificationManager.Lib", "OpenDMS.NotificationManager.Lib\OpenDMS.NotificationManager.Lib.csproj", "{731A6A98-5C7F-48FA-8C1D-F17536031BA7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elmi.Core.MessageBus.RabbitMQ", "..\..\..\Componenti_Riutilizzabiili\Elmi.Core.MessageBus\Elmi.Core.MessageBus\MessageBus.RabbitMQ\Elmi.Core.MessageBus.RabbitMQ.csproj", "{D32FE60F-4787-422A-A1D7-972EADD04299}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elmi.Core.MessageBus.Interface", "..\..\..\Componenti_Riutilizzabiili\Elmi.Core.MessageBus\Elmi.Core.MessageBus\MessageBus.Interface\Elmi.Core.MessageBus.Interface.csproj", "{77E77520-B1E4-42CA-BCA8-2CA21AEEEA1D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenDMS.NotificationManager.Test", "OpenDMS.NotificationManager.Test\OpenDMS.NotificationManager.Test.csproj", "{48662C55-E7B4-44AA-97D2-F495484240F8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenDMS.Domain", "..\..\..\Core\OpenDMS.Domain\OpenDMS.Domain.csproj", "{FCE6E7CA-5254-4DCE-BAF6-6937B7A07D62}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4C338F9F-BE40-40C8-BBA9-A71B5A669683}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C338F9F-BE40-40C8-BBA9-A71B5A669683}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C338F9F-BE40-40C8-BBA9-A71B5A669683}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C338F9F-BE40-40C8-BBA9-A71B5A669683}.Release|Any CPU.Build.0 = Release|Any CPU
+		{731A6A98-5C7F-48FA-8C1D-F17536031BA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{731A6A98-5C7F-48FA-8C1D-F17536031BA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{731A6A98-5C7F-48FA-8C1D-F17536031BA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{731A6A98-5C7F-48FA-8C1D-F17536031BA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D32FE60F-4787-422A-A1D7-972EADD04299}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D32FE60F-4787-422A-A1D7-972EADD04299}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D32FE60F-4787-422A-A1D7-972EADD04299}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D32FE60F-4787-422A-A1D7-972EADD04299}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77E77520-B1E4-42CA-BCA8-2CA21AEEEA1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77E77520-B1E4-42CA-BCA8-2CA21AEEEA1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77E77520-B1E4-42CA-BCA8-2CA21AEEEA1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77E77520-B1E4-42CA-BCA8-2CA21AEEEA1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48662C55-E7B4-44AA-97D2-F495484240F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48662C55-E7B4-44AA-97D2-F495484240F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48662C55-E7B4-44AA-97D2-F495484240F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48662C55-E7B4-44AA-97D2-F495484240F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FCE6E7CA-5254-4DCE-BAF6-6937B7A07D62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCE6E7CA-5254-4DCE-BAF6-6937B7A07D62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FCE6E7CA-5254-4DCE-BAF6-6937B7A07D62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FCE6E7CA-5254-4DCE-BAF6-6937B7A07D62}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5B6CE85C-E094-49D3-94CC-61FE842437A6}
+	EndGlobalSection
+EndGlobal

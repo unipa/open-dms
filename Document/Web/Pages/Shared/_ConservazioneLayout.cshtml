@@ -1,0 +1,50 @@
+﻿@{
+    ViewData["Title"] = "Conservazione";
+    Layout = "_MenuLayout";
+}
+
+<script src="~/admin/admin.js"></script>
+
+<link href="~/admin/admin.min.css" rel="stylesheet" />
+
+<div class="Page">
+    <div class="LeftMenu">
+        <div class="Header">
+            <h1>
+                <small>OpenDMS</small>
+                <span>Conservazione</span>
+            </h1>
+        </div>
+        <div class="Panel sidebar-wrapper InsidePanel">
+@*            <div class="Content">
+                <a href="#" class="btn btn-primary" onclick="return CreateDocument()"><i class="fa fa-plus"></i> Nuovo...</a>
+            </div>
+*@
+            <div class="sidebar-linklist-wrapper">
+                <div class="link-list-wrapper">
+
+                    <ul class="link-list">
+                        <li disabled> <p class="fw-bold" style="color:#06c">PROCESSO DI CONSERVAZIONE </p> </li>
+                        <li disabled class="mnuSottoscrizione"><a href="/Conservazione/Sottoscrizione"><i class="fa fa-pencil"></i>Sottoscrizione</a></li>
+                        <li disabled class="mnuEstrazione"><a href="/Conservazione/Estrazione"><i class="fa fa-certificate"></i>Estrazione</a></li>
+                        <li disabled class="mnuVerifica"><a href="/Conservazione/Verifica"><i class="fa fa-gift"></i>Verifica</a></li>
+                        <li disabled class="mnuConservazione"><a href="/Conservazione/Conservazione"><i class="fa fa-inbox"></i>Conservazione</a></li>
+                        <br />
+                        <li disabled><p class="fw-bold" style="color:#06c">ARCHIVIO DIGITALE </p></li>
+                        <li disabled class="mnuRicerca"><a href="/Conservazione/Ricerca"><i class="fa fa-search"></i>Ricerca</a></li>
+                        <li disabled class="mnuVerifichePeriodiche"><a href="/Conservazione/VerifichePeriodiche"><i class="fa fa-check-square"></i>Verifiche Periodiche</a></li>
+                        <li disabled class="mnuDistribuzione"><a href="/Conservazione/Distribuzione"><i class="fa fa-cloud-upload"></i>Distribuzione</a></li>
+                        <br />
+                        <li> <p class="fw-bold" style="color:#06c"> CONSERVAZIONE </p> </li>
+                        <li disabled class="mnuResponsabileDelegati"><a href="/Conservazione/ResponsabileDelegati"><i class="fa fa-users"></i>Responsabile & Delegati</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="MainWindow">
+        @RenderBody()
+        @RenderSection("Scripts", required: false)
+    </div>
+</div>
+

@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpenDMS.Domain\OpenDMS.Domain.csproj" />
+    <ProjectReference Include="..\OpenDMS.Infrastructure.Database\OpenDMS.Infrastructure.Database.csproj" />
+    <ProjectReference Include="..\OpenDMS.MultiTenancy\OpenDMS.MultiTenancy.csproj" />
+  </ItemGroup>
+
+</Project>

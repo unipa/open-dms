@@ -1,0 +1,180 @@
+﻿@page
+@model Web.Pages.PermissionsModel
+@{
+}
+
+
+<form class="MainWindow">
+    <input type="hidden" asp-for="Data.Documents" />
+    <div class="Header">
+        <i class="fa fa-lock"></i>
+        <h1>
+            <small>Aggiungi permessi su un documento</small>
+            <span>Crea Nuovi Permessi</span>
+        </h1>
+        <div class="right-header">
+            <a class="btn btn-link" href="#" onclick="CloseWindow()"><i class="fa fa-times"></i></a>
+        </div>
+    </div>
+    <div class="Panel">
+        <div>
+            <label>Utenti / Ruoli / Gruppi da autorizzare</label>
+            <input 
+                disabled="@(String.IsNullOrEmpty(Model.Data.Profiles) ? null : "true")" 
+                value="@Model.Data.Profiles" 
+                tag="true" 
+                required="true" 
+                id="destinatari" 
+                tableId="$ug" 
+                type="lookup"/>
+        </div>
+        <div class="Panel"> 
+            <div>
+                <h3>Permessi Standard</h3>
+                <div class="CheckRow">
+                    <i class="fa fa-2x fa-search"></i>
+                    <h4>
+                        Accessibilità Documento
+                        <small>Permette di ricercare e accedere ai metadati di un documento</small>
+                    </h4>
+                    <span>
+                        <select asp-for="Data.ViewDocument" disabled=@(Model.CanView ? null : "disabled")>
+                            <option value="0">Nessuno</option>
+                            <option value="1">Concesso</option>
+                            <option value="2">Negato</option>
+                        </select>
+                    </span>
+                </div>
+                <div class="CheckRow">
+                    <i class="fa fa-2x fa-file-pdf-o"></i>
+                    <h4>
+                        Visibilità Contenuto
+                        <small>Permette di visualizzare il contenuto di un documento</small>
+                    </h4>
+                    <span>
+                        <select asp-for="Data.ViewContent" disabled=@(Model.CanViewContent ? null : "disabled")>
+                            <option value="0">Nessuno</option>
+                            <option value="1">Concesso</option>
+                            <option value="2">Negato</option>
+                        </select>
+                    </span>
+                </div>
+                <div class="CheckRow">
+                    <i class="fa fa-2x fa-share"></i>
+                    <h4>
+                        Condivisione Contenuto
+                        <small>Permette di scaricare e inviare il contenuto di un documento</small>
+                    </h4>
+                    <span>
+                        <select asp-for="Data.ShareDocument" disabled=@(Model.CanShare ? null : "disabled")>
+                            <option value="0">Nessuno</option>
+                            <option value="1">Concesso</option>
+                            <option value="2">Negato</option>
+                        </select>
+                    </span>
+                </div>
+                <h3>Permessi Speciali</h3>
+                <div class="CheckRow">
+                    <i class="fa fa-2x fa-keyboard-o"></i>
+                    <h4>
+                        Modifica Metadati
+                        <small>Permette di modificare i metadati e lo stato di un documento</small>
+                    </h4>
+                    <span>
+                        <select asp-for="Data.EditDocument" disabled=@(Model.CanEdit ? null : "disabled")>
+                            <option value="0">Nessuno</option>
+                            <option value="1">Concesso</option>
+                            <option value="2">Negato</option>
+                        </select>
+                    </span>
+                </div>
+                <div class="CheckRow">
+                    <i class="fa fa-2x fa-plus"></i>
+                    <h4>
+                        Inserimento Contenuti
+                        <small>Permette di inserire nuovi contenuti o allegati a un documento</small>
+                    </h4>
+                    <span>
+                        <select asp-for="Data.AddContent" disabled=@(Model.CanAddContent ? null : "disabled")>
+                            <option value="0">Nessuno</option>
+                            <option value="1">Concesso</option>
+                            <option value="2">Negato</option>
+                        </select>
+                    </span>
+                </div>
+                <div class="CheckRow">
+                    <i class="fa fa-2x fa-minus"></i>
+                    <h4>
+                        Rimozione Contenuti
+                        <small>Permette di rimuovere contenuti o allegati da un documento</small>
+                    </h4>
+                    <span>
+                        <select asp-for="Data.RemoveContent" disabled=@(Model.CanRemoveContent ? null : "disabled")>
+                            <option value="0">Nessuno</option>
+                            <option value="1">Concesso</option>
+                            <option value="2">Negato</option>
+                        </select>
+                    </span>
+                </div>
+                <div class="CheckRow">
+                    <i class="fa fa-2x fa-trash-o"></i>
+                    <h4>
+                        Cancellazione
+                        <small>Permette di cancellare un documento</small>
+                    </h4>
+                    <span>
+                        <select asp-for="Data.DeleteDocument" disabled=@(Model.CanDelete ? null : "disabled")>
+                            <option value="0">Nessuno</option>
+                            <option value="1">Concesso</option>
+                            <option value="2">Negato</option>
+                        </select>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="Bottom">
+        <a class="btn btn-primary" href="#" onclick="Save()">Memorizza</a>
+        <a class="btn btn-link" href="#" onclick="CloseWindow()">Esci</a>
+    </div>
+</form>
+
+<script>
+    function Save() {
+        var Profiles = $("#destinatari").val();
+        var desc = $("#destinatari_description").val();
+        var ruoli = 0;
+        var gruppi = 0;
+        $(Profiles.split(',')).each((i,p) => {
+            if (p[0] == '2' && !p.includes("\\")) {
+                ruoli++;
+            }
+            if (p[0] == '1') {
+                gruppi++;
+            }
+
+        });
+
+        if (ruoli > 0) {
+            if (!confirm("Stai per concedere o negare permessi a tutte le persone afferenti ad uno o più ruoli trasversali.\nSei sicuro ?")) {
+                return;
+            }
+        }
+        if (gruppi > 0) {
+            if (!confirm("Stai per concedere o negare permessi a tutte le persone afferenti ad una o più strutture.\nSei sicuro ?")) {
+                return;
+            }
+        }
+
+        data = $('form').serialize().replace(/Data./ig,"") +"&Profiles="+ $("#destinatari").val();
+        
+        fetch("?handler=Save&" + data);
+        window.setTimeout(() => {
+            window.parent.postMessage({ op: "addauth", data: 1 }, "*");
+            CloseWindow();
+        }, 500);
+
+        //window.close();
+    }
+
+</script>

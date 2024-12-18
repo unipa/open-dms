@@ -1,0 +1,203 @@
+﻿@page
+@model ReassignModel;
+@using OpenDMS.Domain.Entities;
+@using OpenDMS.Domain.Enumerators;
+@{
+    ViewData["Title"] = "Riassegna Attività";
+}
+
+@* import tinymce *@
+<script src="~/js/tinymce/tinymce.min.js"></script>
+
+
+<form id="form" class="MainPanel">
+    <div class="Header">
+        <i class="fa fa-tasks"></i>
+        <h1>
+            <small>Riassegna</small>
+            <span>Attività</span>
+        </h1>
+        <div class="right-header">
+            <a class="btn btn-link" href="#" onclick="return window.parent.selectTask(@Model.ShareInfo.DocId)"><i class="fa fa-times"></i></a>
+        </div>
+    </div>
+
+    <div id="Message_Target"></div>
+    <input type="hidden" name="Note" value="" id="HiddenInputNote">
+
+    <div class="Panel">
+
+        <h2>@Model.CurrentTask.TaskItemInfo.Title</h2>
+
+        <div style="display:flex;flex-direction:row;position:relative;margin-bottom:10px">
+            <img src="/internalapi/identity/avatar/@(Model.CurrentTask.TaskItemInfo.Sender)" class="avatarInList" style="margin-right:8px;" />
+            <div style="display:flex;flex-direction:column;width:100%">
+                <b>@Model.CurrentTask.TaskItemInfo.SenderName</b>
+                <div style="font-size:.85rem;margin-top:-4px;padding-right:200px;">
+                    A:
+                    @foreach (var Dest in Model.CurrentTask.TaskItemInfo.ToList)
+                    {
+                        <span>@Dest.Description</span>
+                    }
+                </div>
+
+                <div style="position:absolute;top:2px;right:8px; text-align:right;font-size:.85rem;color:#999">
+                    @Model.CurrentTask.CreationDate <i class="fa fa-bell" title="Data Notifica"></i> <br />
+                    @Model.CurrentTask.ExpirationDate <i class="fa fa-calendar" title="Data Scadenza"></i> <br />
+                </div>
+            </div>
+        </div>
+        <div class="TaskDescription">@Html.Raw(Model.CurrentTask.TaskItemInfo.Description)</div>
+
+        <h3 style="border-top:1px dashed #aaa">Indica un nuovo destinatario e la motivazione per la quale stai riassegnando l'attività corrente</h3>
+        <div class="Row">
+            <input id="To"
+                   label="Nuovo Destinatario"
+                   name="To"
+                   type="lookup"
+                   value="@Model.ShareInfo.To"
+                   tableId="$ug"
+                   tag="false"
+                   visible="true"
+                   required
+                   placeholder="Scegli un nuovo destinatario (utente/ruolo/gruppo)" />
+        </div>
+        <div class="MainPanel">
+            <div required class="textEditor"></div>
+        </div>
+    </div>
+</form>
+
+<nav class="Bottom">
+    <button type="button" id="SubmitButton" class="btn btn-primary">Riassegna</button>
+    <a href="#" onclick="return window.parent.selectTask(@Model.ShareInfo.DocId)" class="btn">Esci</a>
+</nav>
+
+
+
+
+<script>
+
+    var textEditorSelector = ".textEditor";
+
+
+    var qs = (function (a) {
+        if (a == "") return {};
+        var b = {};
+        for (var i = 0; i < a.length; ++i) {
+            var p = a[i].split('=', 2);
+            if (p.length == 1)
+                b[p[0]] = "";
+            else
+                b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
+        }
+        return b;
+    })(window.location.search.substr(1).split('&'));
+
+    $(document).ready(function () {
+
+//        if ("@Model.ShareInfo.ErrorMessage" !== '') ShowMessage('alert', '@Model.ShareInfo.ErrorMessage', 'Message_Target', 'Index');
+
+        var Value = $('<textarea/>').html("@Model.ShareInfo.Message").text();
+        InizializzaTextEditor(textEditorSelector, Value,null, "100%").then(function () {
+            // da eseguire dopo il caricamento del text editor.
+        });
+
+        $("#SubmitButton").on("click", function () {
+            Save();
+        });
+
+    })
+
+
+    function checkTask() {
+        var timer = window.setTimeout(() => {
+            /* Verifica se ci sono task utente */
+            fetch("/internalapi/wf/getProcessTasks/" + qs["pik"])
+                .then(response => { return response.json(); })
+                .then(data => {
+                    /*
+                     * dovrebbe ritornare l'id del processo da monitorare
+                     * In assenza di Id l'azione potrebbe avere inviato un messaggio
+                     * Se la proprietà Error non è vuota, viene mostrato l'errore.
+                     */
+                    if (data.length) {
+                        /* Mostro il task */
+                        window.location.href = "/Tasks/Task?tid=" + data[0].id + "&pik=" + qs["pik"];
+                    } else
+                        checkTask();
+                })
+        }, 1000)
+    }
+
+
+    function Save() {
+        var BodyValue = tinymce.activeEditor.getContent(textEditorSelector);
+
+        if (!BodyValue)
+        {
+            ShowMessage('alert', 'E\' necessario indicare una motivazione', 'Message_Target', 'Index');
+            return false;
+        }
+
+        $("#HiddenInputNote").val(BodyValue);
+        var body = ShareInformation(getFormValues("form"));
+        ShowRequiredPopupJS("form");//faccio comparire i popup manualmente in caso di campi non validi
+        if (document.forms["form"].reportValidity()) { //controllo la validità dei campi
+
+            if (body.Profile[0] == '2' && !body.Profile.includes("\\")) { 
+                if (!confirm("Stai per riassegnare il task a tutte le persone con il ruolo " + $("#To_description").val() + ".\nSei sicuro ?")) {
+                    $("#To_description").focus()
+                    return;
+                }
+            }
+            if (body.Profile[0] == '1') {
+                if (!confirm("Stai per riassegnare il task a tutte le persone della struttura " + $("#To_description").val() + ".\nSei sicuro ?")) {
+                    $("#To_description").focus()
+                    return;
+                }
+            }
+
+            var RequestVerificationCode = document.getElementsByName("__RequestVerificationToken");
+            if (RequestVerificationCode.length > 0) {
+                VerificationCode = RequestVerificationCode[0].value;
+            }
+            // fetch("/internalapi/tasklist/Reassign/" + body["UserTaskId"] + "/" + body["Profile"] + "/" + encodeURIComponent( body["Justification"]),
+            $.ajax({
+                url: "/internalapi/tasklist/Reassign",
+                type: "PATCH",
+                headers: { "Content-Type": "application/json", 'accept': 'application/json' },
+                data: JSON.stringify(body)
+            })
+            .done(function (data) {
+                task = data;
+                if (qs["pik"])
+                    checkTask();
+                else
+                {
+                    window.location.href = "/Tasks/Task?tid=" + task.id;
+                    if (window.parent[updateFilters])
+                        window.parent.updateFilters(window.parent.currentFilter);
+                }
+            })
+            .fail(function (err) {
+                ShowMessage("alert", "Non è stato possibile riassegnare il task. Errore: " + err.responseText, 'Message_Target', window.location.href);
+            });
+
+        }
+    }
+
+    function ShareInformation(Info) {
+        var shareInformation = {
+            Justification: Info.note,
+            UserTaskId: @Model.ShareInfo.DocId,
+            Profile: (Info.to !== "") ? Info.to : "",
+        };
+
+        return shareInformation;
+    }
+
+
+
+
+</script>

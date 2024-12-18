@@ -1,0 +1,1408 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:impl="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" xmlns:tns1="http://www.kion.it/titulus" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:intf="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" targetNamespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <xsd:schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4">
+      <xsd:import namespace="http://www.kion.it/titulus" />
+      <xsd:import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
+      <xsd:complexType name="ArrayOf_soapenc_string">
+        <xsd:complexContent mixed="false">
+          <xsd:restriction base="soapenc:Array">
+            <xsd:attribute wsdl:arrayType="soapenc:string[]" ref="soapenc:arrayType" />
+          </xsd:restriction>
+        </xsd:complexContent>
+      </xsd:complexType>
+      <xsd:complexType name="ArrayOf_tns1_AttachmentBean">
+        <xsd:complexContent mixed="false">
+          <xsd:restriction base="soapenc:Array">
+            <xsd:attribute wsdl:arrayType="tns1:AttachmentBean[]" ref="soapenc:arrayType" />
+          </xsd:restriction>
+        </xsd:complexContent>
+      </xsd:complexType>
+    </xsd:schema>
+    <xsd:schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.kion.it/titulus">
+      <xsd:import namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" />
+      <xsd:import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
+      <xsd:complexType name="QueryParams">
+        <xsd:sequence>
+          <xsd:element name="fields" nillable="true" type="intf:ArrayOf_soapenc_string" />
+          <xsd:element name="titlePageSize" type="xsd:int" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="AttachmentBean">
+        <xsd:sequence>
+          <xsd:element name="content" nillable="true" type="soapenc:base64Binary" />
+          <xsd:element name="contentProviderId" nillable="true" type="soapenc:string" />
+          <xsd:element name="contentProviderParams" nillable="true" type="xsd:anyType" />
+          <xsd:element name="contentUri" nillable="true" type="soapenc:string" />
+          <xsd:element name="description" nillable="true" type="soapenc:string" />
+          <xsd:element name="fileName" nillable="true" type="soapenc:string" />
+          <xsd:element name="id" nillable="true" type="soapenc:string" />
+          <xsd:element name="mimeType" nillable="true" type="soapenc:string" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="SaveParams">
+        <xsd:sequence>
+          <xsd:element name="pdfConversion" type="xsd:boolean" />
+          <xsd:element name="sendEMail" type="xsd:boolean" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="CFParams">
+        <xsd:sequence>
+          <xsd:element name="reason" nillable="true" type="soapenc:string" />
+        </xsd:sequence>
+      </xsd:complexType>
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="deleteDocumentResponse">
+    <wsdl:part name="deleteDocumentReturn" type="xsd:boolean" />
+  </wsdl:message>
+  <wsdl:message name="saveDocumentRequest">
+    <wsdl:part name="document" type="soapenc:string" />
+    <wsdl:part name="attachmentBeans" type="intf:ArrayOf_tns1_AttachmentBean" />
+    <wsdl:part name="params" type="tns1:SaveParams" />
+  </wsdl:message>
+  <wsdl:message name="replyDocumentRequest">
+    <wsdl:part name="xmlDocument" type="soapenc:string" />
+    <wsdl:part name="idFolder" type="soapenc:string" />
+    <wsdl:part name="sendEMail" type="xsd:boolean" />
+  </wsdl:message>
+  <wsdl:message name="removeFromFolderResponse">
+    <wsdl:part name="removeFromFolderReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="getWsReleaseRequest" />
+  <wsdl:message name="deleteLinkToFolderResponse">
+    <wsdl:part name="deleteLinkToFolderReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="getDocumentFoldersResponse">
+    <wsdl:part name="getDocumentFoldersReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="startWorkflowResponse">
+    <wsdl:part name="startWorkflowReturn" type="xsd:boolean" />
+  </wsdl:message>
+  <wsdl:message name="deleteDocumentRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="receiveMsgForDocumentRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+    <wsdl:part name="notifyFile" type="tns1:AttachmentBean" />
+    <wsdl:part name="infos" type="soapenc:string" />
+    <wsdl:part name="type" type="soapenc:string" />
+    <wsdl:part name="esito" type="soapenc:string" />
+    <wsdl:part name="extractCades" type="xsd:boolean" />
+  </wsdl:message>
+  <wsdl:message name="searchIndexVoiceRequest">
+    <wsdl:part name="name" type="soapenc:string" />
+    <wsdl:part name="orderby" type="soapenc:string" />
+    <wsdl:part name="params" type="tns1:QueryParams" />
+  </wsdl:message>
+  <wsdl:message name="getDocumentURLRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="firstTitlePageResponse">
+    <wsdl:part name="firstTitlePageReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="checkOutContentFileRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+    <wsdl:part name="fileId" type="soapenc:string" />
+    <wsdl:part name="lock" type="xsd:boolean" />
+  </wsdl:message>
+  <wsdl:message name="addInFolderByInfosResponse">
+    <wsdl:part name="addInFolderByInfosReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="loadDocumentResponse">
+    <wsdl:part name="loadDocumentReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="getFolderURLRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="setWSUserRequest">
+    <wsdl:part name="user" type="soapenc:string" />
+    <wsdl:part name="pnumber" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="getFolderResponse">
+    <wsdl:part name="getFolderReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="setWSUserResponse">
+    <wsdl:part name="setWSUserReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="getRegistrationMarkRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+    <wsdl:part name="html" type="xsd:boolean" />
+  </wsdl:message>
+  <wsdl:message name="unlockDocumentRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="cancelDocumentResponse">
+    <wsdl:part name="cancelDocumentReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="assignFolderRPAResponse">
+    <wsdl:part name="assignFolderRPAReturn" type="xsd:boolean" />
+  </wsdl:message>
+  <wsdl:message name="newFolderResponse">
+    <wsdl:part name="newFolderReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="firstTitlePageRequest" />
+  <wsdl:message name="assignFolderRPARequest">
+    <wsdl:part name="id" type="soapenc:string" />
+    <wsdl:part name="userName" type="soapenc:string" />
+    <wsdl:part name="officeName" type="soapenc:string" />
+    <wsdl:part name="centerCode" type="soapenc:string" />
+    <wsdl:part name="sendEMail" type="xsd:boolean" />
+  </wsdl:message>
+  <wsdl:message name="loadPrevDocumentResponse">
+    <wsdl:part name="loadPrevDocumentReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="getFolderHierarchyRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+    <wsdl:part name="linked" type="xsd:boolean" />
+  </wsdl:message>
+  <wsdl:message name="addPredecessorFatturaResponse">
+    <wsdl:part name="addPredecessorFatturaReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="grantRightRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+    <wsdl:part name="rightType" type="soapenc:string" />
+    <wsdl:part name="userName" type="soapenc:string" />
+    <wsdl:part name="officeName" type="soapenc:string" />
+    <wsdl:part name="centerCode" type="soapenc:string" />
+    <wsdl:part name="sendEMail" type="xsd:boolean" />
+  </wsdl:message>
+  <wsdl:message name="getFolderContentResponse">
+    <wsdl:part name="getFolderContentReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="getFolderURLResponse">
+    <wsdl:part name="getFolderURLReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="newFolderRequest">
+    <wsdl:part name="xmlFolder" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="prevTitlePageRequest" />
+  <wsdl:message name="validateContentFileRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="receiveMsgForDocumentResponse">
+    <wsdl:part name="receiveMsgForDocumentReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="modifyFolderRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+    <wsdl:part name="xmlFolder" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="getWorkflowActionRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+    <wsdl:part name="workflowId" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="titlePageRequest">
+    <wsdl:part name="pageIndex" type="xsd:int" />
+  </wsdl:message>
+  <wsdl:message name="saveModifiedDocumentRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+    <wsdl:part name="document" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="getAttachmentResponse">
+    <wsdl:part name="getAttachmentReturn" type="tns1:AttachmentBean" />
+  </wsdl:message>
+  <wsdl:message name="titlePageResponse">
+    <wsdl:part name="titlePageReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="nextTitlePageResponse">
+    <wsdl:part name="nextTitlePageReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="removePredecessorRequest">
+    <wsdl:part name="idDocToUpdate" type="soapenc:string" />
+    <wsdl:part name="precedessorIdType" type="soapenc:string" />
+    <wsdl:part name="precedessorId" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="addLinkToFolderResponse">
+    <wsdl:part name="addLinkToFolderReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="newSubFolderRequest">
+    <wsdl:part name="folderParentCode" type="soapenc:string" />
+    <wsdl:part name="folderChildSubject" type="soapenc:string" />
+    <wsdl:part name="folderChildDiscard" type="soapenc:string" />
+    <wsdl:part name="folderChildNote" type="soapenc:string" />
+    <wsdl:part name="folderChildYear" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="denyRightRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+    <wsdl:part name="rightType" type="soapenc:string" />
+    <wsdl:part name="userCode" type="soapenc:string" />
+    <wsdl:part name="officeCode" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="applyRegistrationToDraftRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+    <wsdl:part name="sendEMail" type="xsd:boolean" />
+  </wsdl:message>
+  <wsdl:message name="newSpecialFolderResponse">
+    <wsdl:part name="newSpecialFolderReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="removeFromFolderRequest">
+    <wsdl:part name="xmlInFolder" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="saveModifiedDocumentResponse">
+    <wsdl:part name="saveModifiedDocumentReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="unlockContentFileResponse">
+    <wsdl:part name="unlockContentFileReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="getWorkflowActionResponse">
+    <wsdl:part name="getWorkflowActionReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="addNotifyRequestRequest1">
+    <wsdl:part name="xmlDocument" type="soapenc:string" />
+    <wsdl:part name="event" type="soapenc:string" />
+    <wsdl:part name="label" type="soapenc:string" />
+    <wsdl:part name="method" type="soapenc:string" />
+    <wsdl:part name="url" type="soapenc:string" />
+    <wsdl:part name="auth" type="soapenc:string" />
+    <wsdl:part name="includeNRecord" type="xsd:boolean" />
+  </wsdl:message>
+  <wsdl:message name="openFolderResponse">
+    <wsdl:part name="openFolderReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="nextTitlePageRequest" />
+  <wsdl:message name="loadFirstDocumentRequest" />
+  <wsdl:message name="addInFolderResponse">
+    <wsdl:part name="addInFolderReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="addPredecessorFatturaRequest">
+    <wsdl:part name="idDocToUpdate" type="soapenc:string" />
+    <wsdl:part name="ipa" type="soapenc:string" />
+    <wsdl:part name="newFolderSubject" type="soapenc:string" />
+    <wsdl:part name="newFolderIdType" type="soapenc:string" />
+    <wsdl:part name="newFolderId" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="addPredecessorInfosResponse">
+    <wsdl:part name="addPredecessorInfosReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="addNotifyRequestRequest2">
+    <wsdl:part name="xmlDocument" type="soapenc:string" />
+    <wsdl:part name="event" type="soapenc:string" />
+    <wsdl:part name="label" type="soapenc:string" />
+    <wsdl:part name="method" type="soapenc:string" />
+    <wsdl:part name="url" type="soapenc:string" />
+    <wsdl:part name="includeRecord" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="loadNextDocumentResponse">
+    <wsdl:part name="loadNextDocumentReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="denyRightResponse">
+    <wsdl:part name="denyRightReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="prevTitlePageResponse">
+    <wsdl:part name="prevTitlePageReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="searchFullTextRequest">
+    <wsdl:part name="text" type="soapenc:string" />
+    <wsdl:part name="orderby" type="soapenc:string" />
+    <wsdl:part name="params" type="tns1:QueryParams" />
+  </wsdl:message>
+  <wsdl:message name="postItResponse">
+    <wsdl:part name="postItReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="removePredecessorResponse">
+    <wsdl:part name="removePredecessorReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="applyRegistrationMarkRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="getWorkflowIdRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="lastTitlePageRequest" />
+  <wsdl:message name="getAttachmentRequest">
+    <wsdl:part name="fileId" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="addInFolderRequest">
+    <wsdl:part name="xmlInFolder" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="lastTitlePageResponse">
+    <wsdl:part name="lastTitlePageReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="addPredecessorRequest">
+    <wsdl:part name="idDocToUpdate" type="soapenc:string" />
+    <wsdl:part name="xmlPredecessorInfos" type="soapenc:string" />
+    <wsdl:part name="newFolderSubject" type="soapenc:string" />
+    <wsdl:part name="newFolderIdType" type="soapenc:string" />
+    <wsdl:part name="newFolderId" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="getDashboardResponse">
+    <wsdl:part name="getDashboardReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="addNotifyRequestResponse2">
+    <wsdl:part name="addNotifyRequestReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="addNotifyRequestResponse1">
+    <wsdl:part name="addNotifyRequestReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="addNotifyRequestRequest">
+    <wsdl:part name="xmlDocument" type="soapenc:string" />
+    <wsdl:part name="event" type="soapenc:string" />
+    <wsdl:part name="label" type="soapenc:string" />
+    <wsdl:part name="method" type="soapenc:string" />
+    <wsdl:part name="url" type="soapenc:string" />
+    <wsdl:part name="includeRecord" type="soapenc:string" />
+    <wsdl:part name="auth" type="soapenc:string" />
+    <wsdl:part name="includeNRecord" type="xsd:boolean" />
+  </wsdl:message>
+  <wsdl:message name="searchIndexVoiceResponse">
+    <wsdl:part name="searchIndexVoiceReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="continueWorkflowRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+    <wsdl:part name="workflowId" type="soapenc:string" />
+    <wsdl:part name="actionId" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="newSubFolderResponse">
+    <wsdl:part name="newSubFolderReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="currentTitlePageRequest" />
+  <wsdl:message name="getRegistrationMarkResponse">
+    <wsdl:part name="getRegistrationMarkReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="replyDocumentResponse">
+    <wsdl:part name="replyDocumentReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="grantRightResponse">
+    <wsdl:part name="grantRightReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="loadNextDocumentRequest" />
+  <wsdl:message name="cancelDocumentRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+    <wsdl:part name="reason" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="checkOutContentFileResponse">
+    <wsdl:part name="checkOutContentFileReturn" type="tns1:AttachmentBean" />
+  </wsdl:message>
+  <wsdl:message name="getRecordInfosRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="loadPrevDocumentRequest" />
+  <wsdl:message name="postItRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+    <wsdl:part name="postitContent" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="getFolderContentRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+    <wsdl:part name="linked" type="xsd:boolean" />
+  </wsdl:message>
+  <wsdl:message name="currentTitlePageResponse">
+    <wsdl:part name="currentTitlePageReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="checkInContentFilesResponse">
+    <wsdl:part name="checkInContentFilesReturn" type="intf:ArrayOf_tns1_AttachmentBean" />
+  </wsdl:message>
+  <wsdl:message name="addPredecessorResponse">
+    <wsdl:part name="addPredecessorReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="loadLastDocumentRequest" />
+  <wsdl:message name="deleteFolderRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="getWsReleaseResponse">
+    <wsdl:part name="getWsReleaseReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="openFolderRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="getFileURLRequest">
+    <wsdl:part name="fileId" type="soapenc:string" />
+    <wsdl:part name="fileName" type="soapenc:string" />
+    <wsdl:part name="docPhysdoc" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="applyRegistrationToDraftResponse">
+    <wsdl:part name="applyRegistrationToDraftReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="deleteLinkToFolderRequest">
+    <wsdl:part name="xmlLinkToFolder" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="deleteFolderResponse">
+    <wsdl:part name="deleteFolderReturn" type="xsd:boolean" />
+  </wsdl:message>
+  <wsdl:message name="searchResponse">
+    <wsdl:part name="searchReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="loadFirstDocumentResponse">
+    <wsdl:part name="loadFirstDocumentReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="loadDocumentRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+    <wsdl:part name="lock" type="xsd:boolean" />
+  </wsdl:message>
+  <wsdl:message name="addLinkToFolderRequest">
+    <wsdl:part name="xmlLinkToFolder" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="startWorkflowRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+    <wsdl:part name="workflowName" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="addPredecessorInfosRequest">
+    <wsdl:part name="idDocToUpdate" type="soapenc:string" />
+    <wsdl:part name="precedessorIdType" type="soapenc:string" />
+    <wsdl:part name="precedessorId" type="soapenc:string" />
+    <wsdl:part name="newFolderSubject" type="soapenc:string" />
+    <wsdl:part name="newFolderIdType" type="soapenc:string" />
+    <wsdl:part name="newFolderId" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="unlockContentFileRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+    <wsdl:part name="fileId" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="modifyFolderResponse">
+    <wsdl:part name="modifyFolderReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="getWorkflowIdResponse">
+    <wsdl:part name="getWorkflowIdReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="getFolderRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="closeFolderRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+    <wsdl:part name="cfp" type="tns1:CFParams" />
+  </wsdl:message>
+  <wsdl:message name="getFolderHierarchyResponse">
+    <wsdl:part name="getFolderHierarchyReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="checkInContentFilesRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+    <wsdl:part name="attachmentBeans" type="intf:ArrayOf_tns1_AttachmentBean" />
+    <wsdl:part name="params" type="tns1:SaveParams" />
+  </wsdl:message>
+  <wsdl:message name="unlockDocumentResponse">
+    <wsdl:part name="unlockDocumentReturn" type="xsd:boolean" />
+  </wsdl:message>
+  <wsdl:message name="saveDocumentResponse">
+    <wsdl:part name="saveDocumentReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="getDocumentFoldersRequest">
+    <wsdl:part name="id" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="getDashboardRequest">
+    <wsdl:part name="label" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="getDocumentURLResponse">
+    <wsdl:part name="getDocumentURLReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="searchFullTextResponse">
+    <wsdl:part name="searchFullTextReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="closeFolderResponse">
+    <wsdl:part name="closeFolderReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="loadLastDocumentResponse">
+    <wsdl:part name="loadLastDocumentReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="newSpecialFolderRequest">
+    <wsdl:part name="xmlFolder" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="addInFolderByInfosRequest">
+    <wsdl:part name="idDocToUpdate" type="soapenc:string" />
+    <wsdl:part name="newFolderSubject" type="soapenc:string" />
+    <wsdl:part name="newFolderIdType" type="soapenc:string" />
+    <wsdl:part name="newFolderId" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="getRecordInfosResponse">
+    <wsdl:part name="getRecordInfosReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="searchRequest">
+    <wsdl:part name="query" type="soapenc:string" />
+    <wsdl:part name="orderby" type="soapenc:string" />
+    <wsdl:part name="params" type="tns1:QueryParams" />
+  </wsdl:message>
+  <wsdl:message name="validateContentFileResponse">
+    <wsdl:part name="validateContentFileReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="addNotifyRequestResponse">
+    <wsdl:part name="addNotifyRequestReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="applyRegistrationMarkResponse">
+    <wsdl:part name="applyRegistrationMarkReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="continueWorkflowResponse">
+    <wsdl:part name="continueWorkflowReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:message name="getFileURLResponse">
+    <wsdl:part name="getFileURLReturn" type="soapenc:string" />
+  </wsdl:message>
+  <wsdl:portType name="Titulus4">
+    <wsdl:operation name="searchIndexVoice" parameterOrder="name orderby params">
+      <wsdl:input name="searchIndexVoiceRequest" message="intf:searchIndexVoiceRequest" />
+      <wsdl:output name="searchIndexVoiceResponse" message="intf:searchIndexVoiceResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="searchFullText" parameterOrder="text orderby params">
+      <wsdl:input name="searchFullTextRequest" message="intf:searchFullTextRequest" />
+      <wsdl:output name="searchFullTextResponse" message="intf:searchFullTextResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="titlePage" parameterOrder="pageIndex">
+      <wsdl:input name="titlePageRequest" message="intf:titlePageRequest" />
+      <wsdl:output name="titlePageResponse" message="intf:titlePageResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="firstTitlePage">
+      <wsdl:input name="firstTitlePageRequest" message="intf:firstTitlePageRequest" />
+      <wsdl:output name="firstTitlePageResponse" message="intf:firstTitlePageResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="nextTitlePage">
+      <wsdl:input name="nextTitlePageRequest" message="intf:nextTitlePageRequest" />
+      <wsdl:output name="nextTitlePageResponse" message="intf:nextTitlePageResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="prevTitlePage">
+      <wsdl:input name="prevTitlePageRequest" message="intf:prevTitlePageRequest" />
+      <wsdl:output name="prevTitlePageResponse" message="intf:prevTitlePageResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="lastTitlePage">
+      <wsdl:input name="lastTitlePageRequest" message="intf:lastTitlePageRequest" />
+      <wsdl:output name="lastTitlePageResponse" message="intf:lastTitlePageResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="currentTitlePage">
+      <wsdl:input name="currentTitlePageRequest" message="intf:currentTitlePageRequest" />
+      <wsdl:output name="currentTitlePageResponse" message="intf:currentTitlePageResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="loadDocument" parameterOrder="id lock">
+      <wsdl:input name="loadDocumentRequest" message="intf:loadDocumentRequest" />
+      <wsdl:output name="loadDocumentResponse" message="intf:loadDocumentResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="unlockDocument" parameterOrder="id">
+      <wsdl:input name="unlockDocumentRequest" message="intf:unlockDocumentRequest" />
+      <wsdl:output name="unlockDocumentResponse" message="intf:unlockDocumentResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="loadFirstDocument">
+      <wsdl:input name="loadFirstDocumentRequest" message="intf:loadFirstDocumentRequest" />
+      <wsdl:output name="loadFirstDocumentResponse" message="intf:loadFirstDocumentResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="loadNextDocument">
+      <wsdl:input name="loadNextDocumentRequest" message="intf:loadNextDocumentRequest" />
+      <wsdl:output name="loadNextDocumentResponse" message="intf:loadNextDocumentResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="loadLastDocument">
+      <wsdl:input name="loadLastDocumentRequest" message="intf:loadLastDocumentRequest" />
+      <wsdl:output name="loadLastDocumentResponse" message="intf:loadLastDocumentResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="loadPrevDocument">
+      <wsdl:input name="loadPrevDocumentRequest" message="intf:loadPrevDocumentRequest" />
+      <wsdl:output name="loadPrevDocumentResponse" message="intf:loadPrevDocumentResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="saveDocument" parameterOrder="document attachmentBeans params">
+      <wsdl:input name="saveDocumentRequest" message="intf:saveDocumentRequest" />
+      <wsdl:output name="saveDocumentResponse" message="intf:saveDocumentResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="saveModifiedDocument" parameterOrder="id document">
+      <wsdl:input name="saveModifiedDocumentRequest" message="intf:saveModifiedDocumentRequest" />
+      <wsdl:output name="saveModifiedDocumentResponse" message="intf:saveModifiedDocumentResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="deleteDocument" parameterOrder="id">
+      <wsdl:input name="deleteDocumentRequest" message="intf:deleteDocumentRequest" />
+      <wsdl:output name="deleteDocumentResponse" message="intf:deleteDocumentResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="getAttachment" parameterOrder="fileId">
+      <wsdl:input name="getAttachmentRequest" message="intf:getAttachmentRequest" />
+      <wsdl:output name="getAttachmentResponse" message="intf:getAttachmentResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="checkInContentFiles" parameterOrder="id attachmentBeans params">
+      <wsdl:input name="checkInContentFilesRequest" message="intf:checkInContentFilesRequest" />
+      <wsdl:output name="checkInContentFilesResponse" message="intf:checkInContentFilesResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="checkOutContentFile" parameterOrder="id fileId lock">
+      <wsdl:input name="checkOutContentFileRequest" message="intf:checkOutContentFileRequest" />
+      <wsdl:output name="checkOutContentFileResponse" message="intf:checkOutContentFileResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="unlockContentFile" parameterOrder="id fileId">
+      <wsdl:input name="unlockContentFileRequest" message="intf:unlockContentFileRequest" />
+      <wsdl:output name="unlockContentFileResponse" message="intf:unlockContentFileResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="validateContentFile" parameterOrder="id">
+      <wsdl:input name="validateContentFileRequest" message="intf:validateContentFileRequest" />
+      <wsdl:output name="validateContentFileResponse" message="intf:validateContentFileResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="grantRight" parameterOrder="id rightType userName officeName centerCode sendEMail">
+      <wsdl:input name="grantRightRequest" message="intf:grantRightRequest" />
+      <wsdl:output name="grantRightResponse" message="intf:grantRightResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="setWSUser" parameterOrder="user pnumber">
+      <wsdl:input name="setWSUserRequest" message="intf:setWSUserRequest" />
+      <wsdl:output name="setWSUserResponse" message="intf:setWSUserResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="denyRight" parameterOrder="id rightType userCode officeCode">
+      <wsdl:input name="denyRightRequest" message="intf:denyRightRequest" />
+      <wsdl:output name="denyRightResponse" message="intf:denyRightResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="postIt" parameterOrder="id postitContent">
+      <wsdl:input name="postItRequest" message="intf:postItRequest" />
+      <wsdl:output name="postItResponse" message="intf:postItResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="cancelDocument" parameterOrder="id reason">
+      <wsdl:input name="cancelDocumentRequest" message="intf:cancelDocumentRequest" />
+      <wsdl:output name="cancelDocumentResponse" message="intf:cancelDocumentResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="applyRegistrationToDraft" parameterOrder="id sendEMail">
+      <wsdl:input name="applyRegistrationToDraftRequest" message="intf:applyRegistrationToDraftRequest" />
+      <wsdl:output name="applyRegistrationToDraftResponse" message="intf:applyRegistrationToDraftResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="applyRegistrationMark" parameterOrder="id">
+      <wsdl:input name="applyRegistrationMarkRequest" message="intf:applyRegistrationMarkRequest" />
+      <wsdl:output name="applyRegistrationMarkResponse" message="intf:applyRegistrationMarkResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="getRegistrationMark" parameterOrder="id html">
+      <wsdl:input name="getRegistrationMarkRequest" message="intf:getRegistrationMarkRequest" />
+      <wsdl:output name="getRegistrationMarkResponse" message="intf:getRegistrationMarkResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="newFolder" parameterOrder="xmlFolder">
+      <wsdl:input name="newFolderRequest" message="intf:newFolderRequest" />
+      <wsdl:output name="newFolderResponse" message="intf:newFolderResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="newSpecialFolder" parameterOrder="xmlFolder">
+      <wsdl:input name="newSpecialFolderRequest" message="intf:newSpecialFolderRequest" />
+      <wsdl:output name="newSpecialFolderResponse" message="intf:newSpecialFolderResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="modifyFolder" parameterOrder="id xmlFolder">
+      <wsdl:input name="modifyFolderRequest" message="intf:modifyFolderRequest" />
+      <wsdl:output name="modifyFolderResponse" message="intf:modifyFolderResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="newSubFolder" parameterOrder="folderParentCode folderChildSubject folderChildDiscard folderChildNote folderChildYear">
+      <wsdl:input name="newSubFolderRequest" message="intf:newSubFolderRequest" />
+      <wsdl:output name="newSubFolderResponse" message="intf:newSubFolderResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="assignFolderRPA" parameterOrder="id userName officeName centerCode sendEMail">
+      <wsdl:input name="assignFolderRPARequest" message="intf:assignFolderRPARequest" />
+      <wsdl:output name="assignFolderRPAResponse" message="intf:assignFolderRPAResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="addInFolder" parameterOrder="xmlInFolder">
+      <wsdl:input name="addInFolderRequest" message="intf:addInFolderRequest" />
+      <wsdl:output name="addInFolderResponse" message="intf:addInFolderResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="removeFromFolder" parameterOrder="xmlInFolder">
+      <wsdl:input name="removeFromFolderRequest" message="intf:removeFromFolderRequest" />
+      <wsdl:output name="removeFromFolderResponse" message="intf:removeFromFolderResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="addLinkToFolder" parameterOrder="xmlLinkToFolder">
+      <wsdl:input name="addLinkToFolderRequest" message="intf:addLinkToFolderRequest" />
+      <wsdl:output name="addLinkToFolderResponse" message="intf:addLinkToFolderResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="deleteLinkToFolder" parameterOrder="xmlLinkToFolder">
+      <wsdl:input name="deleteLinkToFolderRequest" message="intf:deleteLinkToFolderRequest" />
+      <wsdl:output name="deleteLinkToFolderResponse" message="intf:deleteLinkToFolderResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="getFolderContent" parameterOrder="id linked">
+      <wsdl:input name="getFolderContentRequest" message="intf:getFolderContentRequest" />
+      <wsdl:output name="getFolderContentResponse" message="intf:getFolderContentResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="getFolderHierarchy" parameterOrder="id linked">
+      <wsdl:input name="getFolderHierarchyRequest" message="intf:getFolderHierarchyRequest" />
+      <wsdl:output name="getFolderHierarchyResponse" message="intf:getFolderHierarchyResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="getFolder" parameterOrder="id">
+      <wsdl:input name="getFolderRequest" message="intf:getFolderRequest" />
+      <wsdl:output name="getFolderResponse" message="intf:getFolderResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="closeFolder" parameterOrder="id cfp">
+      <wsdl:input name="closeFolderRequest" message="intf:closeFolderRequest" />
+      <wsdl:output name="closeFolderResponse" message="intf:closeFolderResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="openFolder" parameterOrder="id">
+      <wsdl:input name="openFolderRequest" message="intf:openFolderRequest" />
+      <wsdl:output name="openFolderResponse" message="intf:openFolderResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="deleteFolder" parameterOrder="id">
+      <wsdl:input name="deleteFolderRequest" message="intf:deleteFolderRequest" />
+      <wsdl:output name="deleteFolderResponse" message="intf:deleteFolderResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="startWorkflow" parameterOrder="id workflowName">
+      <wsdl:input name="startWorkflowRequest" message="intf:startWorkflowRequest" />
+      <wsdl:output name="startWorkflowResponse" message="intf:startWorkflowResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="getWorkflowId" parameterOrder="id">
+      <wsdl:input name="getWorkflowIdRequest" message="intf:getWorkflowIdRequest" />
+      <wsdl:output name="getWorkflowIdResponse" message="intf:getWorkflowIdResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="getWorkflowAction" parameterOrder="id workflowId">
+      <wsdl:input name="getWorkflowActionRequest" message="intf:getWorkflowActionRequest" />
+      <wsdl:output name="getWorkflowActionResponse" message="intf:getWorkflowActionResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="continueWorkflow" parameterOrder="id workflowId actionId">
+      <wsdl:input name="continueWorkflowRequest" message="intf:continueWorkflowRequest" />
+      <wsdl:output name="continueWorkflowResponse" message="intf:continueWorkflowResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="replyDocument" parameterOrder="xmlDocument idFolder sendEMail">
+      <wsdl:input name="replyDocumentRequest" message="intf:replyDocumentRequest" />
+      <wsdl:output name="replyDocumentResponse" message="intf:replyDocumentResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="getDashboard" parameterOrder="label">
+      <wsdl:input name="getDashboardRequest" message="intf:getDashboardRequest" />
+      <wsdl:output name="getDashboardResponse" message="intf:getDashboardResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="getWsRelease">
+      <wsdl:input name="getWsReleaseRequest" message="intf:getWsReleaseRequest" />
+      <wsdl:output name="getWsReleaseResponse" message="intf:getWsReleaseResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="getDocumentFolders" parameterOrder="id">
+      <wsdl:input name="getDocumentFoldersRequest" message="intf:getDocumentFoldersRequest" />
+      <wsdl:output name="getDocumentFoldersResponse" message="intf:getDocumentFoldersResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="getDocumentURL" parameterOrder="id">
+      <wsdl:input name="getDocumentURLRequest" message="intf:getDocumentURLRequest" />
+      <wsdl:output name="getDocumentURLResponse" message="intf:getDocumentURLResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="getFolderURL" parameterOrder="id">
+      <wsdl:input name="getFolderURLRequest" message="intf:getFolderURLRequest" />
+      <wsdl:output name="getFolderURLResponse" message="intf:getFolderURLResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="addPredecessorInfos" parameterOrder="idDocToUpdate precedessorIdType precedessorId newFolderSubject newFolderIdType newFolderId">
+      <wsdl:input name="addPredecessorInfosRequest" message="intf:addPredecessorInfosRequest" />
+      <wsdl:output name="addPredecessorInfosResponse" message="intf:addPredecessorInfosResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="addPredecessor" parameterOrder="idDocToUpdate xmlPredecessorInfos newFolderSubject newFolderIdType newFolderId">
+      <wsdl:input name="addPredecessorRequest" message="intf:addPredecessorRequest" />
+      <wsdl:output name="addPredecessorResponse" message="intf:addPredecessorResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="addPredecessorFattura" parameterOrder="idDocToUpdate ipa newFolderSubject newFolderIdType newFolderId">
+      <wsdl:input name="addPredecessorFatturaRequest" message="intf:addPredecessorFatturaRequest" />
+      <wsdl:output name="addPredecessorFatturaResponse" message="intf:addPredecessorFatturaResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="addInFolderByInfos" parameterOrder="idDocToUpdate newFolderSubject newFolderIdType newFolderId">
+      <wsdl:input name="addInFolderByInfosRequest" message="intf:addInFolderByInfosRequest" />
+      <wsdl:output name="addInFolderByInfosResponse" message="intf:addInFolderByInfosResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="removePredecessor" parameterOrder="idDocToUpdate precedessorIdType precedessorId">
+      <wsdl:input name="removePredecessorRequest" message="intf:removePredecessorRequest" />
+      <wsdl:output name="removePredecessorResponse" message="intf:removePredecessorResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="addNotifyRequest" parameterOrder="xmlDocument event label method url includeRecord auth includeNRecord">
+      <wsdl:input name="addNotifyRequestRequest" message="intf:addNotifyRequestRequest" />
+      <wsdl:output name="addNotifyRequestResponse" message="intf:addNotifyRequestResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="addNotifyRequest" parameterOrder="xmlDocument event label method url auth includeNRecord">
+      <wsdl:input name="addNotifyRequestRequest1" message="intf:addNotifyRequestRequest1" />
+      <wsdl:output name="addNotifyRequestResponse1" message="intf:addNotifyRequestResponse1" />
+    </wsdl:operation>
+    <wsdl:operation name="addNotifyRequest" parameterOrder="xmlDocument event label method url includeRecord">
+      <wsdl:input name="addNotifyRequestRequest2" message="intf:addNotifyRequestRequest2" />
+      <wsdl:output name="addNotifyRequestResponse2" message="intf:addNotifyRequestResponse2" />
+    </wsdl:operation>
+    <wsdl:operation name="getRecordInfos" parameterOrder="id">
+      <wsdl:input name="getRecordInfosRequest" message="intf:getRecordInfosRequest" />
+      <wsdl:output name="getRecordInfosResponse" message="intf:getRecordInfosResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="receiveMsgForDocument" parameterOrder="id notifyFile infos type esito extractCades">
+      <wsdl:input name="receiveMsgForDocumentRequest" message="intf:receiveMsgForDocumentRequest" />
+      <wsdl:output name="receiveMsgForDocumentResponse" message="intf:receiveMsgForDocumentResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="getFileURL" parameterOrder="fileId fileName docPhysdoc">
+      <wsdl:input name="getFileURLRequest" message="intf:getFileURLRequest" />
+      <wsdl:output name="getFileURLResponse" message="intf:getFileURLResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="search" parameterOrder="query orderby params">
+      <wsdl:input name="searchRequest" message="intf:searchRequest" />
+      <wsdl:output name="searchResponse" message="intf:searchResponse" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="Titulus4SoapBinding" type="intf:Titulus4">
+    <wsdlsoap:binding transport="http://schemas.xmlsoap.org/soap/http" style="rpc" />
+    <wsdl:operation name="searchIndexVoice">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="searchIndexVoiceRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="searchIndexVoiceResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="searchFullText">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="searchFullTextRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="searchFullTextResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="titlePage">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="titlePageRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="titlePageResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="firstTitlePage">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="firstTitlePageRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="firstTitlePageResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nextTitlePage">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="nextTitlePageRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="nextTitlePageResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="prevTitlePage">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="prevTitlePageRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="prevTitlePageResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="lastTitlePage">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="lastTitlePageRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="lastTitlePageResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="currentTitlePage">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="currentTitlePageRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="currentTitlePageResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="loadDocument">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="loadDocumentRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="loadDocumentResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="unlockDocument">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="unlockDocumentRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="unlockDocumentResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="loadFirstDocument">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="loadFirstDocumentRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="loadFirstDocumentResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="loadNextDocument">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="loadNextDocumentRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="loadNextDocumentResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="loadLastDocument">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="loadLastDocumentRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="loadLastDocumentResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="loadPrevDocument">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="loadPrevDocumentRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="loadPrevDocumentResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="saveDocument">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="saveDocumentRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="saveDocumentResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="saveModifiedDocument">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="saveModifiedDocumentRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="saveModifiedDocumentResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="deleteDocument">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="deleteDocumentRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="deleteDocumentResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getAttachment">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="getAttachmentRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="getAttachmentResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="checkInContentFiles">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="checkInContentFilesRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="checkInContentFilesResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="checkOutContentFile">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="checkOutContentFileRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="checkOutContentFileResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="unlockContentFile">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="unlockContentFileRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="unlockContentFileResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="validateContentFile">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="validateContentFileRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="validateContentFileResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="grantRight">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="grantRightRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="grantRightResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="setWSUser">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="setWSUserRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="setWSUserResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="denyRight">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="denyRightRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="denyRightResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="postIt">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="postItRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="postItResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="cancelDocument">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="cancelDocumentRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="cancelDocumentResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="applyRegistrationToDraft">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="applyRegistrationToDraftRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="applyRegistrationToDraftResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="applyRegistrationMark">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="applyRegistrationMarkRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="applyRegistrationMarkResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getRegistrationMark">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="getRegistrationMarkRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="getRegistrationMarkResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="newFolder">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="newFolderRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="newFolderResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="newSpecialFolder">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="newSpecialFolderRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="newSpecialFolderResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="modifyFolder">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="modifyFolderRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="modifyFolderResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="newSubFolder">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="newSubFolderRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="newSubFolderResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="assignFolderRPA">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="assignFolderRPARequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="assignFolderRPAResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="addInFolder">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="addInFolderRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="addInFolderResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="removeFromFolder">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="removeFromFolderRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="removeFromFolderResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="addLinkToFolder">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="addLinkToFolderRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="addLinkToFolderResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="deleteLinkToFolder">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="deleteLinkToFolderRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="deleteLinkToFolderResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getFolderContent">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="getFolderContentRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="getFolderContentResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getFolderHierarchy">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="getFolderHierarchyRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="getFolderHierarchyResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getFolder">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="getFolderRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="getFolderResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="closeFolder">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="closeFolderRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="closeFolderResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="openFolder">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="openFolderRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="openFolderResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="deleteFolder">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="deleteFolderRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="deleteFolderResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="startWorkflow">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="startWorkflowRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="startWorkflowResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getWorkflowId">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="getWorkflowIdRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="getWorkflowIdResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getWorkflowAction">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="getWorkflowActionRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="getWorkflowActionResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="continueWorkflow">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="continueWorkflowRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="continueWorkflowResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="replyDocument">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="replyDocumentRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="replyDocumentResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getDashboard">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="getDashboardRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="getDashboardResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getWsRelease">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="getWsReleaseRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="getWsReleaseResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getDocumentFolders">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="getDocumentFoldersRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="getDocumentFoldersResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getDocumentURL">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="getDocumentURLRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="getDocumentURLResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getFolderURL">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="getFolderURLRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="getFolderURLResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="addPredecessorInfos">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="addPredecessorInfosRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="addPredecessorInfosResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="addPredecessor">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="addPredecessorRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="addPredecessorResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="addPredecessorFattura">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="addPredecessorFatturaRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="addPredecessorFatturaResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="addInFolderByInfos">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="addInFolderByInfosRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="addInFolderByInfosResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="removePredecessor">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="removePredecessorRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="removePredecessorResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="addNotifyRequest">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="addNotifyRequestRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="addNotifyRequestResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="addNotifyRequest">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="addNotifyRequestRequest1">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="addNotifyRequestResponse1">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="addNotifyRequest">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="addNotifyRequestRequest2">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="addNotifyRequestResponse2">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getRecordInfos">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="getRecordInfosRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="getRecordInfosResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="receiveMsgForDocument">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="receiveMsgForDocumentRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="receiveMsgForDocumentResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getFileURL">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="getFileURLRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="getFileURLResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="search">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="searchRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ws.titulus.kion.it" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="searchResponse">
+        <wsdlsoap:body use="encoded" namespace="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="Titulus4Service">
+    <wsdl:port name="Titulus4" binding="intf:Titulus4SoapBinding">
+      <wsdlsoap:address location="https://titulus-polipa.pp.cineca.it/titulus_ws/services/Titulus4" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

@@ -1,0 +1,17 @@
+{
+  "items":
+  [
+    {
+      "type": "elmi:CustomTask",
+      "group": "custom",
+      "className": "fas fa-cogs",     
+      "title": "Custom Task"
+    },
+    {
+      "type": "elmi:userMessageTask",
+      "group": "custom",
+      "className": "fas fa-cog",     
+      "title": "Special Task"
+    }
+  ]
+}

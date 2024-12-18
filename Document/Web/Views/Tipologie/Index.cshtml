@@ -1,0 +1,474 @@
+﻿@using Microsoft.Extensions.Configuration;
+@using Web.Model.Admin;
+
+@inject IConfiguration Configuration;
+@model TipologieViewModel;
+@{
+    ViewData["Title"] = "Tipologie";
+    Layout = "_AdminLayout";
+}
+
+<script src="~/adminjs/Tipologie/EditType.js"></script>
+
+<script>
+
+    SelezionaMenu("fa-folder-o");
+
+    var utente = '<%= Dest.ClientID %>';
+
+    var campo_gruppo = '<%= gruppi.ClientID %>';
+    var campo_utente = '<%= utenti.ClientID %>';
+    var campo_scadenza = '<%= ReferenteScadenza.ClientID %>';
+
+    $(document).ready(() => {
+        $(".mnuAdminTipologie").addClass("active");
+    });
+
+    var PopupWindow = undefined;
+</script>
+
+
+@section HeaderTitle
+    {
+    Tipologie
+}
+
+<div id="Message_Target"></div>
+<div class="MainPanel">
+    <div class="Page">
+        <div class="ListMenu InsidePanel">
+            <div class="Content">
+                <input type="text" onkeyup="FilterTypes(this)" placeholder="Filtra...">
+            </div>
+
+            <div class="Panel">
+                <div class="List">
+                </div>
+            </div>
+
+        </div>
+        <div class="Panel" data-bind="with: Current">
+            <!-- NUOVA TIPOLOGIA -->
+            <div class="MainPanel" data-bind='visible: !$root.SelectedtypesValue(), template: "NewType"'></div>
+            <!-- MODIFICA TIPOLOGIA -->
+            <div class="MainPanel" data-bind='visible: $root.SelectedtypesValue(), template: "EditType"'></div>
+        </div>
+    </div>
+</div>
+
+<script language="javascript" type="text/javascript">
+
+    var model;
+
+    function FilterTypes(me) {
+        var v = $(me).val().toLowerCase();
+        var l = $(".List a");
+        $(l).each(function (i, e) {
+            var ok = $(e).find("span, sub").text().toLowerCase().indexOf(v) >= 0 || i == 0;
+            if (!ok)
+                $(e).parent().css("display", "none");
+            else
+                $(e).parent().css("display", "");
+
+        });
+
+    }
+
+    function Refresh() {
+        model.Refresh();
+    }
+
+    $(document).ready(function () {
+        //$('#spylist').scrollspy();
+        model = new viewModel("#view");
+        ko.applyBindings(model, $("#view")[0]);
+    });
+</script>
+
+<script type="text/html" id="NewType">
+
+        <div class="Content">
+            <h2>
+                <span data-bind="text: $root.NewTitle"></span>
+                <button class="pull-right btn btn-primary" data-bind="click: $root.Create">Crea nuova</button>
+            </h2>
+            <small>E' necessario indicare una descrizione e il tipo di contenuto</small>
+    </div>
+
+    <div class="pe-4">
+        <div id="New">
+            <div class="row">
+                <div class="form-group col-md-12 mb-4 mt-4">
+                    <label class="active" for="NuovaDescrizione">
+                        <strong>NOME NUOVA TIPOLOGIA</strong></label>
+                    <input type="text" data-bind="value: name, uniqueName: true" id='NuovaDescrizione'/>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="select-wrapper col-md-6 mb-4 mt-4">
+                    <label class="active" for="Contenuto">Tipo di Contenuto</label>
+                    <select data-bind="value: contentType" id='Contenuto'>
+                        <option value="1">Documento</option>
+                        <option value="2">Fascicolo</option>
+                        <option value="3">Workflow</option>
+                        <option value="4">Modulo Digitale (Form)</option>
+                        <option value="5">Matrice Decisionale</option>
+                        <option value="6">Template</option>
+                        @* <option value="7">Report</option> *@
+                    </select>
+                </div>
+                <div class="form-group col-md-6 mb-4 mt-4">
+                    <label class="active" for="Codice">Codice Identificativo <small>(Facoltativo)</small></label>
+                    <input type="text" maxlength="50" data-bind="value: codice, uniqueName: true" id='Codice' />
+                </div>
+            </div>
+        </div>
+    </div>
+
+</script>
+
+<script type="text/html" id="EditType">
+    <div class="Content">
+        <h2>
+            <span data-bind="text: name"></span>
+            <ul class="nav nav-toolbar pull-right">
+                <li>
+                    <a class="btn btn-link p-1" data-bind="click: $root.Reset" style="border:none;background-color: transparent">
+                        <i class="fs-4 fa fa-xl fa-undo"></i>
+                    </a>
+                </li>
+                <li>
+                    <a class="btn btn-link" data-bind="click: $root.Remove, visible: $root.SelectedtypesValue() && !$root.SelectedtypesValue().startsWith('$')">
+                        <i class="fs-4 fa fa-xl fa-trash-o"></i>
+                    </a>
+                </li>
+                <li>
+                    <button class="btn btn-primary" data-bind="click: $root.Save">Memorizza</button>
+                </li>
+            </ul>
+        </h2>
+        <small>
+            <span data-bind="text: '#ID: ' + codice() "></span>
+        </small>
+
+    </div>
+
+    <div class="MainPanel">
+        <!-- GENERALE -->
+        <div id="t0">
+
+            <div class="row mt-4">
+                <div class="select-wrapper col-md-4 mb-2 mt-4">
+                    <label class="active" for="Descrizione"><strong>Nome Tipologia</strong></label>
+                    <input type="text" required data-bind="value: name, uniqueName: true" id='Descrizione' />
+                </div>
+                <div class="select-wrapper col-md-3 mb-2 mt-4">
+                    <label class="active" for="Tipo">Tipo di Contenuto</label>
+                    <select data-bind="value: contentType" id='Contenuto'>
+                        <option value="1">Documento</option>
+                        <option value="2">Fascicolo</option>
+                        <option value="3">Workflow</option>
+                        <option value="4">Modulo Digitale (Form)</option>
+                        <option value="5">Matrice Decisionale</option>
+                        <option value="6">Template</option>
+                        @* <option value="7">Report</option> *@
+                    </select>
+                </div>
+                <div class="select-wrapper col-md-2 mb-2 mt-4">
+                    <label class="active" for="Direction">Direzione</label>
+                    <select data-bind="value: direction" id='Direction'>
+                        <option value="0">Interno</option>
+                        <option value="1">In Ingresso</option>
+                        <option value="2">In Uscita</option>
+                        @* <option value="7">Report</option> *@
+                    </select>
+                </div>
+                <div class="select-wrapper col-md-3 mb-2 mt-4">
+                    <label class="active" for="Tipo">Categoria</label>
+                    <select class="span12" data-bind="options: $root.ClassList, optionsText: 'description', optionsValue: 'id', value: categoryId" id='Categoria'></select>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="select-wrapper mb-2 mt-4">
+                    <label class="active">Annotazioni</label>
+                    <textarea rows="4" class="required span12" maxlength="250" data-bind="value: description, uniqueName: true" id='Hint'></textarea>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="dropdown select-wrapper col-md-3 mb-2 mt-4 me-4">
+                    <label class="active" for="Icona">Icona</label>
+                    <input type="text" data-bind="value: icon" id="Icona" style="width:calc(100% - 45px)"/>
+                    <button class="btn btn-dropdown dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="position: absolute;right: 64px;top: 0px;height: 40px;">
+                        <span data-bind="style: { color: iconColor() }, attr: { class: icon() + ' fa-lg' }"></span>
+                        <span class="fa fa-caret-down border-start ps-1"></span>
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <div class="link-list-wrapper">
+                            <ul class="link-list">
+                            <li> <a href="#" data-bind="click: function (data, event) { $root.SetIcon(data, event.target) }" class="fa fa-image"></a> </li>
+                            <li><a href="#" data-bind="click: function (data, event) { $root.SetIcon(data, event.target) }" class="fa fa-paperclip"></a> </li>
+                            <li><a href="#" data-bind="click: function (data, event) { $root.SetIcon(data, event.target) }" class="fa fa-inbox"></a> </li>
+                            <li> <a href="#" data-bind="click: function (data, event) { $root.SetIcon(data, event.target) }" class="fa fa-send"></a> </li>
+                            <li> <a href="#" data-bind="click: function (data, event) { $root.SetIcon(data, event.target) }" class="fa fa-rocket"></a> </li>
+                            <li> <a href="#" data-bind="click: function (data, event) { $root.SetIcon(data, event.target) }" class="fa fa-print"></a> </li>
+                            <li> <a href="#" data-bind="click: function (data, event) { $root.SetIcon(data, event.target) }" class="fa fa-hdd-o"></a> </li>
+                            <li> <a href="#" data-bind="click: function (data, event) { $root.SetIcon(data, event.target) }" class="fa fa-retweet"></a> </li>
+                            <li> <a href="#" data-bind="click: function (data, event) { $root.SetIcon(data, event.target) }" class="fa fa-sitemap"></a> </li>
+                            <li> <a href="#" data-bind="click: function (data, event) { $root.SetIcon(data, event.target) }" class="fa fa-table"></a> </li>
+                            <li> <a href="#" data-bind="click: function (data, event) { $root.SetIcon(data, event.target) }" class="fa fa-code"></a> </li>
+                            <li> <a href="#" data-bind="click: function (data, event) { $root.SetIcon(data, event.target) }" class="fa fa-search"></a> </li>
+                            <li> <a href="#" data-bind="click: function (data, event) { $root.SetIcon(data, event.target) }" class="fa fa-envelope"></a> </li>
+                            <li> <a href="#" data-bind="click: function (data, event) { $root.SetIcon(data, event.target) }" class="fa fa-envelope-o"></a> </li>
+                            <li> <a href="#" data-bind="click: function (data, event) { $root.SetIcon(data, event.target) }" class="fa fa-plane"></a> </li>
+                            <li> <a href="#" data-bind="click: function (data, event) { $root.SetIcon(data, event.target) }" class="fa fa-book"></a> </li>
+                            <li> <a href="#" data-bind="click: function (data, event) { $root.SetIcon(data, event.target) }" class="fa fa-truck"></a> </li>
+                            <li> <a href="#" data-bind="click: function (data, event) { $root.SetIcon(data, event.target) }" class="fa fa-ambulance"></a> </li>
+                            <li> <a href="#" data-bind="click: function (data, event) { $root.SetIcon(data, event.target) }" class="fa fa-user"></a> </li>
+                            <li> <a href="#" data-bind="click: function (data, event) { $root.SetIcon(data, event.target) }" class="fa fa-automobile"></a> </li>
+                            <li> <a href="#" data-bind="click: function (data, event) { $root.SetIcon(data, event.target) }" class="fa fa-code-fork"></a> </li>
+                            <li> <a href="#" data-bind="click: function (data, event) { $root.SetIcon(data, event.target) }" class="fa fa-database"></a> </li>
+                            <li> <a href="#" data-bind="click: function (data, event) { $root.SetIcon(data, event.target) }" class="fa fa-cogs"></a> </li>
+                            <li> <a href="#" data-bind="click: function (data, event) { $root.SetIcon(data, event.target) }" class="fa fa-eye-slash"></a> </li>
+                            <li> <a href="#" data-bind="click: function (data, event) { $root.SetIcon(data, event.target) }" class="fa fa-edit"></a> </li>
+                            <li> <a href="#" data-bind="click: function (data, event) { $root.SetIcon(data, event.target) }" class="fa fa-money"></a> </li>
+                            <li> <a href="#" data-bind="click: function (data, event) { $root.SetIcon(data, event.target) }" class="fa fa-stethoscope"></a> </li>
+                            <li> <a href="#" data-bind="click: function (data, event) { $root.SetIcon(data, event.target) }" class="fa fa-folder"></a> </li>
+                            <li> <a href="#" data-bind="click: function (data, event) { $root.SetIcon(data, event.target) }" class="fa fa-folder-o"></a> </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <input type="color" data-bind="value: iconColor" id="Colore" style="position:absolute;right:0; width:38px;height:38px; margin-bottom: 0; margin-left: 5px;" />
+
+                </div>
+                <div class="select-wrapper col-md-2 mb-2 mt-4">
+                        <label class="active" for="InitialStatus"> Stato</label>
+                        <select data-bind="value: initialStatus" id='InitialStatus'>
+                        <option value=1>Attivo</option>
+                        <option value=2>Bozza</option>
+                    </select>
+                </div>
+                <div class="select-wrapper col-md-3 mb-2 mt-4">
+                    <label class="active" for="DataScadenza"> Scadenza </label>
+                    <select data-bind="value: expirationStrategy" id='DataScadenza'>
+                        <option value="0">- Nessuna -</option>
+                        <option value="2">Relativa alla Data Documento</option>
+                        <option value="3">Relativa alla Data Archiviazione</option>
+                        <option value="4">Relativa alla Data Protocollo</option>
+                        <option value="5">Relativa al primo documento scaduto (solo su Fascicolo)</option>
+                        <option value="1">Inserita dall'utente</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-1 mb-2 mt-4" data-bind="visible: expirationStrategy() > 0">
+                    <label class="active" for="nScadenza">GG. Scadenza</label>
+                    <input type="number" class="Integer" data-bind="value: expirationDays" id='nScadenza' />
+                </div>
+                <div class="form-group col-md-1 mb-2 mt-4" data-bind="visible: expirationStrategy() > 0">
+                    <label class="active" for="nTScadenza">GG.Tolleranza</label>
+                    <input type="number" class="Integer" data-bind="value: expirationTolerance" id='nTScadenza' />
+                </div>
+                <div class="select-wrapper col-md-2 mb-2 mt-4">
+                    <label class="active" for="acl">
+                        ACL
+                    </label>
+                    <select id='acl' data-bind="options: $root.AllAcl, optionsText: 'name', optionsValue: 'id', value: aclId"></select>
+                </div>
+            </div>
+        </div>
+        <!-- METADATI -->
+        <div id="t4">
+            <h3>
+                Metadati
+            </h3>
+
+            <div class="row" style="border-bottom: 2px solid #8ad;">
+                <div class="col-md-2 mt-4">
+                    <strong>ID</strong>
+                </div>
+                <div class="col-md-3 mt-4">
+                    <strong>NOME ALTERNATIVO</strong>
+                </div>
+                <div class="col-md-3 mt-4">
+                    <strong>TIPO METADATO</strong>
+                </div>
+                <div class="col-md-3" >
+                    <span style="text-align:center;width:20px" title="Obbligatorio" class="fa fa-star"></span>
+                    <span style="text-align:center;width:20px" title="Editabile" class="fa fa-keyboard-o"></span>
+                    <span style="text-align:center;width:20px" title="Tag" class="fa fa-tag"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-3 mb-0">
+                    <input type="text" readonly value="Description" />
+                </div>
+                <div class="form-group col-md-3 mb-0">
+                    <input type="text" id="descriptionLabel" data-bind="value: descriptionLabel" placeholder="Descrizione" />
+                </div>
+                <div class="form-group col-md-2 mb-0">
+                </div>
+                 <div class="form-group col-md-4 mb-0">
+                    <input type="checkbox" id="descriptionMandatory" data-bind="checked: descriptionMandatory" />
+                </div>
+           </div>
+            <div class="row">
+                <div class="form-group col-md-3 mb-0">
+                    <input type="text" readonly value="DocumentDate" />
+                </div>
+                <div class="form-group col-md-3 mb-0">
+                    <input type="text" data-bind="value: documentDateLabel" id="documentDateLabel" placeholder="Data Documento" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-3 mb-0">
+                    <input type="text" readonly value="DocumentNumber" />
+                </div>
+                <div class="form-group col-md-3 mb-0">
+                    <input type="text" data-bind="value: documentNumberLabel" placeholder="Etichetta Alternativa" />
+                </div>
+                <div class="form-group col-md-2 select-wrapper mb-0">
+                    <select data-bind="options: $root.Tags, optionsText: 'name', optionsValue: 'id', value: documentNumberDataType"></select>
+                </div>
+                <div class="form-group col-md-4 mb-0">
+                    <input type="checkbox" id="documentNumberMandatory" data-bind="checked: documentNumberMandatory" />
+                </div>
+            </div>
+
+            <div data-bind='template: { name: "key", foreach: $root.Keys() }'>
+            </div>
+
+            <div class="mt-2">
+                <button class="btn btn-secondary btn-xs" data-bind="click: $root.AddKey">Aggiungi Metadato</button>
+            </div>
+        </div>
+
+        <!-- CONTENUTO -->
+        <h3>Contenuto</h3>
+        <div class="row mt-4">
+            <div class="select-wrapper col-md-3 mb-4">
+                <label class="active">Form di Creazione</label>
+                <select data-bind="options: $root.Forms, optionsText: 'name', optionsValue: 'key', value: creationFormKey"></select>
+            </div>
+
+            <div class="select-wrapper col-md-1 mb-4" data-bind="visible: creationFormKey">
+                <label class="active">&nbsp;</label>
+                <a href="#" data-bind="click: $root.OpenTemplate" class="btn btn-info btn-xs">Apri</a>
+            </div>
+
+            <div class="select-wrapper col-md-2 mb-4" data-bind="visible: creationFormKey">
+                <label class="active">Convertire</label>
+                    <input type="checkbox" id="ConvertToPdf" data-bind="checked:  $root.ConvertToPDF" />
+                    In PDF
+            </div>
+
+            <div class="select-wrapper mb-4 col-md-4">
+                <label class="active" for='Etichetta'>Posizione Etichetta di Protocollo</label>
+                <select class="col-md-12" data-bind="options: $root.Etichetta, optionsText: 'Descrizione', optionsValue: 'Codice', value: labelPosition">
+                </select>
+            </div>
+            <div class="select-wrapper mb-4 col-md-1"  data-bind="visible: labelPosition() == 5">
+                <label class="active">Pos. X%</label>
+                <input type="text" alt="Point" id="x" data-bind="value: labelX" style="width: 100%" />
+            </div>
+            <div class="select-wrapper mb-4 col-md-1"  data-bind="visible: labelPosition() == 5">
+                <label class="active">Pos. Y%</label>
+                <input type="text" alt="Point" id="y" data-bind="value: labelY" style="width: 100%" />
+            </div>
+        </div>
+       <div class="row" data-bind="visible: contentType() == 1">
+            <div>
+                <label class="active" for="acceptedExtensions">Filtro Estensioni</label>
+                <input type="text" id="acceptedExtensions" data-bind="value: acceptedExtensions" placeholder="Es: .pdf,.docx" />
+            </div>
+            <div>
+                <input type="checkbox" id="toBeIndexed" data-bind="checked: $root.ToBeIndexed" />
+                <span for="toBeIndexed">Indicizzazione del contenuto testuale
+                    <button type="button" class="btn btn-help fade show" data-container="body" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-placement="right" data-html="true" data-bs-content="Abilita la ricerca per conteunto sui documenti di questa tipologia">
+                            ?
+                    </button>
+                </span>
+            </div>
+        </div>
+        <h3>Opzioni Avanzate</h3>
+        <div id="t6">
+            <div>
+                <input type="checkbox" id="reserved" data-bind="checked: $root.IsReserved" />
+                <span for="reserved">
+                    Privato / Riservato
+                    <button type="button" class="btn btn-help fade show" data-container="body" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-placement="right" data-html="true" data-bs-content="Con questa opzione vengono ignorate le autorizzazioni sulla tipologia e il documento viene reso visibile solo al proprietario">
+                            ?
+                    </button>
+                </span>
+            </div>
+            <div>
+                <input type="checkbox" data-bind="checked: $root.IsInternal" id="internal" />
+                <span for="internal">Tipologia Interna
+                    <button type="button" class="btn btn-help fade show" data-container="body" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-placement="right" data-html="true" data-bs-content="Questa tipologia non potrà essere selezionata per la creazione di documenti.">
+                            ?
+                    </button>
+                </span>
+            </div>
+        </div>
+
+        <div class="row mt-4" data-bind="visible: contentType() == 1">
+            <div class="select-wrapper col-md-3 mb-2">
+                <label class="active" for="FileManager">Storage</label>
+                <select data-bind="value: FileManager" id='FileManager'>
+                    <option value="">FileSystem</option>
+                    <option value="C">FileSystem Cifrato</option>
+                </select>
+            </div>
+
+            <div class="select-wrapper col-md-6 mb-2">
+                <label class="active" for="formato">
+                    Nomenclatura File in Download
+                </label>
+                <input type="text" id="formato" placeholder="{Document.Image.OriginalFileName}" data-bind="value: fileNamingTemplate" />
+            </div>
+            <div class="select-wrapper col-md-3 mb-4 hidden">
+                <label class="active" for="detailPage">Pagina di Dettaglio</label>
+                <input type="text" data-bind="value: detailPage" placeholder="Pagina di Dettaglio" />
+            </div>
+        </div>
+
+
+
+    </div>
+
+</script>
+
+
+
+<script type="text/html" id="General">
+</script>
+
+<script type="text/html" id="key">
+    <div class="row" style="flex-wrap:nowrap">
+        <div class="form-group col-md-3 mb-0">
+            <input type="text" data-bind="value: GUID, disabled: id" placeholder="Identificativo" />
+        </div>
+        <div class="form-group select-wrapper col-md-3 mb-0">
+                <input type="text" data-bind="value: descrizione" placeholder="Etichetta Alternativa"  style="width:100%" />
+        </div>
+        <div class="form-group select-wrapper col-md-2 mb-0">
+            <select data-bind="options: $root.Tags, optionsText: 'name', optionsValue: 'id', value: KType" style="width:100%"></select>
+        </div>
+        <div class="form-group col-md-2 mb-0" style="min-width:145px">
+            <input type="checkbox" data-bind="checked: Required" title="Obbligatorio" />
+            <input type="checkbox" data-bind="checked: Editable" title="Editabile" />
+            <input type="checkbox" data-bind="checked: Multiple" title="Tag" />
+        </div>
+        <div class="form-group col-md-2 mb-0" style="position:relative">
+            <a href="#" data-bind="visible: !Deleted(), click: $root.RemoveKey" class="btn btn-link btn-xs" title="Nascondi"><span class="fa fa-eye fa-lg"></span></a>
+            <a href="#" data-bind="visible: Deleted, click: $root.RestoreKey" class="btn btn-link btn-xs" title="Rendi Visibile"><span style="color: crimson" class="fa fa-eye-slash fa-lg"></span></a>
+
+            <a href="#" style="padding:2px 2px;height:40px;" data-bind="visible: $index() > 0, click: function (data) { $root.MoveUpKey($index) }" class="btn btn-link btn-mini"><span class="fa fa-2x fa-sort-asc pt-2"></span></a>
+            <a href="#" style="padding:2px 2px;height:40px;margin-left:-4px" data-bind="visible: $index() < $root.Keys().length - 1, click: function (data) { $root.MoveDownKey($index) }" class="btn btn-link btn-mini"><span class="fa fa-2x fa-sort-desc" style="margin: -8px 0 0 0;"></span></a>
+            <strong style="position: absolute; right: 20px; top: 8px; text-align: right" data-bind="text: Index"></strong>
+        </div>
+    </div>
+</script>
+
+

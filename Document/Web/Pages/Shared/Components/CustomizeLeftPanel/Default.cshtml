@@ -1,0 +1,122 @@
+﻿@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@model Web.Model.Customize.CustomizeLeftPanelViewModel
+@{
+    //string path = Configuration["Endpoint:UserService"] ?? "";
+    string uid = User.Identity.Name;
+    string name = User.Claims.FirstOrDefault(c => c.Type == "name")?.Value;
+    string mail = User.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
+    if (string.IsNullOrEmpty(name)) name = uid;
+    string url = "/internalapi/identity/Avatar/0" + uid;
+}
+
+<div class="MainPanel InsidePanel" id="OptionPage">
+
+    <div id="Avatar" class="sidebar-wrapper" >
+          <div class="nav-icon d-flex justify-content-center">
+              <img class="avatar" src='@url' style="border: 1px solid #ddd;width: 84%;height: auto;padding: 6px;background-color: #fff;" />
+          </div>
+        <div style="text-align:center" class="mt-2">
+            <h6>
+                @Model.UserName 
+            </h6>
+        </div>
+    </div>
+    <div class="MainPanel">
+        <div class="MainPanel">
+            <ul class="nav nav-list">
+                <li codice="liCustomize-ProfiloUtente">
+                    <a href="/Customize/Info">
+                        <i class="fa fa-user-circle"></i>
+                        Profilo Utente
+                        <sub class="Desktop"><i class="fa fa-chevron-right"></i> </sub>
+                    </a>
+                </li>
+                @*
+                <li codice="liCustomize-Avatar" class="Mobile">
+                    <a href="/Customize/Avatar">
+                        <i class="fa fa-image"></i>
+                        Immagine del profilo
+                    </a>
+                </li>
+                <li codice="liCustomize-PEC" class="Mobile">
+                    <a href="/Customize/PEC">
+                        <i class="fa fa-envelope"></i>
+                        Posta Elettronica & PEC
+                    </a>
+                </li>
+
+                <li codice="liCustomize-Avatar" class="Mobile">
+                    <a href="/Customize/Avatar">
+                        <i class="fa fa-bell"></i>
+                        Notifiche
+                    </a>
+                </li>
+                <li codice="liCustomize-Firme" class="Mobile">
+                    <a href="/Customize/Firme">
+                        <i class="fa fa-pencil"></i>
+                        Firme Elettroniche
+                    </a>
+                </li>
+                <li codice="liCustomize-ProfiloUtente" class="Mobile">
+                    <a href="/Customize/Index">
+                        <i class="fa fa-user-secret"></i>
+                        Identità
+                    </a>
+                </li>
+                <li codice="liCustomize-Ruoli" class="Mobile">
+                    <a href="/Customize/Ruoli">
+                        <i class="fa fa-user-md"></i>
+                        Ruoli Applicativi
+                    </a>
+                </li>
+                <li codice="liCustomize-Ruoli" class="Mobile">
+                    <a href="/Customize/Ruoli">
+                        <i class="fa fa-lock"></i>
+                        Autorizzazioni
+                    </a>
+                </li>
+
+
+
+
+*@
+                @foreach (var Page in Model.OptionPages.Where(p => p.Group == 1))
+                {
+
+                    <li codice="@Page.Id">
+                        <a href="@Page.Href">
+                            <i class="@Page.Icon"></i>
+                            @Page.Name
+                            <sub class="Desktop"><i class="fa fa-chevron-right"></i> </sub>
+                        </a>
+                    </li>
+
+                }
+@*
+                <li codice="liCustomize-Download" class="Mobile">
+                    <a href="/Customize/Download">
+                        <i class="fa  fa-download"></i>
+                        Software
+                    </a>
+                </li>
+
+                *@
+
+                @foreach (var Page in Model.OptionPages.Where(p => p.Group == 2))
+                {
+                    <li codice="@Page.Id">
+                        <a href="@Page.Href">
+                            <i class="@Page.Icon"></i>
+                            @Page.Name
+                            <sub class="Desktop"><i class="fa fa-chevron-right"></i> </sub>
+                        </a>
+                    </li>
+                }
+
+
+            </ul>
+        </div>
+    </div>
+
+</div>

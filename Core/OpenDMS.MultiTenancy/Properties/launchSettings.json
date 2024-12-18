@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "OpenDMS.MultiTenancy": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:49288;http://localhost:49302"
+    }
+  }
+}

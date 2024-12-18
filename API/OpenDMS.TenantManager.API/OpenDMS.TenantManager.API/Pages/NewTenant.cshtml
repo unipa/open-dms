@@ -1,0 +1,145 @@
+@page
+@model NewTenantModel
+@{
+    ViewData["Title"] = "Nuovo Tenant";
+    Layout = "_dialog";
+
+}
+<style>
+    h2
+    {
+        font-size:1.4em;
+    }
+    .card
+    {
+        border:none;
+        padding:0;
+        margin: 0;
+        margin-bottom: 24px;
+    }
+    .Row 
+    {
+        min-height:32px;
+        margin:4px 0;
+        display:flex;
+        flex-direction:row;
+        border-bottom: 1px dotted #ddd;
+    }
+    .Row label {
+        display:inline-block;
+        min-width:30%;
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow:ellipsis;
+    }
+
+    .Row span {
+            display: flex;
+            min-width: max(70%, 100px);
+        max-width: 70%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+        .Row span *
+            {
+            display:flex;
+            flex-grow:1;
+        }
+
+            .Row span input[type=checkbox] {
+                display: inline;
+                flex-grow: 0;
+            }
+
+</style>
+    @if (ViewData["Refresh"] == "true")
+{
+    <script>
+        window.parent.location.reload();
+    </script>
+}
+
+<h1><i class="fa fa-database"></i> Nuovo Tenant</h1>
+<div style="position:relative;display:flex;flex-direction:column">
+
+    <form method="Post" style="width:100%">
+
+    @if (!String.IsNullOrEmpty(Model.Error))
+    {
+        <div class="alert alert-danger">@Model.Error</div>
+    }
+        <div style="margin-bottom:20px">
+            <h2>Dati Generali</h2>
+            <div class="card">
+                <div class="Row">
+                    <label><b>Identificativo</b></label>
+                    <span><input name="Id" id="Id" value="@Model.tenant.Id" placeholder="obbligatorio"  onchange="return IdChanged()" /> </span>
+                </div>
+                <div class="Row">
+                    <label>Descrizione</label>
+                    <span><textarea rows="3" style="resize:none" name="Description" id="Description" value="@Model.tenant.Description"></textarea> </span>
+                </div>
+                <div class="Row">
+                    <label>URL</label>
+                    <span><input name="URL" id="URL" value="@Model.tenant.URL" placeholder="es. https://tenant.dominio.com" /> </span>
+                </div>
+                <div class="Row">
+                    <label>Provider</label>
+                    <span><select name="Provider">
+                            <option selected=@(Model.tenant.Provider=="mysql") value="mysql">Oracle MySql/MariaDB</option>
+                            <option selected=@(Model.tenant.Provider=="sqlserver") value="sqlserver">Microsoft SqlServer</option>
+                        </select>
+                    </span>
+                </div>
+                <div class="Row">
+                    <label>Database<br /><small><a target="_blank" href="http://www.connectionstrings.com">www.connectionstrings.com</a> </small></label>
+                    <span><textarea rows="3" name="ConnectionString" id="ConnectionString" value="@Model.tenant.ConnectionString" placeholder="Indicare il nome del database o una stringa di connessione"></textarea> </span>
+                </div>
+                <div class="Row">
+                    <label>Offline</label>
+                    <span><input type="checkbox" name="Offline" value="true" @(!Model.tenant.Offline ? "" : "checked") /> </span>
+                </div>
+            </div>
+  @*          <h2>
+                Storage
+                <small>Spazio disco dedicato al tenant per configurazioni, dati, documenti </small>
+            </h2>
+            <div class="Row">
+                <label>Cartella Dedicata</label>
+                <span><input name="RootFolder" value="@Model.tenant.RootFolder" />  </span>
+            </div>
+            <h2>Identity Access Manager</h2>
+            <div class="card">
+                <div class="Row">
+                    <label>Authority
+                    </label>
+                    <span><input name="Realm" id="Realm" value="@Model.tenant.Realm" placeholder="es. https://keycloak/realms/tenant1" /> </span>
+                </div>
+                <div class="Row">
+                    <label>Client Id</label>
+                    <span><input name="ClientId" value="@Model.tenant.ClientId" /> </span>
+                </div>
+                <div class="Row">
+                    <label>Client Secret</label>
+                    <span><input name="ClientSecret" value="@Model.tenant.ClientSecret" /> </span>
+                </div>
+            </div>*@
+        </div>
+
+        <div style="margin-bottom:20px">
+            <button type="submit" class="btn btn-warning">Crea il tenant</button>
+            <button type="reset" class="btn btn-light">Pulisci tutto</button>
+        </div>
+    </form>
+    <script>
+        function IdChanged()
+        {
+            let id = $("#Id").val();
+            $("#Realm").val(id);
+            $("#URL").val("https://"+id);
+            $("#Description").val("Tenant "+id);
+            $("#ConnectionString").val(id);
+        }
+    </script>
+</div>

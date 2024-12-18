@@ -1,0 +1,61 @@
+{
+  "components": [
+    {
+      "text": "# Titolo del Form",
+      "type": "text",
+      "layout": {
+        "row": "Row_030tyso",
+        "columns": null
+      },
+      "id": "Field_0p02i0s"
+    },
+    {
+      "label": "Descrizione",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_1xjm5ig",
+        "columns": null
+      },
+      "id": "Field_0xoofyg",
+      "key": "documentDescription",
+      "properties": {},
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Numero",
+      "type": "number",
+      "layout": {
+        "row": "Row_1peq7r3",
+        "columns": 12
+      },
+      "id": "Field_1a30no8",
+      "key": "documentNumber"
+    },
+    {
+      "subtype": "date",
+      "dateLabel": "Data Documento",
+      "label": "Date time",
+      "type": "datetime",
+      "layout": {
+        "row": "Row_1peq7r3",
+        "columns": 4
+      },
+      "id": "Field_1b66e2w",
+      "key": "documentDate",
+      "validate": {
+        "required": true
+      }
+    }
+  ],
+  "type": "default",
+  "id": "Form_09j71t3",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.2.0",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.11.0"
+  },
+  "schemaVersion": 8
+}

@@ -1,0 +1,2693 @@
+[
+  {
+    "id": "e7a97333-f134-48bb-896d-b6d29541d160",
+    "name": "Task Utente",
+    "description": "Task Utente",
+    "tasks": [
+      {
+        "taskServiceId": "abortTask",
+        "id": "abortTask",
+        "group": "Task Utente",
+        "name": "abortTask",
+        "header": "",
+        "authenticationType": 0,
+        "jobWorker": "abortTask",
+        "tagType": "",
+        "label": "Annullamento Task",
+        "description": "Annullamento Task",
+        "icon": "fa fa-outdent",
+        "colorFill": "",
+        "colorStroke": "",
+        "inputs": [
+          {
+            "name": "TaskId",
+            "required": true,
+            "inputType": 0,
+            "label": "Id di Attività",
+            "description": "ID di Attività",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "JobKey",
+            "required": true,
+            "inputType": 0,
+            "label": "ChiavediLavoro",
+            "description": "Chiave di Lavoro",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "FeedbackMessage",
+            "required": true,
+            "inputType": 0,
+            "label": "MessaggioDiRiscontro",
+            "description": "Messaggio di Riscontro",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          }
+        ],
+        "outputs": []
+      },
+      {
+        "taskServiceId": "requestForEventTask",
+        "id": "requestForEventTask",
+        "group": "Task Utente",
+        "name": "requestForEventTask",
+        "header": "",
+        "authenticationType": 0,
+        "jobWorker": "requestForEventTask",
+        "tagType": "",
+        "label": "Attesa Evento su Documento",
+        "description": "Attesa Evento su Documento",
+        "icon": "fa fa-bolt",
+        "colorFill": "",
+        "colorStroke": "",
+        "inputs": [
+          {
+            "name": "EventId",
+            "required": true,
+            "inputType": 0,
+            "label": "EventId",
+            "description": "EventId",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Title",
+            "required": true,
+            "inputType": 0,
+            "label": "Title",
+            "description": "Title",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Description",
+            "required": true,
+            "inputType": 0,
+            "label": "Descrizione",
+            "description": "Descrizione",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "CompanyId",
+            "required": false,
+            "inputType": 0,
+            "label": "IdCompagnia",
+            "description": "Id Compagnia",
+            "values": "",
+            "defaultValue": "1",
+            "lookupTableId": ""
+          },
+          {
+            "name": "ExpirationDate",
+            "required": false,
+            "inputType": 0,
+            "label": "DatadiScadenza",
+            "description": "Data di Scadenza",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "CategoryId",
+            "required": false,
+            "inputType": 0,
+            "label": "IdCategoria",
+            "description": "Id di Categoria",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "ProjectId",
+            "required": false,
+            "inputType": 0,
+            "label": "ProjectId",
+            "description": "Id di Progetto",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "ParentTaskId",
+            "required": false,
+            "inputType": 0,
+            "label": "ParentTaskId",
+            "description": "Id attività principale",
+            "values": "",
+            "defaultValue": "0",
+            "lookupTableId": ""
+          },
+          {
+            "name": "FormKey",
+            "required": false,
+            "inputType": 0,
+            "label": "FormKey",
+            "description": "Chiave del modulo",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "FormSchema",
+            "required": false,
+            "inputType": 0,
+            "label": "FormSchema",
+            "description": "FormSchema",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "AssignToAllUsers",
+            "required": false,
+            "inputType": 0,
+            "label": "AssignToAllUsers",
+            "description": "Assegna a tutti gli utenti",
+            "values": "",
+            "defaultValue": "0",
+            "lookupTableId": ""
+          },
+          {
+            "name": "NotifyTo",
+            "required": true,
+            "inputType": 0,
+            "label": "NotifyTo",
+            "description": "Invia Notifica a ",
+            "values": "",
+            "defaultValue": "[]",
+            "lookupTableId": ""
+          },
+          {
+            "name": "NotifyCC",
+            "required": true,
+            "inputType": 0,
+            "label": "NotifyCC",
+            "description": "NotifyCC",
+            "values": "",
+            "defaultValue": "[]",
+            "lookupTableId": ""
+          },
+          {
+            "name": "NotifyExecution",
+            "required": false,
+            "inputType": 0,
+            "label": "NotifyExecution",
+            "description": "Notifica di Esecuzione",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "NotifyExpiration",
+            "required": false,
+            "inputType": 0,
+            "label": "NotifyExpiration",
+            "description": "Notifica di Scadenza",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "PriorityId",
+            "required": false,
+            "inputType": 0,
+            "label": "PriorityId",
+            "description": "Id di Priorità",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Sender",
+            "required": true,
+            "inputType": 0,
+            "label": "Sender",
+            "description": "Mittente",
+            "values": "",
+            "defaultValue": "'$system$'",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Attachments",
+            "required": false,
+            "inputType": 0,
+            "label": "Allegati",
+            "description": "Allegati",
+            "values": "",
+            "defaultValue": "[]",
+            "lookupTableId": ""
+          }
+        ],
+        "outputs": [
+          {
+            "name": "TaskId",
+            "defaultValue": "",
+            "required": false,
+            "label": "TaskId",
+            "description": "Id Attività"
+          },
+          {
+            "name": "TaskUser",
+            "defaultValue": "",
+            "required": false,
+            "label": "TaskUser",
+            "description": "Attività Utente"
+          },
+          {
+            "name": "ExitCode",
+            "defaultValue": "",
+            "required": false,
+            "label": "ExitCode",
+            "description": "Esito dell'attività (1=Ok)"
+          }
+        ]
+      },
+      {
+        "taskServiceId": "requestForApprovalTask",
+        "id": "requestForApprovalTask",
+        "group": "Task Utente",
+        "name": "requestForApprovalTask",
+        "header": "",
+        "authenticationType": 0,
+        "jobWorker": "requestForApprovalTask",
+        "tagType": "",
+        "label": "Richiesta Approvazione",
+        "description": "Richiesta Approvazione",
+        "icon": "fa fa-check-square-o",
+        "colorFill": "",
+        "colorStroke": "",
+        "inputs": [
+          {
+            "name": "Title",
+            "required": true,
+            "inputType": 0,
+            "label": "Title",
+            "description": "Title",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Description",
+            "required": true,
+            "inputType": 0,
+            "label": "Descrizione",
+            "description": "Descrizione",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "CompanyId",
+            "required": false,
+            "inputType": 0,
+            "label": "IdCompagnia",
+            "description": "Id Compagnia",
+            "values": "",
+            "defaultValue": "1",
+            "lookupTableId": ""
+          },
+          {
+            "name": "ExpirationDate",
+            "required": false,
+            "inputType": 0,
+            "label": "DatadiScadenza",
+            "description": "Data di Scadenza",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "CategoryId",
+            "required": false,
+            "inputType": 0,
+            "label": "IdCategoria",
+            "description": "Id di Categoria",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "ProjectId",
+            "required": false,
+            "inputType": 0,
+            "label": "ProjectId",
+            "description": "Id di Progetto",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "ParentTaskId",
+            "required": false,
+            "inputType": 0,
+            "label": "ParentTaskId",
+            "description": "Id attività principale",
+            "values": "",
+            "defaultValue": "0",
+            "lookupTableId": ""
+          },
+          {
+            "name": "AssignToAllUsers",
+            "required": false,
+            "inputType": 0,
+            "label": "AssignToAllUsers",
+            "description": "Assegna a tutti gli utenti",
+            "values": "",
+            "defaultValue": "0",
+            "lookupTableId": ""
+          },
+          {
+            "name": "FormKey",
+            "required": true,
+            "inputType": 0,
+            "label": "FormKey",
+            "description": "Chiave del modulo",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "NotifyTo",
+            "required": true,
+            "inputType": 0,
+            "label": "NotifyTo",
+            "description": "Invia Notifica a ",
+            "values": "",
+            "defaultValue": "[]",
+            "lookupTableId": ""
+          },
+          {
+            "name": "NotifyExecution",
+            "required": false,
+            "inputType": 0,
+            "label": "NotifyExecution",
+            "description": "Notifica di Esecuzione",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "NotifyExpiration",
+            "required": false,
+            "inputType": 0,
+            "label": "NotifyExpiration",
+            "description": "Notifica di Scadenza",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "PriorityId",
+            "required": false,
+            "inputType": 0,
+            "label": "PriorityId",
+            "description": "Id di Priorità",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Sender",
+            "required": true,
+            "inputType": 0,
+            "label": "Sender",
+            "description": "Mittente",
+            "values": "",
+            "defaultValue": "'$system$'",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Attachments",
+            "required": false,
+            "inputType": 0,
+            "label": "Allegati",
+            "description": "Allegati",
+            "values": "",
+            "defaultValue": "[]",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Links",
+            "required": false,
+            "inputType": 0,
+            "label": "Links",
+            "description": "Links",
+            "values": "",
+            "defaultValue": "[]",
+            "lookupTableId": ""
+          }
+        ],
+        "outputs": [
+          {
+            "name": "ExitCode",
+            "defaultValue": "",
+            "required": false,
+            "label": "ExitCode",
+            "description": "Esito del Task (1=Ok)"
+          },
+          {
+            "name": "TaskId",
+            "defaultValue": "",
+            "required": false,
+            "label": "TaskId",
+            "description": "Id Attività"
+          },
+          {
+            "name": "TaskUser",
+            "defaultValue": "",
+            "required": false,
+            "label": "TaskUser",
+            "description": "Attività Utente"
+          }
+        ]
+      },
+      {
+        "taskServiceId": "formTask",
+        "id": "formTask",
+        "group": "Task Utente",
+        "name": "formTask",
+        "header": "",
+        "authenticationType": 0,
+        "jobWorker": "formTask",
+        "tagType": "",
+        "label": "Form Utente",
+        "description": "Form Utente",
+        "icon": "fa fa-table",
+        "colorFill": "",
+        "colorStroke": "",
+        "inputs": [
+          {
+            "name": "Title",
+            "required": true,
+            "inputType": 0,
+            "label": "Title",
+            "description": "Title",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Description",
+            "required": true,
+            "inputType": 0,
+            "label": "Descrizione",
+            "description": "Descrizione",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "CompanyId",
+            "required": false,
+            "inputType": 0,
+            "label": "IdCompagnia",
+            "description": "Id Compagnia",
+            "values": "",
+            "defaultValue": "1",
+            "lookupTableId": ""
+          },
+          {
+            "name": "ExpirationDate",
+            "required": false,
+            "inputType": 0,
+            "label": "DatadiScadenza",
+            "description": "Data di Scadenza",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "CategoryId",
+            "required": false,
+            "inputType": 0,
+            "label": "IdCategoria",
+            "description": "Id di Categoria",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "ProjectId",
+            "required": false,
+            "inputType": 0,
+            "label": "ProjectId",
+            "description": "Id di Progetto",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "ParentTaskId",
+            "required": false,
+            "inputType": 0,
+            "label": "ParentTaskId",
+            "description": "Id attività principale",
+            "values": "",
+            "defaultValue": "0",
+            "lookupTableId": ""
+          },
+          {
+            "name": "FormKey",
+            "required": true,
+            "inputType": 0,
+            "label": "FormKey",
+            "description": "Chiave del modulo",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "NotifyTo",
+            "required": true,
+            "inputType": 0,
+            "label": "NotifyTo",
+            "description": "Invia Notifica a ",
+            "values": "",
+            "defaultValue": "[]",
+            "lookupTableId": ""
+          },
+          {
+            "name": "NotifyExecution",
+            "required": false,
+            "inputType": 0,
+            "label": "NotifyExecution",
+            "description": "Notifica di Esecuzione",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "NotifyExpiration",
+            "required": false,
+            "inputType": 0,
+            "label": "NotifyExpiration",
+            "description": "Notifica di Scadenza",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "PriorityId",
+            "required": false,
+            "inputType": 0,
+            "label": "PriorityId",
+            "description": "Id di Priorità",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Sender",
+            "required": true,
+            "inputType": 0,
+            "label": "Sender",
+            "description": "Mittente",
+            "values": "",
+            "defaultValue": "'$system$'",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Attachments",
+            "required": false,
+            "inputType": 0,
+            "label": "Allegati",
+            "description": "Allegati",
+            "values": "",
+            "defaultValue": "[]",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Links",
+            "required": false,
+            "inputType": 0,
+            "label": "Links",
+            "description": "Links",
+            "values": "",
+            "defaultValue": "[]",
+            "lookupTableId": ""
+          }
+        ],
+        "outputs": [
+          {
+            "name": "TaskId",
+            "defaultValue": "",
+            "required": false,
+            "label": "TaskId",
+            "description": "Id Attività"
+          },
+          {
+            "name": "TaskUser",
+            "defaultValue": "",
+            "required": false,
+            "label": "TaskUser",
+            "description": "Utente Esecutore dell'attività"
+          }
+        ]
+      },
+      {
+        "taskServiceId": "userTask",
+        "id": "userTask",
+        "group": "Task Utente",
+        "name": "userTask",
+        "header": "",
+        "authenticationType": 0,
+        "jobWorker": "userTask",
+        "tagType": "",
+        "label": "Attività Utente",
+        "description": "Attività Utente",
+        "icon": "fa fa-tasks",
+        "colorFill": "",
+        "colorStroke": "",
+        "inputs": [
+          {
+            "name": "Title",
+            "required": true,
+            "inputType": 0,
+            "label": "Title",
+            "description": "Title",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Description",
+            "required": true,
+            "inputType": 0,
+            "label": "Descrizione",
+            "description": "Descrizione",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "CompanyId",
+            "required": false,
+            "inputType": 0,
+            "label": "IdCompagnia",
+            "description": "Id Compagnia",
+            "values": "",
+            "defaultValue": "1",
+            "lookupTableId": ""
+          },
+          {
+            "name": "ExpirationDate",
+            "required": false,
+            "inputType": 0,
+            "label": "DatadiScadenza",
+            "description": "Data di Scadenza",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "CategoryId",
+            "required": false,
+            "inputType": 0,
+            "label": "IdCategoria",
+            "description": "Id di Categoria",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "ProjectId",
+            "required": false,
+            "inputType": 0,
+            "label": "ProjectId",
+            "description": "Id di Progetto",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "ParentTaskId",
+            "required": false,
+            "inputType": 0,
+            "label": "ParentTaskId",
+            "description": "Id attività principale",
+            "values": "",
+            "defaultValue": "0",
+            "lookupTableId": ""
+          },
+          {
+            "name": "AssignToAllUsers",
+            "required": false,
+            "inputType": 0,
+            "label": "AssignToAllUsers",
+            "description": "Assegna a tutti gli utenti",
+            "values": "",
+            "defaultValue": "0",
+            "lookupTableId": ""
+          },
+          {
+            "name": "NotifyTo",
+            "required": true,
+            "inputType": 0,
+            "label": "NotifyTo",
+            "description": "Invia Notifica a ",
+            "values": "",
+            "defaultValue": "[]",
+            "lookupTableId": ""
+          },
+          {
+            "name": "NotifyCC",
+            "required": false,
+            "inputType": 0,
+            "label": "NotifyCC",
+            "description": "NotifyCC",
+            "values": "",
+            "defaultValue": "[]",
+            "lookupTableId": ""
+          },
+          {
+            "name": "NotifyExecution",
+            "required": false,
+            "inputType": 0,
+            "label": "NotifyExecution",
+            "description": "Notifica di Esecuzione",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "NotifyExpiration",
+            "required": false,
+            "inputType": 0,
+            "label": "NotifyExpiration",
+            "description": "Notifica di Scadenza",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "PriorityId",
+            "required": false,
+            "inputType": 0,
+            "label": "PriorityId",
+            "description": "Id di Priorità",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Sender",
+            "required": true,
+            "inputType": 0,
+            "label": "Sender",
+            "description": "Mittente",
+            "values": "",
+            "defaultValue": "'$system$'",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Attachments",
+            "required": false,
+            "inputType": 0,
+            "label": "Allegati",
+            "description": "Allegati",
+            "values": "",
+            "defaultValue": "[]",
+            "lookupTableId": ""
+          }
+        ],
+        "outputs": [
+          {
+            "name": "TaskId",
+            "defaultValue": "",
+            "required": false,
+            "label": "TaskId",
+            "description": "Id Attività"
+          },
+          {
+            "name": "TaskUser",
+            "defaultValue": "",
+            "required": false,
+            "label": "TaskUser",
+            "description": "Attività Utente"
+          }
+        ]
+      },
+      {
+        "taskServiceId": "userMessageTask",
+        "id": "userMessageTask",
+        "group": "Task Utente",
+        "name": "userMessageTask",
+        "header": "",
+        "authenticationType": 0,
+        "jobWorker": "userMessageTask",
+        "tagType": "",
+        "label": "Messaggio Utente",
+        "description": "Messaggio Utente",
+        "icon": "fa fa-comment",
+        "colorFill": "",
+        "colorStroke": "",
+        "inputs": [
+          {
+            "name": "Title",
+            "required": true,
+            "inputType": 0,
+            "label": "Title",
+            "description": "Title",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Description",
+            "required": true,
+            "inputType": 0,
+            "label": "Descrizione",
+            "description": "Descrizione",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "CompanyId",
+            "required": false,
+            "inputType": 0,
+            "label": "IdCompagnia",
+            "description": "Id Compagnia",
+            "values": "",
+            "defaultValue": "1",
+            "lookupTableId": ""
+          },
+          {
+            "name": "ProjectId",
+            "required": false,
+            "inputType": 0,
+            "label": "ProjectId",
+            "description": "Id di Progetto",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "ParentTaskId",
+            "required": false,
+            "inputType": 0,
+            "label": "ParentTaskId",
+            "description": "Id attività principale",
+            "values": "",
+            "defaultValue": "0",
+            "lookupTableId": ""
+          },
+          {
+            "name": "AssignToAllUsers",
+            "required": false,
+            "inputType": 0,
+            "label": "AssignToAllUsers",
+            "description": "Assegna a tutti gli utenti",
+            "values": "",
+            "defaultValue": "0",
+            "lookupTableId": ""
+          },
+          {
+            "name": "NotifyTo",
+            "required": true,
+            "inputType": 0,
+            "label": "NotifyTo",
+            "description": "Invia Notifica a ",
+            "values": "",
+            "defaultValue": "[]",
+            "lookupTableId": ""
+          },
+          {
+            "name": "NotifyCC",
+            "required": false,
+            "inputType": 0,
+            "label": "NotifyCC",
+            "description": "NotifyCC",
+            "values": "",
+            "defaultValue": "[]",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Sender",
+            "required": true,
+            "inputType": 0,
+            "label": "Sender",
+            "description": "Mittente",
+            "values": "",
+            "defaultValue": "'$system$'",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Attachments",
+            "required": false,
+            "inputType": 0,
+            "label": "Allegati",
+            "description": "Allegati",
+            "values": "",
+            "defaultValue": "[]",
+            "lookupTableId": ""
+          }
+        ],
+        "outputs": [
+          {
+            "name": "TaskId",
+            "defaultValue": "",
+            "required": false,
+            "label": "TaskId",
+            "description": "Id Attività"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "52d37844-31ee-4ca4-956b-631e5d850e18",
+    "name": "Database",
+    "description": "Database",
+    "tasks": [
+      {
+        "taskServiceId": "sqlTask",
+        "id": "sqlTask",
+        "group": "Database",
+        "name": "sqlTask",
+        "header": "",
+        "authenticationType": 0,
+        "jobWorker": "sqlTask",
+        "tagType": "",
+        "label": "Istruzione SQL",
+        "description": "Istruzione SQL",
+        "icon": "fa fa-database",
+        "colorFill": "",
+        "colorStroke": "",
+        "inputs": [
+          {
+            "name": "DatabaseConnectionId",
+            "required": true,
+            "inputType": 0,
+            "label": "ID di connessione al Database",
+            "description": "ID di connessione al Database",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "SQL",
+            "required": true,
+            "inputType": 0,
+            "label": "SQL",
+            "description": "Comandi SQL da Eseguire",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          }
+        ],
+        "outputs": [
+          {
+            "name": "AffectedRows",
+            "defaultValue": "",
+            "required": false,
+            "label": "Righe Interessate",
+            "description": "Numero di righe ritornate dai comandi SQL"
+          }
+        ]
+      },
+      {
+        "taskServiceId": "sqlReaderTask",
+        "id": "sqlReaderTask",
+        "group": "Database",
+        "name": "sqlReaderTask",
+        "header": "",
+        "authenticationType": 0,
+        "jobWorker": "sqlReaderTask",
+        "tagType": "",
+        "label": "SQL SELECT",
+        "description": "SQL SELECT",
+        "icon": "fa fa-table",
+        "colorFill": "",
+        "colorStroke": "",
+        "inputs": [
+          {
+            "name": "DatabaseConnectionId",
+            "required": true,
+            "inputType": 0,
+            "label": "Id Connessione al Database",
+            "description": "Id della Connessione al Database",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "SelectSQL",
+            "required": true,
+            "inputType": 0,
+            "label": "Select SQL",
+            "description": "Query SQL da eseguire",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          }
+        ],
+        "outputs": [
+          {
+            "name": "Rows",
+            "defaultValue": "",
+            "required": false,
+            "label": "Righe",
+            "description": "Righe risultanti dalla Query SQL"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "1c881632-4f0a-420e-9505-3a76929e5ceb",
+    "name": "Documenti",
+    "description": "Documenti",
+    "tasks": [
+      {
+        "taskServiceId": "addAttachmentTask",
+        "id": "addAttachmentTask",
+        "group": "Documenti",
+        "name": "addAttachmentTask",
+        "header": "",
+        "authenticationType": 0,
+        "jobWorker": "addAttachmentTask",
+        "tagType": "",
+        "label": "Aggiunge un allegato/collegato ad un Documento",
+        "description": "Aggiunge un allegato/collegato ad un Documento",
+        "icon": "fa fa-paperclip",
+        "colorFill": "",
+        "colorStroke": "",
+        "inputs": [
+          {
+            "name": "TargetDocumentId",
+            "required": true,
+            "inputType": 0,
+            "label": "Id Documento scelto",
+            "description": "Id per il documento scelto",
+            "values": "",
+            "defaultValue": "DocumentId",
+            "lookupTableId": ""
+          },
+          {
+            "name": "AttachmentID",
+            "required": true,
+            "inputType": 0,
+            "label": "Allegato da Aggiungere",
+            "description": "Id dell'allegato da identificare",
+            "values": "",
+            "defaultValue": "0",
+            "lookupTableId": ""
+          },
+          {
+            "name": "IsLink",
+            "required": false,
+            "inputType": 0,
+            "label": "Collegato",
+            "description": "Specifica se l'allegato è collegato o meno",
+            "values": "",
+            "defaultValue": "false",
+            "lookupTableId": ""
+          }
+        ],
+        "outputs": []
+      },
+      {
+        "taskServiceId": "addContentTask",
+        "id": "addContentTask",
+        "group": "Documenti",
+        "name": "addContentTask",
+        "header": "",
+        "authenticationType": 0,
+        "jobWorker": "addContentTask",
+        "tagType": "",
+        "label": "Aggiunge un contenuto ad un Documento",
+        "description": "Aggiunge un contenuto ad un Documento",
+        "icon": "fa fa-image",
+        "colorFill": "",
+        "colorStroke": "",
+        "inputs": [
+          {
+            "name": "TargetDocumentId",
+            "required": true,
+            "inputType": 0,
+            "label": "Id Documento Scelto",
+            "description": "Id per il Documento Scelto",
+            "values": "",
+            "defaultValue": "DocumentId",
+            "lookupTableId": ""
+          },
+          {
+            "name": "InputFile",
+            "required": true,
+            "inputType": 0,
+            "label": "Input File",
+            "description": "Percorso al file di Input",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "DeleteInputFile",
+            "required": false,
+            "inputType": 0,
+            "label": "Cancellare File di Input",
+            "description": "Specifica se eliminare il file Input dopo l'elaborazione",
+            "values": "",
+            "defaultValue": "0",
+            "lookupTableId": ""
+          }
+        ],
+        "outputs": [
+          {
+            "name": "Content",
+            "defaultValue": "",
+            "required": false,
+            "label": "Contenuto",
+            "description": "Informazioni del Contenuto"
+          },
+          {
+            "name": "errorMessage",
+            "defaultValue": "",
+            "required": false,
+            "label": "Messaggio di Errore",
+            "description": "Messaggio di errore in caso di fallimento"
+          }
+        ]
+      },
+      {
+        "taskServiceId": "addToFolderTask",
+        "id": "addToFolderTask",
+        "group": "Documenti",
+        "name": "addToFolderTask",
+        "header": "",
+        "authenticationType": 0,
+        "jobWorker": "addToFolderTask",
+        "tagType": "",
+        "label": "Aggiunge un documento ad un fascicolo",
+        "description": "Aggiunge un documento ad un fascicolo",
+        "icon": "fa fa-folder",
+        "colorFill": "",
+        "colorStroke": "",
+        "inputs": [
+          {
+            "name": "TaskDocumentId",
+            "required": true,
+            "inputType": 0,
+            "label": "Id documento",
+            "description": "Id del documento",
+            "values": "",
+            "defaultValue": "DocumentId",
+            "lookupTableId": ""
+          },
+          {
+            "name": "TaskFolderId",
+            "required": true,
+            "inputType": 0,
+            "label": "Id Fascicolo",
+            "description": "Id del Fascicolo",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "MoveToFolder",
+            "required": false,
+            "inputType": 0,
+            "label": "Sposta alla cartella",
+            "description": "Specifica in quale cartella va spostato il documento",
+            "values": "",
+            "defaultValue": "0",
+            "lookupTableId": ""
+          }
+        ],
+        "outputs": [
+          {
+            "name": "Errors",
+            "defaultValue": "",
+            "required": false,
+            "label": "Errori",
+            "description": "Lista degli errori avvenuti durante le operazioni"
+          }
+        ]
+      },
+      {
+        "taskServiceId": "changeDocumentStatusTask",
+        "id": "changeDocumentStatusTask",
+        "group": "Documenti",
+        "name": "changeDocumentStatusTask",
+        "header": "",
+        "authenticationType": 0,
+        "jobWorker": "changeDocumentStatusTask",
+        "tagType": "",
+        "label": "Modifica lo stato di un Documento",
+        "description": "Modifica lo stato di un Documento",
+        "icon": "fa fa-question-circle",
+        "colorFill": "",
+        "colorStroke": "",
+        "inputs": [
+          {
+            "name": "TaskDocumentId",
+            "required": true,
+            "inputType": 0,
+            "label": "Id del documento",
+            "description": "Id del documento al quale cambiare stato",
+            "values": "",
+            "defaultValue": "DocumentId",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Status",
+            "required": true,
+            "inputType": 0,
+            "label": "Stato",
+            "description": "Nuovo stato del documento da modificare",
+            "values": "",
+            "defaultValue": "1",
+            "lookupTableId": ""
+          }
+        ],
+        "outputs": [
+          {
+            "name": "NewStatus",
+            "defaultValue": "",
+            "required": false,
+            "label": "Stato",
+            "description": "Nuovo Stato del documento appena modificato"
+          }
+        ]
+      },
+      {
+        "taskServiceId": "createDocumentTask",
+        "id": "createDocumentTask",
+        "group": "Documenti",
+        "name": "createDocumentTask",
+        "header": "",
+        "authenticationType": 0,
+        "jobWorker": "createDocumentTask",
+        "tagType": "",
+        "label": "Crea o modifica un Documento",
+        "description": "Crea o modifica un Documento",
+        "icon": "fa fa-image",
+        "colorFill": "",
+        "colorStroke": "",
+        "inputs": [
+          {
+            "name": "TaskDocumentId",
+            "required": false,
+            "inputType": 0,
+            "label": "Id Documento",
+            "description": "Identificativo per il documento da Aggiornare",
+            "values": "",
+            "defaultValue": "0",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Document",
+            "required": true,
+            "inputType": 0,
+            "label": "Document",
+            "description": "Dati del documento da Aggiornare o creare",
+            "values": "",
+            "defaultValue": "{ }",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Filters",
+            "required": false,
+            "inputType": 0,
+            "label": "Filtro",
+            "description": "Filtro per cercare i documenti",
+            "values": "",
+            "defaultValue": "{ }",
+            "lookupTableId": ""
+          },
+          {
+            "name": "MaxResults",
+            "required": false,
+            "inputType": 0,
+            "label": "Risutato Massimo",
+            "description": "Numero massimo di risultati",
+            "values": "",
+            "defaultValue": "1",
+            "lookupTableId": ""
+          },
+          {
+            "name": "DeleteInputFile",
+            "required": false,
+            "inputType": 0,
+            "label": "Input del file da cancellare",
+            "description": "Indica se il file di input è da eliminare o meno alla fine della lavorazione",
+            "values": "",
+            "defaultValue": "1",
+            "lookupTableId": ""
+          }
+        ],
+        "outputs": [
+          {
+            "name": "NewDocumentId",
+            "defaultValue": "",
+            "required": false,
+            "label": " Id del Documento",
+            "description": "Id del documento creato o aggiornato"
+          }
+        ]
+      },
+      {
+        "taskServiceId": "fillTemplateTask",
+        "id": "fillTemplateTask",
+        "group": "Documenti",
+        "name": "fillTemplateTask",
+        "header": "",
+        "authenticationType": 0,
+        "jobWorker": "fillTemplateTask",
+        "tagType": "",
+        "label": "Aggiunge un modello precompilato ad un Documento",
+        "description": "Aggiunge un modello precompilato ad un Documento",
+        "icon": "fa fa-image",
+        "colorFill": "",
+        "colorStroke": "",
+        "inputs": [
+          {
+            "name": "TaskDocumentId",
+            "required": true,
+            "inputType": 0,
+            "label": "Id del Documento",
+            "description": "Id del documento per compilare il Template",
+            "values": "",
+            "defaultValue": "DocumentId",
+            "lookupTableId": ""
+          },
+          {
+            "name": "TemplateId",
+            "required": true,
+            "inputType": 0,
+            "label": " Id Template",
+            "description": "Id del Template che va riempito",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Document",
+            "required": false,
+            "inputType": 0,
+            "label": "Documento",
+            "description": "Contenuto del documento",
+            "values": "",
+            "defaultValue": "{}",
+            "lookupTableId": ""
+          },
+          {
+            "name": "OutputExtension",
+            "required": false,
+            "inputType": 0,
+            "label": "Estensione d'uscita",
+            "description": "Estensione d'uscita dopo il completamento del Template",
+            "values": "",
+            "defaultValue": "'.pdf'",
+            "lookupTableId": ""
+          }
+        ],
+        "outputs": [
+          {
+            "name": "NewDocumentId",
+            "defaultValue": "",
+            "required": false,
+            "label": "ID nuovo Documento",
+            "description": "Id del Documento dopo il completamento del Template"
+          },
+          {
+            "name": "Image",
+            "defaultValue": "",
+            "required": false,
+            "label": "Immagine",
+            "description": "Informazioni sull'immagine"
+          }
+        ]
+      },
+      {
+        "taskServiceId": "findDocumentsTask",
+        "id": "findDocumentsTask",
+        "group": "Documenti",
+        "name": "findDocumentsTask",
+        "header": "",
+        "authenticationType": 0,
+        "jobWorker": "findDocumentsTask",
+        "tagType": "",
+        "label": "Cerca Documenti",
+        "description": "Cerca Documenti",
+        "icon": "fa fa-search",
+        "colorFill": "",
+        "colorStroke": "",
+        "inputs": [
+          {
+            "name": "Filters",
+            "required": true,
+            "inputType": 0,
+            "label": "Filtro",
+            "description": "Filtro da applicare durante la ricerca dei documenti",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "MaxResults",
+            "required": false,
+            "inputType": 0,
+            "label": "Risultato Massimo",
+            "description": "Numero di ricerche massimo dei risultati",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          }
+        ],
+        "outputs": [
+          {
+            "name": "Documents",
+            "defaultValue": "",
+            "required": false,
+            "label": "Lista dei documenti",
+            "description": "Lista dei documenti che combaciano con i parametri di ricerca"
+          }
+        ]
+      },
+      {
+        "taskServiceId": "getDocumentTask",
+        "id": "getDocumentTask",
+        "group": "Documenti",
+        "name": "getDocumentTask",
+        "header": "",
+        "authenticationType": 0,
+        "jobWorker": "getDocumentTask",
+        "tagType": "",
+        "label": "Recupero Documento",
+        "description": "Recupero Documento",
+        "icon": "fa fa-tags",
+        "colorFill": "",
+        "colorStroke": "",
+        "inputs": [
+          {
+            "name": "TaskDocumentId",
+            "required": true,
+            "inputType": 0,
+            "label": "Id del documento Attività",
+            "description": "Id del documento da recuperare",
+            "values": "",
+            "defaultValue": "DocumentId",
+            "lookupTableId": ""
+          }
+        ],
+        "outputs": [
+          {
+            "name": "Document",
+            "defaultValue": "",
+            "required": false,
+            "label": "Documento Recuperato",
+            "description": "Documento Recuperato"
+          }
+        ]
+      },
+      {
+        "taskServiceId": "setPermissionTask",
+        "id": "setPermissionTask",
+        "group": "Documenti",
+        "name": "setPermissionTask",
+        "header": "",
+        "authenticationType": 0,
+        "jobWorker": "setPermissionTask",
+        "tagType": "",
+        "label": "Crea o Modifica un set di permessi su un Documento",
+        "description": "Crea o Modifica un set di permessi su un Documento",
+        "icon": "fa fa-lock",
+        "colorFill": "",
+        "colorStroke": "",
+        "inputs": [
+          {
+            "name": "TaskDocumentId",
+            "required": true,
+            "inputType": 0,
+            "label": "Id documento Attività",
+            "description": "Id del documento",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Profiles",
+            "required": true,
+            "inputType": 0,
+            "label": "Profilo",
+            "description": "Lista dei profili",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Permissions_Granted",
+            "required": false,
+            "inputType": 0,
+            "label": "Permessi Autorizzati",
+            "description": "Lista di permessi autorizzati",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Permission_Removed",
+            "required": false,
+            "inputType": 0,
+            "label": "Permessi Rimossi",
+            "description": "Lista dei permessi rimossi",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Permission_Denied",
+            "required": false,
+            "inputType": 0,
+            "label": "Permessi Negati",
+            "description": "Lista dei permessi Negati",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          }
+        ],
+        "outputs": [
+          {
+            "name": "Granted",
+            "defaultValue": "",
+            "required": false,
+            "label": "Autorizzati",
+            "description": "Numeri di permessi Autorizzati"
+          },
+          {
+            "name": "Removed",
+            "defaultValue": "",
+            "required": false,
+            "label": "Rimossi",
+            "description": "Numeri di permessi Rimossi"
+          },
+          {
+            "name": "Denied",
+            "defaultValue": "",
+            "required": false,
+            "label": "Negati",
+            "description": "Numeri di permessi Negati"
+          }
+        ]
+      },
+      {
+        "taskServiceId": "getDocumentContentTask",
+        "id": "getDocumentContentTask",
+        "group": "Documenti",
+        "name": "getDocumentContentTask",
+        "header": "",
+        "authenticationType": 0,
+        "jobWorker": "getDocumentContentTask",
+        "tagType": "",
+        "label": "Recupero Contenuto",
+        "description": "Recupero Contenuto",
+        "icon": "fa fa-tags",
+        "colorFill": "",
+        "colorStroke": "",
+        "inputs": [
+          {
+            "name": "TaskDocumentId",
+            "required": true,
+            "inputType": 0,
+            "label": "Id Documento attività",
+            "description": "Id del documento per cui recuperare il contenuto",
+            "values": "",
+            "defaultValue": "DocumentId",
+            "lookupTableId": ""
+          }
+        ],
+        "outputs": [
+          {
+            "name": "OutputFile",
+            "defaultValue": "",
+            "required": false,
+            "label": "File di Output",
+            "description": "Percorso del file per il contenuto da recuperare"
+          }
+        ]
+      },
+      {
+        "taskServiceId": "FileConverterTask",
+        "id": "FileConverterTask",
+        "group": "Documenti",
+        "name": "FileConverterTask",
+        "header": "",
+        "authenticationType": 0,
+        "jobWorker": "FileConverterTask",
+        "tagType": "",
+        "label": "Converte un file da un formato all'altro (PDF di default)",
+        "description": "Converte un file da un formato all'altro (PDF di default)",
+        "icon": "fa fa-file-pdf-o",
+        "colorFill": "",
+        "colorStroke": "",
+        "inputs": [
+          {
+            "name": "TaskDocumentId",
+            "required": true,
+            "inputType": 0,
+            "label": "Id Documento",
+            "description": "Id del documento da Convertire",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "InputFile",
+            "required": true,
+            "inputType": 0,
+            "label": "File di Input",
+            "description": "Percorso al file che deve essere convertito",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "OutputExtension",
+            "required": true,
+            "inputType": 0,
+            "label": "Estensione di Output",
+            "description": "Nuova estensione del file dopo la conversione",
+            "values": "",
+            "defaultValue": "'.pdf'",
+            "lookupTableId": ""
+          },
+          {
+            "name": "DeleteTempFile",
+            "required": false,
+            "inputType": 0,
+            "label": "File temporaneo da Eliminare",
+            "description": "Scelta se eliminare il file dopo la conversione",
+            "values": "",
+            "defaultValue": "0",
+            "lookupTableId": ""
+          }
+        ],
+        "outputs": [
+          {
+            "name": "OutputFile",
+            "defaultValue": null,
+            "required": false,
+            "label": "File di Output",
+            "description": "Percorso al file convertito"
+          },
+          {
+            "name": "errorMessage",
+            "defaultValue": "",
+            "required": false,
+            "label": "Messaggio di Errore",
+            "description": "Messaggio di errore se il processo fallisce"
+          }
+        ]
+      },
+      {
+        "taskServiceId": "setDocumentFieldTask",
+        "id": "setDocumentFieldTask",
+        "group": "Documenti",
+        "name": "setDocumentFieldTask",
+        "header": "",
+        "authenticationType": 0,
+        "jobWorker": "setDocumentFieldTask",
+        "tagType": "",
+        "label": "Imposta uno o più metadati di un Documento",
+        "description": "Imposta uno o più metadati di un Documento",
+        "icon": "fa fa-image",
+        "colorFill": "",
+        "colorStroke": "",
+        "inputs": [
+          {
+            "name": "TaskDocumentId",
+            "required": true,
+            "inputType": 0,
+            "label": "Id Documento Attività",
+            "description": "Id del Documento",
+            "values": "",
+            "defaultValue": "DocumentId",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Fields",
+            "required": true,
+            "inputType": 0,
+            "label": "Campi",
+            "description": "Lista di campi da impostare",
+            "values": "",
+            "defaultValue": "[ { FieldName: '', Value: ''} ]",
+            "lookupTableId": ""
+          }
+        ],
+        "outputs": []
+      }
+    ]
+  },
+  {
+    "id": "ace67c3c-50ae-49bb-a4e4-a86660dfb556",
+    "name": "Organigramma",
+    "description": "Organigramma",
+    "tasks": [
+      {
+        "taskServiceId": "GetOrganizationRoleTask",
+        "id": "GetOrganizationRoleTask",
+        "group": "Organigramma",
+        "name": "GetOrganizationRoleTask",
+        "header": "",
+        "authenticationType": 0,
+        "jobWorker": "GetOrganizationRoleTask",
+        "tagType": "",
+        "label": "Recupera un nodo o un ruolo di un nodo",
+        "description": "Recupera un nodo o un ruolo di un nodo",
+        "icon": "fa fa-user",
+        "colorFill": "",
+        "colorStroke": "",
+        "inputs": [
+          {
+            "name": "UserId",
+            "required": true,
+            "inputType": 0,
+            "label": "Id Utente",
+            "description": "Id dell'utente",
+            "values": "",
+            "defaultValue": "userId",
+            "lookupTableId": ""
+          },
+          {
+            "name": "GroupId",
+            "required": false,
+            "inputType": 0,
+            "label": "Id Gruppo",
+            "description": "Id del Gruppo",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "GroupExternalId",
+            "required": false,
+            "inputType": 0,
+            "label": "Id Esterno del Gruppo",
+            "description": "Id Esterno del Gruppo",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "GroupName",
+            "required": false,
+            "inputType": 0,
+            "label": "Nome Gruppo",
+            "description": "Nome del Gruppo",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "RoleIdToFind",
+            "required": false,
+            "inputType": 0,
+            "label": "Id del ruolo da trovare",
+            "description": "Id del ruolo da trovare",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "RoleToFind",
+            "required": false,
+            "inputType": 0,
+            "label": "Ruolo da trovare",
+            "description": "Nome del ruolo da trovare",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Skip",
+            "required": false,
+            "inputType": 0,
+            "label": "Salto",
+            "description": "Conti di Salti da fare",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Recursive",
+            "required": false,
+            "inputType": 0,
+            "label": "Ricorsività",
+            "description": "Controllo di Ricorsività",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "DefaultRoleId",
+            "required": false,
+            "inputType": 0,
+            "label": "Id ruolo di Default",
+            "description": "Id ruolo di Default",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "DefaultGroupId",
+            "required": false,
+            "inputType": 0,
+            "label": "Id Default del gruppo",
+            "description": "Id Default del gruppo",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          }
+        ],
+        "outputs": [
+          {
+            "name": "Role",
+            "defaultValue": "",
+            "required": false,
+            "label": "Ruolo",
+            "description": "Ruolo recuperato"
+          },
+          {
+            "name": "UserGroup",
+            "defaultValue": "",
+            "required": false,
+            "label": "Utente del gruppo",
+            "description": "Utente del Gruppo recuperato"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "905a9e13-263e-44da-bf68-e1fdf0d78581",
+    "name": "Comunicazioni",
+    "description": "Comunicazioni",
+    "tasks": [
+      {
+        "taskServiceId": "sendMailTask",
+        "id": "sendMailTask",
+        "group": "Comunicazioni",
+        "name": "sendMailTask",
+        "header": "",
+        "authenticationType": 0,
+        "jobWorker": "sendMailTask",
+        "tagType": "",
+        "label": "Invia una Mail/PEC",
+        "description": "Invia una Mail/PEC",
+        "icon": "fa fa-envelope-o",
+        "colorFill": "",
+        "colorStroke": "",
+        "inputs": [
+          {
+            "name": "Sender",
+            "required": false,
+            "inputType": 0,
+            "label": "Id Mittente",
+            "description": "Id dell'utente Mittente",
+            "values": "",
+            "defaultValue": "'$system$'",
+            "lookupTableId": ""
+          },
+          {
+            "name": "ToList",
+            "required": false,
+            "inputType": 0,
+            "label": "Destinatari",
+            "description": "Elenco di mail destinatarie",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "CCList",
+            "required": false,
+            "inputType": 0,
+            "label": "Destinatari CC",
+            "description": "Elenco di mail destinatarie in CC",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "CCrList",
+            "required": false,
+            "inputType": 0,
+            "label": "Destinatari CCr",
+            "description": "Elenco di mail destinatarie CCr",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Subject",
+            "required": true,
+            "inputType": 0,
+            "label": "Oggetto",
+            "description": "Oggetto della mail",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Body",
+            "required": true,
+            "inputType": 0,
+            "label": "Corpo del messaggio",
+            "description": "Corpo del messaggio in formato HTML",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Attachments",
+            "required": false,
+            "inputType": 0,
+            "label": "Allegati",
+            "description": "Elenco di ID di allegati",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "MailBoxId",
+            "required": false,
+            "inputType": 0,
+            "label": "ID MailBox",
+            "description": "ID della MailBox",
+            "values": "",
+            "defaultValue": "0",
+            "lookupTableId": ""
+          },
+          {
+            "name": "IncludePDFPreview",
+            "required": false,
+            "inputType": 0,
+            "label": "Preview PDF",
+            "description": "Include la preview PDF degli alelgati",
+            "values": "",
+            "defaultValue": "0",
+            "lookupTableId": ""
+          }
+        ],
+        "outputs": []
+      }
+    ]
+  },
+  {
+    "id": "181642d7-dc5a-41eb-a595-c77e592fca12",
+    "name": "Analisi",
+    "description": "Analisi",
+    "tasks": [
+      {
+        "taskServiceId": "StartTimer",
+        "id": "StartTimer",
+        "group": "Analisi",
+        "name": "StartTimer",
+        "header": "",
+        "authenticationType": 0,
+        "jobWorker": "StartTimer",
+        "tagType": "",
+        "label": "Avvia Timer",
+        "description": "Avvia Timer",
+        "icon": "fa fa-clock-o",
+        "colorFill": "",
+        "colorStroke": "",
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "CurrentTime",
+            "defaultValue": "",
+            "required": false,
+            "label": "Orario Corrente",
+            "description": "Orario Corrente (UTC)"
+          }
+        ]
+      },
+      {
+        "taskServiceId": "StopTimer",
+        "id": "StopTimer",
+        "group": "Analisi",
+        "name": "StopTimer",
+        "header": "",
+        "authenticationType": 0,
+        "jobWorker": "StopTimer",
+        "tagType": "",
+        "label": "Ferma Timer",
+        "description": "Ferma Timer",
+        "icon": "fa fa-clock-o",
+        "colorFill": "",
+        "colorStroke": "",
+        "inputs": [
+          {
+            "name": "StartTime",
+            "required": true,
+            "inputType": 0,
+            "label": "Ora di Avvio",
+            "description": "Ora di Avvio",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "FieldName",
+            "required": true,
+            "inputType": 0,
+            "label": "Campo del Nome",
+            "description": "Campo nome da aggiornare",
+            "values": "",
+            "defaultValue": "'durata'",
+            "lookupTableId": ""
+          },
+          {
+            "name": "ProcessId",
+            "required": false,
+            "inputType": 0,
+            "label": "Id del processo",
+            "description": " Id del processo",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Reset",
+            "required": false,
+            "inputType": 0,
+            "label": "Reset",
+            "description": "Flag che indica se il Timer va resettato",
+            "values": "",
+            "defaultValue": "1",
+            "lookupTableId": ""
+          }
+        ],
+        "outputs": [
+          {
+            "name": "Duration",
+            "defaultValue": "",
+            "required": false,
+            "label": "Durata",
+            "description": "Durata del Timer"
+          },
+          {
+            "name": "Timer",
+            "defaultValue": "",
+            "required": false,
+            "label": "Timer",
+            "description": "Timer"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "a200cbed-4acc-4ada-9efd-b9c62e493cff",
+    "name": "Titulus",
+    "description": "Titulus",
+    "tasks": [
+      {
+        "taskServiceId": "CreateInboundProtocolInTitulus",
+        "id": "CreateInboundProtocolInTitulus",
+        "group": "Titulus",
+        "name": "CreateInboundProtocolInTitulus",
+        "header": "",
+        "authenticationType": 0,
+        "jobWorker": "CreateInboundProtocolInTitulus",
+        "tagType": "",
+        "label": "Crea un nuovo protocollo in arrivo su Titulus",
+        "description": "Crea un nuovo protocollo in arrivo su Titulus",
+        "icon": "fa-regular fa-folder",
+        "colorFill": "",
+        "colorStroke": "",
+        "inputs": [
+          {
+            "name": "debug",
+            "required": false,
+            "inputType": 0,
+            "label": "debug",
+            "description": "Debug Flag",
+            "values": "",
+            "defaultValue": "0",
+            "lookupTableId": ""
+          },
+          {
+            "name": "TaskDocumentId",
+            "required": false,
+            "inputType": 0,
+            "label": "Document Id",
+            "description": "Id del documento",
+            "values": "",
+            "defaultValue": "DocumentId",
+            "lookupTableId": ""
+          },
+          {
+            "name": "bozza",
+            "required": false,
+            "inputType": 0,
+            "label": "Bozza",
+            "description": "Bozza Flag",
+            "values": "",
+            "defaultValue": "0",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Oggetto",
+            "required": true,
+            "inputType": 0,
+            "label": "Oggetto",
+            "description": "Oggetto del protocollo",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Tipologia",
+            "required": false,
+            "inputType": 0,
+            "label": "Tipologia",
+            "description": "Tipologia del documento",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Note",
+            "required": false,
+            "inputType": 0,
+            "label": "Note",
+            "description": "Note",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "MezzoTrasmissione",
+            "required": false,
+            "inputType": 0,
+            "label": "MezzoTrasmissione",
+            "description": "Mezzo di Trasmissione",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "MezzoTrasmissioneValuta",
+            "required": false,
+            "inputType": 0,
+            "label": "MezzoTrasmissioneValuta",
+            "description": "Mezzo di TrasmissioneValuta",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "MezzoTrasmissioneCosto",
+            "required": false,
+            "inputType": 0,
+            "label": "MezzoTrasmissioneCosto",
+            "description": "Costo Mezzo di Trasmissione",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "VoceIndice",
+            "required": true,
+            "inputType": 0,
+            "label": "VoceIndice",
+            "description": "Voce di Indice",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "PersoneInterne",
+            "required": true,
+            "inputType": 0,
+            "label": "PersoneInterne",
+            "description": "Persone Interne",
+            "values": "",
+            "defaultValue": "[]",
+            "lookupTableId": ""
+          },
+          {
+            "name": "PersoneInterneCC",
+            "required": true,
+            "inputType": 0,
+            "label": "PersoneInterneCC",
+            "description": "Persone Interne CC",
+            "values": "",
+            "defaultValue": "[]",
+            "lookupTableId": ""
+          },
+          {
+            "name": "StrutturaEsterna",
+            "required": true,
+            "inputType": 0,
+            "label": "Struttura Esterna",
+            "description": "Struttura Esterna",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "PersonaEsterna",
+            "required": true,
+            "inputType": 0,
+            "label": "PersonaEsterna",
+            "description": "Persona Esterna",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Attachments",
+            "required": true,
+            "inputType": 0,
+            "label": "Allegati",
+            "description": "Allegati",
+            "values": "",
+            "defaultValue": "[]",
+            "lookupTableId": ""
+          }
+        ],
+        "outputs": [
+          {
+            "name": "newDocument",
+            "defaultValue": "",
+            "required": true,
+            "label": "New Document",
+            "description": "Nuovo documento su Titulus"
+          },
+          {
+            "name": "protocolDate",
+            "defaultValue": "",
+            "required": true,
+            "label": "Protocol Date",
+            "description": "Data del protocollo"
+          },
+          {
+            "name": "protocolNumber",
+            "defaultValue": "",
+            "required": true,
+            "label": "Protocol Number",
+            "description": "Numero del protocollo"
+          }
+        ]
+      },
+      {
+        "taskServiceId": "CreateOutboundProtocolInTitulus",
+        "id": "CreateOutboundProtocolInTitulus",
+        "group": "Titulus",
+        "name": "CreateOutboundProtocolInTitulus",
+        "header": "",
+        "authenticationType": 0,
+        "jobWorker": "CreateOutboundProtocolInTitulus",
+        "tagType": "",
+        "label": "Crea un nuovo protocollo in partenza su Titulus",
+        "description": "Crea un nuovo protocollo in partenza su Titulus",
+        "icon": "fa-regular fa-folder",
+        "colorFill": "",
+        "colorStroke": "",
+        "inputs": [
+          {
+            "name": "debug",
+            "required": false,
+            "inputType": 0,
+            "label": "debug",
+            "description": "Debug Flag",
+            "values": "",
+            "defaultValue": "0",
+            "lookupTableId": ""
+          },
+          {
+            "name": "TaskDocumentId",
+            "required": false,
+            "inputType": 0,
+            "label": "Document Id",
+            "description": "Id del documento",
+            "values": "",
+            "defaultValue": "DocumentId",
+            "lookupTableId": ""
+          },
+          {
+            "name": "bozza",
+            "required": false,
+            "inputType": 0,
+            "label": "Bozza",
+            "description": "Bozza Flag",
+            "values": "",
+            "defaultValue": "0",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Oggetto",
+            "required": true,
+            "inputType": 0,
+            "label": "Oggetto",
+            "description": "Oggetto del protocollo",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Tipologia",
+            "required": false,
+            "inputType": 0,
+            "label": "Tipologia",
+            "description": "Tipologia del documento",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Note",
+            "required": false,
+            "inputType": 0,
+            "label": "Note",
+            "description": "Note",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "MezzoTrasmissione",
+            "required": false,
+            "inputType": 0,
+            "label": "MezzoTrasmissione",
+            "description": "Mezzo di Trasmissione",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "MezzoTrasmissioneValuta",
+            "required": false,
+            "inputType": 0,
+            "label": "MezzoTrasmissioneValuta",
+            "description": "Mezzo di TrasmissioneValuta",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "MezzoTrasmissioneCosto",
+            "required": false,
+            "inputType": 0,
+            "label": "MezzoTrasmissioneCosto",
+            "description": "Costo Mezzo di Trasmissione",
+            "values": "",
+            "defaultValue": "",
+            "lookupTableId": ""
+          },
+          {
+            "name": "VoceIndice",
+            "required": false,
+            "inputType": 0,
+            "label": "VoceIndice",
+            "description": "Voce di Indice",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "PersoneaInterne",
+            "required": false,
+            "inputType": 0,
+            "label": "PersoneInterne",
+            "description": "Persone Interne",
+            "values": "",
+            "defaultValue": "[]",
+            "lookupTableId": ""
+          },
+          {
+            "name": "PersoneEsterneCC",
+            "required": false,
+            "inputType": 0,
+            "label": "PersoneEsterneCC",
+            "description": "Persone Esterne CC",
+            "values": "",
+            "defaultValue": "[]",
+            "lookupTableId": ""
+          },
+          {
+            "name": "StruttureEsterne",
+            "required": false,
+            "inputType": 0,
+            "label": "StruttureEsterneCC",
+            "description": "Strutture Esterne",
+            "values": "",
+            "defaultValue": "[]",
+            "lookupTableId": ""
+          },
+          {
+            "name": "StruttureEsterneCC",
+            "required": false,
+            "inputType": 0,
+            "label": "StruttureEsterneCC",
+            "description": "Strutture Esterne CC",
+            "values": "",
+            "defaultValue": "[]",
+            "lookupTableId": ""
+          },
+          {
+            "name": "PersoneEsterne",
+            "required": false,
+            "inputType": 0,
+            "label": "PersoneEsterne",
+            "description": "Persone Esterne",
+            "values": "",
+            "defaultValue": "[]",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Attachments",
+            "required": false,
+            "inputType": 0,
+            "label": "Allegati",
+            "description": "Allegati",
+            "values": "",
+            "defaultValue": "[]",
+            "lookupTableId": ""
+          }
+        ],
+        "outputs": [
+          {
+            "name": "newDocument",
+            "defaultValue": "",
+            "required": false,
+            "label": "New Document",
+            "description": "Nuovo documento su Titulus"
+          },
+          {
+            "name": "protocolDate",
+            "defaultValue": "",
+            "required": false,
+            "label": "Protocol Date",
+            "description": "Data del protocollo"
+          },
+          {
+            "name": "protocolNumber",
+            "defaultValue": "",
+            "required": false,
+            "label": "Protocol Number",
+            "description": "Numero del protocollo"
+          }
+        ]
+      },
+      {
+        "taskServiceId": "CreateInternalProtocolInTitulus",
+        "id": "CreateInternalProtocolInTitulus",
+        "group": "Titulus",
+        "name": "CreateInternalProtocolInTitulus",
+        "header": "",
+        "authenticationType": 0,
+        "jobWorker": "CreateInternalProtocolInTitulus",
+        "tagType": "",
+        "label": "Crea un nuovo protocollo interno su Titulus",
+        "description": "Crea un nuovo protocollo interno su Titulus",
+        "icon": "fa-regular fa-folder",
+        "colorFill": "",
+        "colorStroke": "",
+        "inputs": [
+          {
+            "name": "debug",
+            "required": false,
+            "inputType": 0,
+            "label": "debug",
+            "description": "Debug Flag",
+            "values": "",
+            "defaultValue": "0",
+            "lookupTableId": ""
+          },
+          {
+            "name": "TaskDocumentId",
+            "required": false,
+            "inputType": 0,
+            "label": "Document Id",
+            "description": "Id del documento",
+            "values": "",
+            "defaultValue": "DocumentId",
+            "lookupTableId": ""
+          },
+          {
+            "name": "bozza",
+            "required": false,
+            "inputType": 0,
+            "label": "Bozza",
+            "description": "Bozza Flag",
+            "values": "",
+            "defaultValue": "0",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Oggetto",
+            "required": true,
+            "inputType": 0,
+            "label": "Oggetto",
+            "description": "Oggetto del protocollo",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Tipologia",
+            "required": false,
+            "inputType": 0,
+            "label": "Tipologia",
+            "description": "Tipologia del documento",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Note",
+            "required": false,
+            "inputType": 0,
+            "label": "Note",
+            "description": "Note",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "MezzoTrasmissione",
+            "required": false,
+            "inputType": 0,
+            "label": "MezzoTrasmissione",
+            "description": "Mezzo di Trasmissione",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "MezzoTrasmissioneValuta",
+            "required": false,
+            "inputType": 0,
+            "label": "MezzoTrasmissioneValuta",
+            "description": "Mezzo di TrasmissioneValuta",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "MezzoTrasmissioneCosto",
+            "required": false,
+            "inputType": 0,
+            "label": "MezzoTrasmissioneCosto",
+            "description": "Costo Mezzo di Trasmissione",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "VoceIndice",
+            "required": false,
+            "inputType": 0,
+            "label": "VoceIndice",
+            "description": "Voce di Indice",
+            "values": "",
+            "defaultValue": "''",
+            "lookupTableId": ""
+          },
+          {
+            "name": "PersoneaInterne",
+            "required": false,
+            "inputType": 0,
+            "label": "PersoneInterne",
+            "description": "Persone Interne",
+            "values": "",
+            "defaultValue": "[]",
+            "lookupTableId": ""
+          },
+          {
+            "name": "PersoneEsterneCC",
+            "required": false,
+            "inputType": 0,
+            "label": "PersoneEsterneCC",
+            "description": "Persone Esterne CC",
+            "values": "",
+            "defaultValue": "[]",
+            "lookupTableId": ""
+          },
+          {
+            "name": "PersoneEsterne",
+            "required": false,
+            "inputType": 0,
+            "label": "PersoneEsterne",
+            "description": "Persone Esterne",
+            "values": "",
+            "defaultValue": "[]",
+            "lookupTableId": ""
+          },
+          {
+            "name": "Attachments",
+            "required": false,
+            "inputType": 0,
+            "label": "Allegati",
+            "description": "Allegati",
+            "values": "",
+            "defaultValue": "[]",
+            "lookupTableId": ""
+          }
+        ],
+        "outputs": [
+          {
+            "name": "newDocument",
+            "defaultValue": "",
+            "required": false,
+            "label": "New Document",
+            "description": "Nuovo documento su Titulus"
+          },
+          {
+            "name": "protocolDate",
+            "defaultValue": "",
+            "required": false,
+            "label": "Protocol Date",
+            "description": "Data del protocollo"
+          },
+          {
+            "name": "protocolNumber",
+            "defaultValue": "",
+            "required": false,
+            "label": "Protocol Number",
+            "description": "Numero del protocollo"
+          }
+        ]
+      }
+    ]
+  }
+]

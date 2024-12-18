@@ -1,0 +1,12 @@
+﻿@page
+@model Web.Pages.ExternalAppModel
+@{
+    ViewData["Title"] = Model.Title;
+    Layout = "_MenuLayout";
+}
+<div class="MainPanel" style="background-color: var(--primary-bg-b1);padding:4px">
+
+    <iframe frameborder="0" style="border-radius:6px;" class="MainPanel" src="@Model.URL"></iframe>
+</div>
+
+

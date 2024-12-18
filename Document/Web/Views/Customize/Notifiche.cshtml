@@ -1,0 +1,75 @@
+﻿@using Microsoft.Extensions.Configuration
+@using OpenDMS.Domain.Entities;
+@using Web.DTOs;
+@model UserDetails_DTO;
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "Impostazioni Utente";
+    Layout = "_CustomizeLayout";
+}
+
+<script>
+
+    $(document).ready(function () {
+        $(function () {
+
+            if (`@Model.ErrorMessage` !== '') ShowMessage('alert', `@Html.Raw(Model.ErrorMessage)`, 'Message_Target', 'BancheDati');
+            if (`@Model.SuccessMessage` !== '') ShowMessage('success', '@Html.Raw(Model.SuccessMessage)', 'Message_Target', null);
+
+            //Per aggiungere e togliere la classe Active agli elementi della lista laterale
+            Carica("liCustomize-ProfiloUtente");
+
+        });
+    })
+</script>
+
+
+
+
+<div class="MainPanel">
+    <div class="Header">
+        <h1>
+            <i class="fa fa-bell"></i>
+            <small>Profilo Utente</small>
+            <span>Notifiche</span>
+        </h1>
+
+        <div class="right-header">
+            <ul class="nav nav-toolbar">
+                <li>
+                    <a href="/Customize/EditUser">
+                        <i class="fa fa-pencil"></i> Modifica...
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+
+    <div id="Message_Target"></div>
+
+    <div class="Panel">
+        <h3>Notifiche</h3>
+        <div class="Row">
+            <label>Modalità di ricezione</label>
+            <span>
+                @Model.Notification
+            </span>
+        </div>
+        @if (Model.NotificationType == "MAIL")
+        {
+            <div class="Row">
+                <label>Indirizzo</label>
+                <span>
+                    @Model.NotificationMailAddress
+                </span>
+            </div>
+
+        }
+        <div class="Desktop">
+            @await Component.InvokeAsync("CustomizeLeftPanel", new { UserId = User.Identity.Name})
+        </div>
+
+    </div>
+
+</div>

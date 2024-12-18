@@ -1,0 +1,59 @@
+﻿@page
+@using OpenDMS.Domain.Constants;
+@model CategoriesModel
+@{
+    ViewData["Title"] = "Archivio Documenti";
+    Layout = "_FolderLayout";
+}
+@section Icon       {    <i class="fa fa-file-pdf-o"></i>    }
+@section Header     {    @Web.Constant.Labels.Categories }
+@section SubHeader  {    @Web.Constant.Labels.SharedFolder }
+@section Folders
+{
+    <div class="FolderPathPanel">
+        <a href="#" class="" onclick="return ShowDocument(0)"><i class="fa fa-folder divider"></i> @Web.Constant.Labels.Folders</a>
+        <i class="fa fa-folder divider"></i> @Web.Constant.Labels.Categories
+    </div>
+}
+
+<script>
+    $(document).ready(() => {
+        $(".Folders").addClass("active");
+    });
+</script>
+<div class="Page">
+    <div class="MainPanel Background">
+        <div class="Content">
+
+            <div class="PreviewContainer">
+                @if (Model.SearchTypes.Count > 0)
+                {
+                    @foreach (var f in Model.SearchTypes)
+                    {
+                        <div class="PreviewRow" onclick="ShowView('DocumentTypes?GroupType=@f.DocumentType')">
+                            <div class="PreviewImage">
+                                <img class="ImagePage" src="~/images/previews/FolderFile.png" style="filter: saturate(0)" />
+                                @* <i style="color: coral" class="fa fa-folder"></i> *@
+                                <i class="innerIcon @f.Icon"></i>
+                            </div>
+                            <div class="PreviewName">
+                                @f.Name
+                                <small>@Web.Constant.Labels.VirtualFolder</small>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+            @await  Component.InvokeAsync("FileExplorer", Model.SearchFilters)
+            <br />
+            @await  Component.InvokeAsync("FileExplorer", Model.AddedFilters)
+
+
+        </div>
+
+    </div>
+
+</div>
+
+
+

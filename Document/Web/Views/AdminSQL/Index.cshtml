@@ -1,0 +1,93 @@
+﻿@using Microsoft.Extensions.Configuration;
+@using Web.Model.Admin;
+@{
+    ViewData["Title"] = "Console SQL";
+    Layout = "_AdminLayout";
+}
+
+
+<script>
+
+    function EsecuteSQL()
+    {
+        var res = $("#results");
+        var sql = {
+            sql: $("#sql").val(), 
+            rows: $("#rows").val()
+        }
+        res.val("");
+        $.ajax({
+            url: "/Admin/sql/Parse",
+            type: "POST",
+            headers: { "Content-Type": "application/json", 'accept': 'text/plain' },
+            data: JSON.stringify(sql)
+        })
+            .done(function (data) {
+                res.html(data)
+            }).fail(function (err) {
+                alert("Si è verificato il seguente problema: " + err.responseText);
+            });
+        return false;
+    }
+
+    function scriviTabella()
+    {
+        var sel = $("#sel")[0];
+        var val = sel.options[sel.selectedIndex].value;
+        $("#sql").val($("#sql").val()+val);
+        $("#sql").focus();
+    }
+
+    $(document).ready(function () {
+        $(".mnuSQL").addClass("active");
+    })
+
+</script>
+
+@section HeaderTitle
+{
+    Console SQL
+}
+
+<div class="backgroundMenu Panel">
+        <div>
+            <label class="active" for="sql">Istruzione SQL</label>
+            <select onchange="return scriviTabella();" id="sel" style="width:100%;margin-bottom:4px;">
+                <option value="">Elenco Tabelle</option>
+                <option value="SELECT * FROM TaskItems">Tasks</option>
+                <option value="SELECT * FROM UserTasks">Task Utenti</option>
+                <option value="SELECT * FROM Documents">Documenti</option>
+                <option value="SELECT * FROM DocumentFields WHERE ">Metadati su Documenti</option>
+                <option value="SELECT * FROM DocumentPermissions WHERE ">Permessi su Documenti</option>
+                <option value="SELECT * FROM DocumentTypes">Tipologie</option>
+                <option value="SELECT * FROM DocumentTypeFields WHERE ">Metadati su Tipologie</option>
+                <option value="SELECT * FROM CustomFields">Metadati</option>
+                <option value="SELECT * FROM MailEntries">Messaggi EMails</option>
+                <option value="SELECT * FROM MailServers">Mail Servers</option>
+                <option value="SELECT * FROM MailBoxes">Mailboxes</option>
+                <option value="SELECT * FROM LookupTables">Tabelle</option>
+                <option value="SELECT * FROM Users">Utenti</option>
+                <option value="SELECT * FROM Roles">Ruoli</option>
+                <option value="SELECT * FROM ACLPermissions">Permessi</option>
+                <option value="SELECT * FROM ACLs">ACL</option>
+                <option value="SELECT * FROM OrganizationNodes">Organigramma</option>
+                <option value="SELECT * FROM UserGroups">Utenti in Organigramma</option>
+                <option value="SELECT * FROM AppSettings">Impostazioni</option>
+                <option value="SELECT * FROM UserSettings">Impostazioni Utente</option>
+                <option value="SELECT * FROM CustomPages">Menu</option>
+            </select>
+            <textarea name="sql" id="sql"></textarea>
+            <span class="text-danger" asp-validation-for="sql"></span>
+            <label>Nr.Massimo Righe Restituite</label>
+            <input type="Number" name="rows" id="rows" min="0" value="100" />
+    </div>
+
+        <div class="form-group">
+            <button class="btn btn-primary" type="button" onclick="return EsecuteSQL()" >Esegui</button>
+        </div>
+        <h3>Risultato</h3>
+        <div class="Panel Files" id="results">
+        </div>
+
+</div>
+

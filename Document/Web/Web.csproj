@@ -1,0 +1,330 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..\..\Core</DockerfileContext>
+    <UserSecretsId>c3c443ad-a557-492f-93fe-8541449d02e5</UserSecretsId>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <Content Include="Constant\Labels.cs" />
+    <Content Include="Views\Tasks2\Task.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Apps\**\*" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="wwwroot\images\**\*" CopyToOutputDirectory="PreserveNewest" />
+    <None Remove="Views\Organigramma\operations.js" />
+    <None Remove="Views\Tasks2\Task.html" />
+    <None Include="Pages\Shared\Components\CustomizeLeftPanel\Default.cshtml.cs" />
+    <None Include="wwwroot\adminjs\DbEsterni\EditType.js" />
+    <None Include="wwwroot\bootstrap-italia\assets\upload-drag-drop-icon.svg" />
+    <None Include="wwwroot\bootstrap-italia\bootstrap-italia-comuni.js" />
+    <None Include="wwwroot\bootstrap-italia\bootstrap-italia.esm.js" />
+    <None Include="wwwroot\bootstrap-italia\bootstrap-italia.esm.js.map" />
+    <None Include="wwwroot\bootstrap-italia\css\bootstrap-italia.min.css.map" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Lora\lora-v20-latin-ext_latin-700.svg" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Lora\lora-v20-latin-ext_latin-700.woff2" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Lora\lora-v20-latin-ext_latin-700italic.svg" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Lora\lora-v20-latin-ext_latin-700italic.woff2" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Lora\lora-v20-latin-ext_latin-italic.svg" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Lora\lora-v20-latin-ext_latin-italic.woff2" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Lora\lora-v20-latin-ext_latin-regular.svg" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Lora\lora-v20-latin-ext_latin-regular.woff2" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Roboto_Mono\roboto-mono-v13-latin-ext_latin-700.svg" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Roboto_Mono\roboto-mono-v13-latin-ext_latin-700.woff2" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Roboto_Mono\roboto-mono-v13-latin-ext_latin-700italic.svg" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Roboto_Mono\roboto-mono-v13-latin-ext_latin-700italic.woff2" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Roboto_Mono\roboto-mono-v13-latin-ext_latin-italic.svg" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Roboto_Mono\roboto-mono-v13-latin-ext_latin-italic.woff2" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Roboto_Mono\roboto-mono-v13-latin-ext_latin-regular.svg" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Roboto_Mono\roboto-mono-v13-latin-ext_latin-regular.woff2" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Titillium_Web\titillium-web-v10-latin-ext_latin-300.svg" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Titillium_Web\titillium-web-v10-latin-ext_latin-300italic.svg" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Titillium_Web\titillium-web-v10-latin-ext_latin-600.svg" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Titillium_Web\titillium-web-v10-latin-ext_latin-600italic.svg" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Titillium_Web\titillium-web-v10-latin-ext_latin-700.svg" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Titillium_Web\titillium-web-v10-latin-ext_latin-700italic.svg" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Titillium_Web\titillium-web-v10-latin-ext_latin-italic.svg" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Titillium_Web\titillium-web-v10-latin-ext_latin-regular.svg" />
+    <None Include="wwwroot\bootstrap-italia\js\bootstrap-italia.bundle.min.js" />
+    <None Include="wwwroot\bootstrap-italia\js\bootstrap-italia.min.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\accordion.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\accordion.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\alert.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\alert.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\backToTop.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\backToTop.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\button.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\button.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\carousel-bi.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\carousel-bi.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\carousel.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\carousel.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\collapse.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\collapse.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\cookiebar.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\cookiebar.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\dimmer.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\dimmer.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\dropdown.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\dropdown.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\fonts-loader.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\fonts-loader.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\form-validate.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\form-validate.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\forward.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\forward.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\header-sticky.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\header-sticky.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\history-back.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\history-back.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\init.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\init.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\input-label.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\input-label.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\input-number.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\input-number.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\input-password.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\input-password.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\input-search-autocomplete.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\input-search-autocomplete.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\input.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\input.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\list.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\list.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\masonry.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\masonry.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\modal.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\modal.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\navbar-collapsible.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\navbar-collapsible.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\navscroll.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\navscroll.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\notification.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\notification.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\offcanvas.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\offcanvas.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\popover.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\popover.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\progress-donut.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\progress-donut.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\scrollspy.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\scrollspy.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\select-autocomplete.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\select-autocomplete.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\sticky.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\sticky.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\tab.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\tab.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\toast.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\toast.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\tooltip.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\tooltip.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\track-focus.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\track-focus.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\transfer.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\transfer.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\upload-dragdrop.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\upload-dragdrop.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\util\device.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\util\device.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\util\dom.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\util\dom.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\util\observer.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\util\observer.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\util\on-document-scroll.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\util\on-document-scroll.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\util\pageScroll.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\util\pageScroll.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\util\tween.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\util\tween.js.map" />
+    <None Include="wwwroot\bootstrap-italia\svg\sprites.svg" />
+    <None Include="wwwroot\bootstrap-italia\version.js" />
+    <None Include="wwwroot\bootstrap-italia\version.js.map" />
+    <None Include="wwwroot\components\data-entry\input\date.js" />
+    <None Include="wwwroot\components\data-entry\input\lookup.js" />
+    <None Include="wwwroot\components\data-entry\input\select.js" />
+    <None Include="wwwroot\components\data-entry\input\text.js" />
+    <None Include="wwwroot\js\bpmn.io\bpmn-viewer - Copia.production.min.js" />
+    <None Include="wwwroot\js\bpmn.io\bpmn-viewer.production.min.js" />
+    <None Include="wwwroot\js\bpmn.io\dmn-viewer.production.min.js" />
+    <None Include="wwwroot\js\bpmn.io\form-editor.umd.js" />
+    <None Include="wwwroot\js\bpmn.io\form-viewer.umd.js" />
+    <None Include="wwwroot\js\explorer\Columns.js" />
+    <None Include="wwwroot\js\NotificationWorker.js" />
+    <None Include="wwwroot\js\SignaturePAD\signature_pad.min.js" />
+    <None Include="wwwroot\js\SignaturePAD\smartcrop.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.59" />
+    <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.3.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <TreatAsUsed>true</TreatAsUsed>
+    </PackageReference>
+    <PackageReference Include="Net.Codecrete.QrCodeGenerator" Version="2.0.4" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="appsettings.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="appsettings.Production.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Pages\RemoteSign\Monitor.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Pages\Shared\Components\QueryExplorer\Default.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Views\Utenti\Email.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\adminjs\customProperties\%24%24d.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\adminjs\customProperties\%24%24i.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\adminjs\customProperties\%24%24p.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\adminjs\customProperties\%24%24t.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\adminjs\customProperties\%24db.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\adminjs\customProperties\%24ra.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\adminjs\customProperties\%24tb.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\adminjs\customProperties\NotFound.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\download\OpenDMSClient.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\favicon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\templates\events\Document.AddAttach.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\templates\events\Document.AddAttachment.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\templates\events\UserTask.Request.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\templates\events\Document.AddVersion.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\templates\events\Document.AddRevision.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\templates\forms\Empty (HTML).html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\templates\NewTemplate.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\templates\NewForm.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\templates\NewDMN.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\templates\NewProcess.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\templates\process\BPMN_CustomActions.bpmn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\templates\process\BPMN_Documentale.bpmn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\templates\process\BPMN_Manuale.bpmn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\templates\dmn\Default.dmn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\templates\events\Document.View.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\templates\events\Event.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\templates\events\Default.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\templates\events\Document.AddDigitalSignature.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\templates\events\UserTask.Approve.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\templates\forms\Default (HTML).html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\templates\forms\Default (FormJS).form">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="AdminControllers\" />
+    <Folder Include="Apps\" />
+    <Folder Include="Log\" />
+    <Folder Include="Pages\Shared\Components\BarcodeRecognition\" />
+    <Folder Include="Pages\Shared\Components\Template\" />
+    <Folder Include="Views\Shared\Components\" />
+    <Folder Include="wwwroot\download\" />
+    <Folder Include="wwwroot\templates\templates\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\lib\dropzone\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\Library\Elmi.Core.FileTypes\Elmi.Core.FileConverters.csproj" />
+    <ProjectReference Include="..\..\Core\OpenDMS.CustomPages\OpenDMS.CustomPages.csproj" />
+    <ProjectReference Include="..\..\Core\OpenDMS.Core.Lucene\OpenDMS.Core.LuceneIndexer.csproj" />
+    <ProjectReference Include="..\..\Core\OpenDMS.Core\OpenDMS.Core.csproj" />
+    <ProjectReference Include="..\..\Core\OpenDMS.Domain\OpenDMS.Domain.csproj" />
+    <ProjectReference Include="..\..\Core\OpenDMS.Infrastructure.Database\OpenDMS.Infrastructure.Database.csproj" />
+    <ProjectReference Include="..\..\Core\OpenDMS.Infrastructure.Services\OpenDMS.Infrastructure.Services.csproj" />
+    <ProjectReference Include="..\..\Core\OpenDMS.Startup\OpenDMS.Startup.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Pages\Shared\Components\TaskItem\Default.cshtml" />
+  </ItemGroup>
+
+</Project>

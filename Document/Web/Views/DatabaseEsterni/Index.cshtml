@@ -1,0 +1,163 @@
+﻿@using Microsoft.Extensions.Configuration;
+@using Web.Model.Admin;
+@inject IConfiguration Configuration
+@model DatabaseEsterniViewModel
+@{
+    ViewData["Title"] = "Database Esterni";
+    Layout = "_AdminLayout";
+}
+
+<script src="~/adminjs/DbEsterni/EditType.js"></script>
+
+<script>
+    var PopupWindow = undefined;
+//    var host = "@Model.endpoint";
+//    var token = "@Model.token";
+
+    $(document).ready(() => {
+        $(".mnuAdminDatabaseEsterni").addClass("active");
+    });
+
+</script>
+
+@section HeaderTitle
+    {
+    Database Esterni
+}
+
+<div id="Message_Target"></div>
+<div class="Page">
+    <div class="ListMenu InsidePanel">
+        <div class="Content">
+            <input type="text" onkeyup="FilterTypes(this)" placeholder="Filtra...">
+
+        </div>
+        <div class="Panel">
+            <div class="List">
+            </div>
+        </div>
+    </div>
+
+    <div class="Panel" data-bind="with: Current">
+
+
+        <div class="alert alert-success alert-dismissible fade show bg-white mt-2" id="successMessage" style="display: none;">
+            <strong>Dati salvati correttamente</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Chiudi avviso">
+                <i class="fs-3 fa fa-xl fa-trash-o"></i>
+            </button>
+        </div>
+
+        <div data-bind="visible: $root.SelectedtypesValue" class="header mt-4" style="display: none;">
+            <h2>
+                <span data-bind="text: name"></span>
+                <button class="pull-right btn btn-primary" data-bind="click: $root.Save, visible: $root.SelectedtypesValue">Memorizza</button>
+                <button class="pull-right btn btn-link" data-bind="click: $root.Remove, visible: $root.SelectedtypesValue() &amp;&amp; !$root.SelectedtypesValue().startsWith('$')">
+                    <i class="fs-3 fa fa-xl fa-trash-o"></i>
+                </button>
+            </h2>
+            <small>#ID: <span data-bind="text: id"></span></small>
+        </div>
+
+        <div data-bind="visible: !$root.SelectedtypesValue()" class="header mt-4">
+            <h2>
+                <span>Nuovo collegamento a database</span>
+                <button class="pull-right btn btn-primary" data-bind="visible: !$root.SelectedtypesValue(), click: $root.Create">Salva la configurazione</button>
+            </h2>
+            <small>Definisce una nuova fonte dati da utilizzare nei metadati</small>
+        </div>
+
+        <div class="Panel">
+
+            <div class="row" data-bind="visible: !$root.SelectedtypesValue()">
+                <div class="col-5">
+                    <label class="active" for="name"><strong>Identificativo Univoco</strong></label>
+                    <input type="text" class="required span12" data-bind="value: id, uniqueName: true" id="id" name="ko_unique_2">
+                </div>
+                <div class="col-7">
+                    <label class="active" for="name">Nome Descrittivo</label>
+                    <input type="text" class="required span12" data-bind="value: name, uniqueName: true" id="name" name="ko_unique_1">
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-12">
+                    <label for="driver">Driver</label>
+                    <div class="select-wrapper">
+                        <select data-bind="options: $root.Driver, optionsText: 'Descrizione', optionsValue: 'Codice', value: driver, click: $root.Preselect" id="driver"><option value="System.Data.SqlClient">Microsoft SQL Server Nativo</option><option value="System.Data.Mysql">MySql</option><option value="System.Data.OracleClient">Oracle</option><option value="npgsql">PostgreSQL</option><option value="System.Data.OleDb">Microsoft OLE DB</option><option value="System.Data.Odbc">ODBC</option><option value="Sap.Data.Hana">SAP HANA</option></select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" data-bind="visible: driver()=='System.Data.OleDb'" style="display: none;">
+                <div class="col-12">
+                    <label for="provider">Provider OLEDB</label>
+                    <input type="text" class="required span12" data-bind="value: provider, uniqueName: true" id="provider" name="ko_unique_2">
+                </div>
+            </div>
+            <div class ="row" data-bind="visible: $root.Database() > 0 ||  $root.SelectedtypesValue" style="display: none;">
+                <label for="connection">Stringa di Connessione</label>
+                <span class="col-12">
+                    <textarea rows="2" maxlength="128" data-bind="value: connection, uniqueName: true" id="connection" name="ko_unique_3"></textarea>
+                </span>
+            </div>
+            <div class="row">
+                <div class="col-5" data-bind="visible: $root.Database() > 0 ||  $root.SelectedtypesValue" style="display: none;">
+                    <label for="username">Username</label>
+                    <div>
+                        <input type="text" class="required span6" data-bind="value: userName, uniqueName: true" id="username" name="ko_unique_4">
+                    </div>
+                </div>
+                <div class="col-5" data-bind="visible: $root.Database() > 0 ||  $root.SelectedtypesValue" style="display: none;">
+                    <label for="password">Password</label>
+                    <div>
+                        <input type="password" class="required span6" data-bind="value: password, uniqueName: true" id="password" name="ko_unique_5">
+                    </div>
+                </div>
+                <div class="col-2" data-bind="visible: $root.Database() > 0 ||  $root.SelectedtypesValue" style="display: none;">
+                    <label for="test">%nbsp;</label>
+                    <div>
+                        <button class="btn btn-xs btn-outline-primary w-100" type="button" data-bind="visible: $root.SelectedtypesValue, click: $root.Test" id="test">Test</button>
+                    </div>
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+</div>
+
+
+
+
+<script language="javascript" type="text/javascript">
+    var model;
+    $("#liadmin-database").addClass("active");
+    function FilterTypes(me) {
+        var v = $(me).val().toLowerCase();
+        var l = $(".List a");
+        $(l).each(function (i, e) {
+            var ok = $(e).find("span, sub").text().toLowerCase().indexOf(v) >= 0 || i == 0;
+            if (!ok)
+                $(e).parent().css("display", "none");
+            else
+                $(e).parent().css("display", "");
+        });
+    }
+    function Refresh() {
+        model.Refresh();
+    }
+
+
+
+    $(document).ready(function () {
+        //$('#spylist').scrollspy();
+        model = new viewModel("#view");
+        ko.applyBindings(model, $("#view")[0]);
+    });
+</script>

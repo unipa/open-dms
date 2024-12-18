@@ -1,0 +1,12 @@
+{
+  "components": [],
+  "schemaVersion": 7,
+  "exporter": {
+    "name": "Foo Editor",
+    "version": "1.0.0"
+  },
+  "type": "default",
+  "id": "Form_1v99ha5",
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.16.0"
+}

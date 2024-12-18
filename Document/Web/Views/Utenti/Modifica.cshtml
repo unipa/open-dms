@@ -1,0 +1,137 @@
+﻿@using Microsoft.Extensions.Configuration
+@using OpenDMS.Domain.Entities;
+@using Web.DTOs;
+@model UserDetails_DTO
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "Amministrazione - Utenti";
+    Layout = "_CustomizeLayoutAdmin";
+    string uid = ViewBag.id;
+}
+
+
+
+<script>
+
+    $(document).ready(function () {
+        $(function () {
+
+            //Per aggiungere e togliere la classe Active agli elementi della lista laterale
+            Carica("liCustomize-ProfiloUtente");
+
+            //codice per far svanire i messaggi di successo
+            //FadeOutSuccessMessagge(3000);
+
+        });
+    })
+</script>
+<form id="form_profilo_utente" action="/Admin/Utenti/@ViewBag.id/Modifica" method="post" class="MainPanel">
+    <input type="hidden" name="id" value="@ViewBag.id">
+
+    <div class="Header">
+        <a href="/Admin/Utenti/@ViewBag.id/Info" class="Desktop"> <i class="fa fa-arrow-left"></i></a>
+        <h1>
+            <small>Modifica</small>
+            <span>Dati Anagrafici</span>
+        </h1>
+        <div class="right-header">
+        </div>
+    </div>
+    <div class="Panel">
+        <div id="Message_Target"></div>
+        @if (String.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            @*Banca Dati & Homepage & Profiles*@
+            <div class="Row">
+                <label class="active" for="FullName">Nome Utente</label>
+                <input required name="FullName" type="text" value="@Model.FullName" id="FullName">
+            </div>
+
+            <h3>Notifiche</h3>
+            <div class="Row">
+                <label class="active" for="NotificationType">Modalità Ricezione</label>
+                <select asp-for="@Model.NotificationType" name="NotificationType" id="NotificationType" style="background-color: #eee;width:100%">
+                    <option selected="selected" value="">Impostazione Globale</option>
+                    <option selected="selected" value="NO">Nessuna</option>
+                    <option value="MAIL">Email</option>
+                </select>
+            </div>
+            <div class="Row">
+                <label class="active" for="NotificationMailAddress">Email Invio/Ricezione</label>
+                <select asp-items="@Model.EmailAddresses" asp-for="@Model.NotificationMailAddress" name="NotificationMailAddress" id="NotificationMailAddress" style="background-color: #eee;width:100%;">
+                    <option selected="selected" value="">Nessuna</option>
+                </select>
+            </div>
+
+
+            <h3>Dati Anagrafici</h3>
+
+
+            <div class="Row">
+                <label class="active" for="SurName">Cognome</label>
+                <input name="SurName" readonly type="text" value="@Model.SurName" id="SurName">
+            </div>
+
+            <div class="Row">
+                <label class="active" for="FirstName">Nome</label>
+                <input name="FirstName" readonly type="text" value="@Model.FirstName" id="FirstName">
+            </div>
+            <div class="Row">
+                <label class="active" for="BirthDate">Data di Nascita</label>
+                <input name="BirthDate" type="hidden" value="@Model.BirthDate" />
+                <span id="BirthDate" class="input" name="BirthDate">@Model.BirthDate</span>
+            </div>
+            <div class="Row">
+                <label class="active" for="FiscalCode">Codice Fiscale</label>
+                <input name="FiscalCode" readonly type="text" value="@Model.FiscalCode">
+            </div>
+
+            <div class="Row">
+                <label class="active" for="Country">Sigla Nazione</label>
+                <input name="Country" type="text" readonly minlength="2" maxlength="2" value="@Model.Country" id="Country">
+            </div>
+
+            @if (Model.Settings.Count > 0)
+            {
+                <h3>Altre Informazioni</h3>
+                @foreach (var M in Model.Settings)
+                {
+                    <div class="Row">
+                        <label class="active">@M.Key</label>
+                        <input type="text" value="@M.Value">
+                    </div>
+
+                }
+            }
+            @*             <div class="Row">
+        <label class="active" for="IdentityDocumentType">Tipo Documento</label>
+        <select asp-for="@Model.IdentityDocumentType" name="IdentityDocumentType" id="IdentityDocumentType" style="background-color: #eee;width:100%">
+        <option selected="selected" value="">Nessuno</option>
+        <option value="TIN">Codice Fiscale</option>
+        <option value="PAS">Passaporto</option>
+        <option value="IDC">Documento di Identità</option>
+        <option value="VAT">Partita IVA</option>
+        <option value="NTR">Registrazione Camera di Commercio</option>
+        </select>
+        </div>
+
+        <div class="Row">
+        <label class="active" for="IdentityDocumentId">Numero documento</label>
+        <input name="IdentityDocumentId" type="text" value="@Model.IdentityDocumentId" id="IdentityDocumentId">
+        </div>
+        *@
+
+            <div class="mt-2">
+                <button class="btn btn-primary" type="submit"><i class="fa fa-save"></i> Memorizza</button>
+                <a href="/Admin/Utenti/@ViewBag.id/Info" class="btn btn-secondary">
+                    Annulla
+                </a>
+            </div>
+        }
+    </div>
+</form>
+
+
+
+
+

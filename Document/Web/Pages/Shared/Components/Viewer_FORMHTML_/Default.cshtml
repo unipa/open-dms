@@ -1,0 +1,172 @@
+﻿@using OpenDMS.Core.DTOs;
+@inject IConfiguration config
+@model IndexModel
+
+
+@if (Model != null)
+{
+    <div class="nav-toolbar-container MainToolbar">
+        <ul class="nav nav-toolbar">
+            @if (Model.CanAddContent)
+            {
+                <li class="">
+                    <a class="dropdown-item" onclick="return AddFile(@Model.DocumentId)" href="#">
+                        <i class="fa fa-upload"></i>
+                        <span>Carica</span>
+                    </a>
+                </li>
+            }
+
+            @if (Model.Document.Image != null)
+            {
+                <li class="btnDownload"><a onclick="return Download(@Model.DocumentId, '')" class="dropdown-item" href="#"><i class="fa fa-download"></i> Scarica...</a></li>
+                @if (Model.CanAddContent)
+                {
+                    <li id="tbEditContent"><a href="#" onclick="ShowEditor()"><i class="fa fa-edit"></i> Modifica HTML</a></li>
+                    <li id="tbSaveContent" class="hidden"><a href="#" onclick="SaveEditor()"><i class="fa fa-save"></i> Memorizza</a></li>
+                    <li id="tbUndoContent" class="hidden"><a href="#" onclick="HideEditor()"><i class="fa fa-undo"></i> Annulla</a></li>
+                }
+            }
+        </ul>
+        <label class="PreviewDocumentName"></label>
+        <ul class="nav nav-toolbar">
+            <li class="Mobile" id="tbZoomIn"><a href="#" onclick="Zoom(-1)" title="Ingrandisci"><i class="fa fa-plus"></i></a></li>
+            <li class="Mobile"><span id="tbZoomValue">100%</span></li>
+            <li class="Mobile" id="tbZoomOut"><a href="#" onclick="Zoom(+1)" title="Riduci"><i class="fa fa-minus"></i></a></li>
+            <li class="Mobile" id="tbZoomWidth"><a href="#" onclick="Zoom(+3)" title="Adatta alla larghezza dello schermo"><i class="fa fa-file-o"></i></a></li>
+        </ul>
+    </div>
+    <div class="Page">
+        <container class="Background" style="overflow-y: auto;width:100%">
+            <div class="HTMLFormPage PreviewPanel">
+                <div>
+                    <h1>Caricamento in corso...</h1>
+                </div>
+            </div>
+            <div class="ErrorPanel" style="display:none">
+                <h1>Si è verificato un errore durante l'estrazione del file</h1>
+                <p class="ErrorMessage"></p>
+            </div>
+        </container>
+        <textarea id="editor" class="editor EditorPanel hidden" onkeyup="UpdatePreview()"></textarea>
+    </div>
+}
+else
+{
+
+}
+
+@* <script src="https://cdn.jsdelivr.net/npm/monaco-editor@latest/min/vs/loader.js"></script> *@
+<script>
+
+    function ShowEditor(){
+        $("#tbEditContent").addClass("hidden");
+        $("#tbSaveContent").removeClass("hidden");
+        $("#tbUndoContent").removeClass("hidden");
+
+        $(".EditorPanel").removeClass("hidden");
+        var html = $(".PreviewPanel").html();//.replace(/\n/ig,"<br/>");
+        $(".EditorPanel").text(html);
+
+    }
+    function SaveEditor(){
+        //TODO: salvare il form
+        var VerificationCode = "";
+        var RequestVerificationCode = document.getElementsByName("__RequestVerificationToken");
+        if (RequestVerificationCode.length > 0) {
+            VerificationCode = RequestVerificationCode[0].value;
+        }
+
+        $(".EditorPanel").removeClass("hidden");
+        var html = $(".EditorPanel").val();
+        html = unescape(encodeURIComponent(html));
+        fetch("/internalapi/action/UploadFile",
+        {
+            method: 'post',
+            headers: {
+                RequestVerificationToken: VerificationCode,
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+            },
+            body: JSON.stringify({
+                documentId: @Model.DocumentId,
+                filename: "@Model.Document.Image.FileName",
+                data: btoa(html)
+                })
+        })
+        .then(response => {
+            return response.json();
+        })
+        .then(data => {
+            HideEditor();
+        });
+    }
+
+    function HideEditor() {
+        $(".EditorPanel").addClass("hidden")
+        $("#tbEditContent").removeClass("hidden");
+        $("#tbSaveContent").addClass("hidden");
+        $("#tbUndoContent").addClass("hidden");
+        window.location.reload();
+        //var html = $(".PreviewPanel").html();
+        //$(".EditorPanel").text(html);
+    }
+
+    var previewtimer = undefined;
+    function UpdatePreview()
+    {
+        if (previewtimer) window.clearTimeout(previewtimer);
+        previewtimer = window.setTimeout(() => {
+            var html = $(".PreviewPanel").html();
+            var newhtml = $(".EditorPanel").val();
+            if (html != newhtml)
+                $(".PreviewPanel").html(newhtml);
+            previewtimer = undefined;
+        }, 125)
+    }
+
+    var zoomFactor = 1;
+    function Zoom(factor) {
+        var panel = $(".PreviewPanel");
+        if (factor == 2) // larghezza
+            zoomFactor = .13348388671875;
+        else
+            if (factor == 3) // altezza
+                zoomFactor = 1;
+            else
+                zoomFactor = zoomFactor * (factor > 0 ? 3 / 4 : 4 / 3);
+        panel.css("zoom", zoomFactor);
+        $("#tbZoomValue").html(" " + Math.trunc(zoomFactor * 100) + "% ");
+
+    }
+
+    $(document).ready(() => {
+
+        const imageId = @Model.Document.Image.Id;
+        const imageViewer = document.querySelector('.PreviewPanel');
+
+        fetch("/internalapi/preview/GetText/" + imageId)
+            .then((response) => { if (!response.ok) return response.text().then(text => { throw new Error(text) }); else return response.text() })
+            .then((data) => {
+                imageViewer.innerHTML = data;
+                $(imageViewer).find("*").attr("disabled", "disabled");
+                $(imageViewer).find("*").attr("readony", "readony");
+            })
+            .catch(error => {
+                $(".PreviewPanel").hide();
+                $(".ErrorMessage").text(error.message);
+                $(".ErrorPanel").show();
+            });
+    });
+    function UpdatePreviews(value)
+    {
+        if (previewtimer) window.clearTimeout(previewtimer);
+        previewtimer = window.setTimeout(() => {
+            var html = $(".PreviewPanel").html();
+            if (html != value)
+                $(".PreviewPanel").html(value);
+            previewtimer = undefined;
+        }, 125)
+    }
+
+</script>

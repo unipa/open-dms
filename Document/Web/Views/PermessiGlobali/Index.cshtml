@@ -1,0 +1,124 @@
+﻿@model PermessiGlobaliViewModel;
+@using Microsoft.Extensions.Configuration
+@using OpenDMS.Domain.Constants;
+@using OpenDMS.Domain.Enumerators;
+@using Web.Model.Admin;
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@inject IConfiguration Configuration
+@{
+    ViewData["Title"] = "Permessi Applicativi";
+    Layout = "_AdminLayout";
+}
+
+
+
+<script>
+
+    $(document).ready(function () {
+
+        $(".mnuAdminPermessiGlobali").addClass("active");
+
+        $('.Authorization').change(function () {
+            // Ottenere l'id del selettore
+            var id = $(this).attr("id");
+            // Invia il form
+            $("#form_" + id).submit();
+        });
+
+        //codice per far svanire i messaggi di successo
+        FadeOutSuccessMessagge(3000);
+
+        if (`@Model.ErrorMessage` !== '') ShowMessage('alert', `@Html.Raw(Model.ErrorMessage)`, 'Message_Target', '/Admin/PermessiGlobali/Index');
+        if (`@Model.SuccessMessage` !== '') ShowMessage('success', `@Html.Raw(Model.SuccessMessage)`, 'Message_Target', null);
+
+
+
+
+    })
+
+    function EliminaAutorizzazione(href, ProfileId, Permesso) {
+        Confirm("Stai per cancellare questa Autorizzazione: " + ProfileId + " - " + Permesso, "Message_Target", function () {
+            window.location = href;
+        }, null);
+    }
+
+</script>
+
+<script type="module" src="~/components/data-entry/data-entry.js"></script>
+
+@section HeaderTitle
+    {
+    Permessi Applicativi
+}
+
+<div class="MainPanel">
+        <div class="MainPanel col-12 ps-4 pt-2 backgroundMenu border-start px-4 d-flex flex-column">
+            <div id="Message_Target"></div>
+            <div class="header mt-4">
+                <h2>
+                    Permessi Globali
+                    <a href="/Admin/PermessiGlobali/Index" class="btn-link pull-right">
+                        <i class="fs-3 fa fa-xl fa-undo"></i>
+                    </a>
+                </h2>
+            </div>
+
+            <div class="border rounded border-primary border-2 my-2  table-overflow-y bg-white MainPanel">
+                <table class="table table-responsive table-condensed table-hover row-fluid">
+                    <thead>
+                        <tr>
+                            <th style="width:50%">Profilo</th>
+                            <th nowrap style="min-width:80px">Tipo</th>
+                            <th style="width:50%">Permesso</th>
+                            <th nowrap style="min-width:130px">Autorizzazione</th>
+                            <th nowrap style="width:20px"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <form asp-controller="PermessiGlobali" asp-action="AggiungiAutorizzazione">
+
+                        <tr>
+                            <td colspan="2">
+                                <input id="ProfileId"
+                                        name="ProfileId"
+                                        type="lookup"
+                                        value=""
+                                        tableId="$ug"
+                                        tag="false"
+                                        visible="true"
+                                        required
+                                        placeholder="Scegli un utente/ruolo/struttura..." />
+                            </td>
+                            <td>
+                                <select name="PermissionId" required id="defaultSelect2" asp-items="@((List<SelectListItem>)ViewBag.PermessiList)"></select>
+                            </td>
+                            <td class="select-wrapper">
+                                <select name="Authorization" required id="defaultSelect3" >
+                                    <option value=1>Concesso</option>
+                                    <option value=2>Negato</option>
+                                </select>
+                            </td>
+                            <td>
+                                <button type="submit" style="width:100%" class="btn btn-xs btn-primary">
+                                <i class="fa fa-plus"></i>
+                                    </button>
+                            </td>
+                        </tr>
+
+                     </form>
+                                @{
+                            for (int i = 0; i < Model.Authorizations.Count; i++)
+                            {
+                                if (Model.Authorizations[i].Authorization != AuthorizationType.None)
+                                {
+                                    //richiama la view in Shared/EditorTemplates/{nome del viewmodel}.cshtml(in questo caso: "ACLPermission_DTO.cshtml")
+                                    @Html.EditorFor(model => model.Authorizations[i],null,null,new { index=i, isGlobal = "Globali"})
+                                    ;
+                                }
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+</div>

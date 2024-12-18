@@ -1,0 +1,47 @@
+﻿@model DocumentTypeWorkflow_DTO
+@using Microsoft.Extensions.Configuration
+@using Web.Model.Admin;
+@inject IConfiguration Configuration
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    var guid = Guid.NewGuid();
+}
+
+<tr class="rigaricerca">
+    @if ((ViewData["TypeId"] ?? "").Equals("ALL"))
+    {
+        <td>
+            <label>
+            @Model.DocumentTypeName
+            </label>
+        </td>
+    }
+    <td>
+        <input type="hidden" name="EventId" id="EventId" value="@Model.EventName" /> @Model.EventDescription.Replace("Document.", "")
+    </td>
+
+    <td class="select-wrapper">
+        <select asp-for="@Model.ProcessKey" asp-items="@Model.ProcessList" name="ProcessKey" class="InputProcessId" id="ProcessKey" DocumentTypeId="@Model.DocumentTypeId" EventName="@Model.EventName" EventDescription="@Model.EventDescription" Query="@ViewData["TypeId"]">
+            @*<option value="new" DocumentTypeId="@Model.DocumentTypeId" EventName="@Model.EventName" Query="@ViewData["TypeId"]">Crea Nuovo</option>*@
+        </select>
+    </td>
+
+    <td>
+        <div style="float:right">
+            <!-- 
+                <a href="#" onclick="ModificaWorkflow('@Model.ProcessKey')" class="btn-link" style="text-decoration: none;">
+                    <button class="mt-2" type="button" style="border:none; background-color: transparent;" id="btnEdit">
+                        <i class="fs-5 fa fa-pencil"></i>
+                    </button>
+                </a>
+            -->
+
+            <a href="#" onclick="ConfermaEliminaModal({TypeId : '@Model.DocumentTypeId' , EventName : '@Model.EventName' , Query : '@ViewData["TypeId"]'})" class="btn-link" style="text-decoration: none;">
+                <button class="mt-2" type="button" style="border:none; background-color: transparent" id="btnDelete">
+                    <i class="fs-5 fa fa-trash-o"></i>
+                </button>
+            </a>
+        </div>
+    </td>
+</tr>

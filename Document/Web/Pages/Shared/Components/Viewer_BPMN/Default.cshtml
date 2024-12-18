@@ -1,0 +1,288 @@
+﻿@using OpenDMS.Core.DTOs;
+@inject IConfiguration config
+@model IndexModel
+
+<link rel="stylesheet" href="https://unpkg.com/bpmn-js@13.2.2/dist/assets/bpmn-js.css">
+
+  <style>
+    .bjs-powered-by
+    {
+        display:none;
+    }
+  </style>
+
+<div class="Page">
+    @if (Model != null)
+    {
+        <iframe frameborder="0" class=" CheckOut hidden MainPanel"></iframe>
+        <div class="Preview Page">
+            <div class="MainPanel">
+                <div class="nav-toolbar-container MainToolbar">
+                    <ul class="nav nav-toolbar">
+                        @if (Model.CanAddContent)
+                        {
+                            <li class="">
+                                <a class="dropdown-item" onclick="return AddFile(@Model.DocumentId)" href="#">
+                                    <i class="fa fa-upload"></i>
+                                    <span>Carica</span>
+                                </a>
+                            </li>
+                        }
+                        @if (Model.CanViewContent && Model.Document.Image != null)
+                        {
+                            <li class="btnDownload"><a onclick="return Download(@Model.DocumentId, '')" class="dropdown-item" href="#"><i class="fa fa-download"></i> Scarica...</a></li>
+                        }
+                        @if (Model.CanAddContent && Model.Document.Image != null)
+                        {
+                            <li>
+                                <a href="#" role="button" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Modifica il flusso"><i class="fa fa-sitemap"></i> Modifica<span class="fa fa-caret-down"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li id="tbEdit"><a href="#" onclick="return CheckOutBPMN(0)"><i class="fa fa-pencil-square"></i> Modifica con il Modeler Integrato</a></li>
+                                    <li id="tbEdit2"><a href="#" onclick="return CheckOutBPMN(1)"><i class="fa fa-pencil-square"></i> Modifica con un Modeler presente sul tuo dispositivo</a></li>
+                                </ul>
+                            </li>
+                        }
+                    </ul>
+                    <ul class="nav nav-toolbar">
+                        @if (Model.CanDeploy && Model.Document.Image != null && Model.Document.Image.SendingStatus != OpenDMS.Domain.Enumerators.JobStatus.Completed)
+                        {
+                            <li id="tbPublish"><a href="#" class="" onclick="return publish()"><i class="fa fa-cloud"></i> Pubblica...</a></li>
+                        }
+@*                  
+                        @if (Model.CanEdit && Model.Document.Image != null && Model.Document.DocumentType.Id == "$DIAGRAM$")
+                        {
+                            <li id="tbUsers"><a href="#" class="" onclick="return showUsers()" title="Elenco dei profili abilitati all'esecuzione"><i class="fa fa-users"></i> Esecutori</a></li>
+                        }
+ *@
+                    </ul>
+                    <ul class="nav nav-toolbar">
+                        <li class="Mobile" id="tbZoomIn"><a href="#" onclick="Zoom(-1)" title="Ingrandisci"><i class="fa fa-plus"></i></a></li>
+                        <li class="Mobile"><span id="tbZoomValue">100%</span></li>
+                        <li class="Mobile" id="tbZoomOut"><a href="#" onclick="Zoom(+1)" title="Riduci"><i class="fa fa-minus"></i></a></li>
+                        <li class="Mobile" id="tbZoomWidth"><a href="#" onclick="Zoom(+3)" title="Adatta alla larghezza dello schermo"><i class="fa fa-file-o"></i></a></li>
+                    </ul>
+                </div>
+                <div class="Panel">
+                    <container class="PreviewPanel Background">
+                        <div class="LoadingPanel">
+                            <h1>Caricamento in corso...</h1>
+                        </div>
+                        <div class="ErrorPanel" style="display:none">
+                            <h1>Si è verificato un errore durante l'estrazione del file</h1>
+                            <p class="ErrorMessage"></p>
+                        </div>
+                        <div class="canvas">
+                            <div id="js-canvas" ></div>
+                        </div>
+
+                    </container>
+                </div>
+                @if (Model.Document.Image != null)
+                {
+                    <div class="Bottom Mobile" style="border-top:1px solid #eee">
+                        <label><b>Versione: </b>@(Model.Document.Image.VersionNumber).@(Model.Document.Image.RevisionNumber.ToString("00"))</label>
+                        <label><b>Dimensione: </b> @Model.Document.Image.FileSize Bytes</label>
+                        <label><b>Pubblicazione: </b> @Model.Document.Image.SendingStatus @Model.Document.Image.SendingDate</label>
+                    </div>
+                }
+            </div>
+            <div id="UsersPanel" class="LeftPanel  AuthWFPanel hidden">
+                <div class="Header">
+                    <h1>
+                        <i class="fa fa-users"></i> Esecutori
+                    </h1>
+                    <a onclick="return closePanels()" class=""><i class="fa fa-times"></i></a>
+                </div>
+                <br />
+                <div class="nav-toolbar-container">
+                    <input type="lookup" tableId="$ug" id="profilo" tag="false" required="true" placeholder="digita un utente, ruolo o struttura..." />
+                    <button type="button" class="btn btn-primary" onclick="return AddAuth()">Aggiungi</button>
+                </div>
+                <h3>Profili Autorizzati</h3>
+                <div class="Panel">
+                    <div id="auths">
+                    </div>
+                </div>
+            </div>
+            <div id="InstancesPanel" class="LeftPanel AuthWFPanel hidden">
+                <div class="Header">
+                    <h1>
+                    <i class="fa fa-tasks"></i> Istanze Attive
+                </h1>
+                <a onclick="return closePanels()" class=""><i class="fa fa-times"></i></a>
+                </div>
+
+                <div class="Panel">
+                    <div id="auths">
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+
+    }
+
+</div>
+
+
+<script src="/js/bpmn.io/bpmn-viewer.production.min.js" type="module"></script>
+<xscript src="/js/bpmn.io/bpmn-modeler.production.min.js" type="module"></xscript>
+
+<script type="module" src="~/components/data-entry/data-entry.js"></script>
+
+<script type="text/html" id="RigaAutorizzazioni">
+    {{#Auths}}
+    <div class="Row">
+        <img class="avatar" src="/internalapi/identity/avatar/{{profile}}" />
+        <b>{{profileName}}</b>
+        <code>
+
+        <a href="#" onclick="return RemoveAuth('{{profile}}')" class="">
+            <i class="fa fa-trash-o"></i>
+        </a>
+        </code>
+    </div>
+    {{/Auths}}
+
+</script>
+
+<script>
+
+
+    $(document).ready(() => {
+
+        const imageId = @Model.Document.Image.Id;
+        const imageViewer = document.querySelector('.PreviewPanel');
+
+        Render();
+
+        fetch("/internalapi/preview/GetBase64/" + imageId)
+            .then((response) => { if (!response.ok) return response.text().then(text => { throw new Error(text) }); else return response.text() })
+            .then((data) => {
+                xml = atob(data);
+                var i = xml.indexOf("<elmi:");
+                while (i >=0)
+                {
+                    var j = xml.indexOf (" ", i);
+                    var taskname = xml.substr(i+1, j-i-1);
+                    xml = xml.replace(taskname, "bpmn:task");
+                    xml = xml.replace(taskname, "bpmn:task");
+                    i = xml.indexOf("<elmi:");
+                }
+                var viewer = new BpmnJS({
+                    container: $('#js-canvas'),
+                    keyboard: {
+                        bindTo: window
+                    },
+                    height: 4096,
+                    width: 4096
+                });
+                viewer.importXML(xml);
+                $(".LoadingPanel").hide();
+            })
+            .catch(error => {
+                $(".LoadingPanel").hide();
+                $(".ErrorMessage").text(error.message);
+                $(".ErrorPanel").show();
+            });
+    });
+
+    function showUsers() {
+        $("#UsersPanel").removeClass("hidden");
+        $("#InstancesPanel").addClass("hidden");
+    }
+    function showInstances(closed) {
+        $("#UsersPanel").addClass("hidden");
+        $("#InstancesPanel").removeClass("hidden");
+
+    }
+    function closePanels() {
+        $("#UsersPanel").addClass("hidden");
+        $("#InstancesPanel").addClass("hidden");
+
+    }
+
+    function CheckOutBPMN(type) {
+        if (type == 1)
+            CheckOut(@Model.DocumentId);
+        else {
+            var basepath = "@(config["Endpoint:BPMService"] ?? "")"// window.location.origin;
+
+            //var previewPanel = $(".Preview");
+            //previewPanel.addClass("hidden");
+            //var checkout = $(".CheckOut");
+            //checkout.removeClass("hidden");
+            window.open(basepath + "?id=@Model.DocumentId");
+        }
+        //checkout[0].src = "/bpm/" + editor + "?id=@Model.DocumentId";
+
+    }
+
+
+    function Render() {
+        fetch("/internalapi/wf/@Model.DocumentId")
+            .then((response) => { return response.json() })
+            .then((data) => {
+                var template = $("#RigaAutorizzazioni").html();
+                var html = Mustache.to_html(template, { Auths: data });
+                $("#auths").html(html);
+            })
+    }
+
+    function AddAuth() {
+        var p = $("#profilo").val();
+        fetch("/internalapi/wf/@Model.DocumentId/" + p, { method: "post" })
+            .then((response) => { return response.text() })
+            .then((data) => {
+                Render();
+            })
+    }
+
+    function RemoveAuth(profile) {
+        fetch("/internalapi/wf/@Model.DocumentId/" + profile, { method: "delete" })
+            .then((response) => { return response.text() })
+            .then((data) => {
+                Render();
+            })
+    }
+
+    function publish () {
+        fetch("/internalapi/wf/deploy/@Model.DocumentId")
+            .then((response) => { 
+                if (response.ok)   
+                    return response.text()
+                //else
+                //return response.text()
+                //throw new Error (response.text());
+                throw new Error (
+                         response.text()
+                         .then(txt => {
+                                alert(txt);
+                             })
+                     );
+            })
+            .then((data) => {
+                    window.location.reload();
+            });
+    }
+
+
+    var zoomFactor = 1;
+    function Zoom(factor) {
+        var panel = $(".PreviewPanel");
+        if (factor == 2) // larghezza
+            zoomFactor = .13348388671875;
+        else
+            if (factor == 3) // altezza
+                zoomFactor = 1;
+            else
+                zoomFactor = zoomFactor * (factor > 0 ? 3 / 4 : 4 / 3);
+        panel.css("zoom", zoomFactor);
+        $("#tbZoomValue").html(" " + Math.trunc(zoomFactor * 100) + "% ");
+
+    }
+
+
+</script>

@@ -1,0 +1,76 @@
+<div class="MainPanel">
+    <input type="hidden" document="documentDate" value="{{yyyy-MM-dd}}" />
+    <div style="display:flex;flex-direction:row;">
+        <div style="width:68%;">
+            <label class="active">Descrizione</label>
+            <span>
+                <input type="text"
+                       maxlength="255"
+                       name="Description"
+                       id="Description"
+                       document="description"
+                       required 
+                       onchange="return updateDescription()" />
+            </span>
+        </div>
+        <div style="width:30%;margin-left:2%;">
+            <label class="active">Identificativo Univoco</label>
+            <span>
+                <input type="text"
+                       name="ExternalId"
+                       id="ExternalId"
+                       document="externalId"
+                       required
+                        />
+            </span>
+        </div>
+    </div>
+
+    <!-- <h3>Modello</h3>
+    <div>
+        <input type="file" accept="*.html,*.docx,*.formjs" id="Preview" name="Preview" container-id="Preview_container" />
+        <a id="Preview_addButton" class="btn btn-outline-primary" href="#">
+            <i class="fa fa-upload"></i> Clicca qui per allegare uno o più file...
+        </a>
+        <div id="Preview_container" class="hidden">
+            <span class="label file hidden"><i class="fa fa-file-o"></i> <strong class="name"></strong> <span style="margin-left:10px" class="size">B</span></span>
+        </div>
+    </div> -->
+</div>
+<div class="Panel">
+
+</div>
+
+<script>
+
+function updateDescription()
+    {
+        if (!$("#ExternalId").val())
+        {
+            var id = $("#Description").val().replace(/ /ig,'');
+            $("#ExternalId").val(id);
+        }
+    }
+
+    function Start() {
+        // Questa funzione viene richiamata prima di renderizzare il form
+        // Può essere utilizzata per effettuare chiamate http e recuperare dati esterni
+        // o mostrare o nascondere informazioni in base al valore delle variabili.
+        ContentType = 6;
+    }
+
+
+    function Validate() {
+        // Questa funzione viene richiamata prima di salvare il form per validare i dati.
+        //
+        // Valore di ritorno:
+        // true  = Ok, prosegue con il salvataggio
+        // false = Annulla il salvataggio. La visualizzaizone di eventuali errori è a carico di questa funzione
+        // FileContent = $("#Preview").html();
+        // $("#Preview").html("");
+        // FileContentName = $(".name").text();
+        // return FileContent.length > 0;
+        return true;
+    }
+
+</script>

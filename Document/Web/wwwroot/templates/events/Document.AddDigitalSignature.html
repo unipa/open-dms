@@ -1,0 +1,124 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-16" />
+    <title></title>
+</head>
+<body>
+    <div class="">
+        <div><h5>E' richiesta la sottoscrizione digitale del documento allegato</h5></div>
+        <div class="firmaremota hidden">
+            <a href="#" onclick="RemoteSign('{{Attachments}}', '{{SignatureField}}',1)" class="btn btn-outline-primary">Avvia Firma Remota</a>
+        </div>
+        <div class="Content firmalocale hidden">
+            <p>Accertati di avere il client locale attivo e premi <b>Avvia Firma USB</b></p>
+            <a href="#" onclick="Sign('{{Attachments}}', '{{SignatureField}}',1)" class="btn btn-outline-primary">Avvia Firma USB</a>
+        </div>
+        <div class="Content nofirma hidden">
+            <p>
+                Per sottoscrivere il documento segui le seguenti istruzioni:
+                <br />
+                <ol style="font-size:1em">
+                    <li>Scarica il file sul tuo dispositivo</li>
+                    <li>Firmalo con gli strumenti forniti dal tuo fornitore della firma digitale</li>
+                    <li>Carica il file firmato sul sistema</li>
+                    <li>Attendi le verifiche del sistema sulla validità della sottoscrizione</li>
+                </ol>
+                <a href="#" onclick="DownloadFile()" class="btn btn-outline-primary">Scarica File</a>
+                <a href="#" onclick="UploadFile()" class="btn btn-outline-primary">Carica File Firmato</a>
+        </div>
+        <input type="hidden" name="ExitCode" id="ExitCode" value="0" />
+        <input type="file" name="signedFile" id="signedFile" class="hidden" accept=".pdf,.p7m" />
+        <br />
+        <br />
+        <label>
+            Se non intendi sottoscrivere il documento allegato indica una motivazione nel campo qui sotto e <b>Annulla la richiesta</b>.
+        </label>
+        <div class="MainPanel">
+            <textarea required id="Justification" name="Justification" rows="3"></textarea>
+        </div>
+        <a class="btn btn-danger" href="#" onclick="return Execute()">Annulla la Richiesta</a>
+
+    </div>
+        <script>
+
+            function Start() {
+                var firmaremota = '{{FirmaRemota}}';
+                var firmalocale = '{{FirmaLocale}}';
+                if (firmaremota) {
+                    $(".firmaremota").removeClass("hidden");
+                } else
+                    if (firmalocale) {
+                        $(".firmalocale").removeClass("hidden");
+                    } else
+                        $(".nofirma").removeClass("hidden");
+
+            $(".btn-primary").parent().hide();
+            $(".fa-check").parent().hide();
+            InizializzaTextEditor("#Justification", "", null, "200px");
+        }
+        function Validate() {
+            return (confirm("Attenzione: Stai per annullare la richiesta di sottoscrizione.\nSei sicuro ?"));
+        }
+
+
+        function DownloadFile() {
+            var atts = eval('[{{Attachments}}]');
+            Download(atts[0], '');
+        }
+        function UploadFile() {
+            $("#signedFile").off("change").on("change", (data) => {
+                var file = $("#signedFile")[0].files[0];
+                const reader = new FileReader();
+                reader.onload = (data) => {
+                    var VerificationCode = "";
+                    var RequestVerificationCode = document.getElementsByName("__RequestVerificationToken");
+                    if (RequestVerificationCode.length > 0) {
+                        VerificationCode = RequestVerificationCode[0].value;
+                    }
+                    var filedata = reader.result;
+                    var b64 = filedata.substr(filedata.indexOf(',') + 1);
+                    fetch("/internalapi/action/UploadSigned",
+                        {
+                            method: 'post',
+                            headers: {
+                                RequestVerificationToken: VerificationCode,
+                                'Content-Type': 'application/json',
+                                Accept: 'application/json',
+                            },
+                            body: JSON.stringify({
+                                documentId: 0,
+                                filename: file.name,
+                                data: b64
+                            })
+                        })
+                        .then(response => {
+                            if (response.ok)
+                                return response.json();
+                            else
+                                return response.text().then(text => { throw new Error(text) });
+                        })
+                        .then(data => {
+                            if (data.error) {
+                                alert(data.error);
+                            }
+                            else {
+                                confirm("Documento acquisito con successo.");
+                                CloseWindow(true);
+                            }
+                        })
+                        .catch(err => {
+                                alert(err);
+                        });
+                };
+                reader.onerror = (data) => {
+                    alert(data);
+                };
+                reader.readAsDataURL(file);
+            });
+            $("#signedFile")[0].click();
+        }
+
+        </script>
+</body>
+</html>

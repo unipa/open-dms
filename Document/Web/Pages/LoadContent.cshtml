@@ -1,0 +1,84 @@
+﻿@page
+@model LoadContentModel
+@using OpenDMS.Domain.Entities;
+@using OpenDMS.Domain.Enumerators;
+@inject IConfiguration Configuration
+@{
+    ViewData["Title"] = "Acquisisci Documento";
+}
+
+<div class="MainWindow">
+
+
+    <div class="Header">
+        <i class="fa fa-upload"></i>
+            <h1>
+                <small>
+                Acquisizione Documento
+                </small>
+            <span>@Model.DocTypeName</span>
+            </h1>
+            @*<div class="right-header">*@
+                <a href="#" onclick="return CloseWindow()"><i class="fa fa-times"></i></a>
+        @*</div>*@
+    </div>
+
+    <div id="Message_Target"></div>
+    <div class="nav nav-toolbar-container">
+        <ul class="nav nav-toolbar">
+
+            <li>
+                <a href="#" onclick="return AddFolder(@Model.DocId)">
+                    <i class="fa fa-folder"></i> Fascicola...
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="return Share(@Model.DocId)">
+                    <i class="fa fa-share"></i> Condividi...
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="return Send(@Model.DocId)">
+                    <i class="fa fa-envelope"></i> Invia...
+                </a>
+            </li>
+        </ul>
+        <ul class="nav nav-toolbar">
+            <li>
+            <a href="#" onclick="return ShowDocument(@Model.DocId, true)">
+                <i class="fa fa-file-pdf-o"></i> Vai alla Scheda
+            </a>
+        </li>
+        </ul>
+    </div>
+
+    <div class="Panel">
+        <div class="InfoPanel">
+
+            @try
+            {
+                @await Component.InvokeAsync(Model.ArchStrategy.ToString(),new { DocId = Model.DocId });
+            }catch(Exception ex){ Html.Raw("Pagina non trovata."+ex.Message); }
+
+        </div>
+    </div>
+
+    <nav class="Bottom">
+        <a href="#" class="btn" onclick="return CloseWindow()">Esci</a>
+    </nav>
+
+
+</div>
+
+
+<script>
+    
+
+        $(document).ready(function () {
+
+            if ("@Model.ErrorMessage" !== '') ShowMessage('alert', '@Model.ErrorMessage', 'Message_Target', 'Index');
+
+        })
+
+    </script>
+

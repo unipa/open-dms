@@ -1,0 +1,17 @@
+﻿@using Microsoft.Extensions.Configuration
+@using OpenDMS.Domain.Entities;
+@using OpenDMS.Domain.Enumerators;
+@model CompanyLogo
+
+
+@if (!String.IsNullOrEmpty(Model.Logo))
+{
+    <img class="" src="@Model.Logo" title="@Model.CompanyName" />
+
+}
+else
+{
+    <img class="logo" src="" />
+}
+
+

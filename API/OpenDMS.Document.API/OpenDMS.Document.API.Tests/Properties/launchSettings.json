@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "OpenDMS.DocumentManager.API.Tests": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:57898;http://localhost:57899"
+    }
+  }
+}

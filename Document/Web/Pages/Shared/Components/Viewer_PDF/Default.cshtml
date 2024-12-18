@@ -1,0 +1,151 @@
+﻿@using OpenDMS.Core.DTOs;
+@inject IConfiguration config
+@model IndexModel
+<script src="~/adminjs/admin.js"></script>
+<script src="~/js/pdf/pdfactions.js"></script>
+@{
+    string uid = User.Identity.Name;
+}
+
+@if (Model != null)
+{
+    <div class="nav-toolbar-container MainToolbar">
+        <ul class="nav nav-toolbar">
+            @if (Model.CanAddContent && String.IsNullOrEmpty(Model.Document.DocumentType.CreationFormKey))
+            {
+                <li class="">
+                    <a class="dropdown-item" onclick="return AddFile(@Model.DocumentId)" href="#">
+                        <i class="fa fa-upload"></i>
+                        <span>Carica</span>
+                    </a>
+                </li>
+            }
+
+            @if (Model.CanViewContent && Model.Document.Image != null)
+            {
+                @if (Model.CanViewContent && Model.Document.Image.FileName.ToLower().EndsWith(".pdf"))
+                {
+                    <li class="btnDownload"><a onclick="return Download(@Model.DocumentId, '')" class="" href="#"><i class="fa fa-file-pdf-o"></i> Scarica</a></li>
+                }
+                else
+                {
+                    <li id="tbDownload">
+                        <a href="#" role="button" class="MobileIcon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-download"></i> Scarica... <span class="fa fa-caret-down"></span></a>
+                        <ul class="dropdown-menu">
+                            <li class="btnDownload"><a onclick="return Download(@Model.DocumentId, '')" href="#"><i class="fa fa-image"></i> Documento in formato originale</a></li>
+                            <li class="btnPDF"><a onclick="return Download(@Model.DocumentId, '.pdf')" href="#"><i class="fa fa-file-pdf-o"></i> Versione PDF</a></li>
+                        </ul>
+                    </li>
+                }
+            }
+
+            @if (Model.CanAddContent)
+            {
+                <li id="tbDownload">
+                    <a href="#" role="button" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-pencil"></i> Firma<span class="fa fa-caret-down"></span></a>
+                    <ul class="dropdown-menu">
+                        @if (Model.CanSign)
+                        {
+                            <li id="tbAddDigitalSignature"><a href="#"  onclick="return AddDigitalSign('[@Model.DocumentId]')" title="Apponi una Firma Digitale"><i class="fa fa-usb"></i> Apponi una Firma Digitale</a></li>
+                        }
+                        @if (Model.HasSignature)
+                        {
+                            <li id="tbAddUserSignature"><a href="#" onclick="StartSign(this,'SignMark'); return false" title="Apponi Firma Autografa"><i class="fa fa-hand-o-down"></i> Apponi una Firma Autografa Digitalizzata</a></li>
+                        }
+                        @if (Model.CanViewContent && Model.Document.Image.FileName.ToLower().EndsWith(".pdf"))
+                        {
+                            <li class="separator"></li>
+                            <li id="tbAddSignField"><a href="#" id="CreateSign" onclick="return StartSign(this,'SignField')" title="Apponi Campo Firma"><i class="fa fa-pencil-square-o"></i>Crea uno spazio di Firma...</a></li>
+                        }
+                    </ul>
+                </li>
+            }
+@*             @if (Model.HasSignature)
+            {
+                <li id="tbAddCheck"><a href="#" onclick="StartSign(this,'VistoMark');return false;" title="Apponi un Visto"><i class="fa fa-check-square-o"></i>Visto</a></li>
+            }
+ *@
+        </ul>
+        <label class="PreviewDocumentName"></label>
+        <ul class="nav nav-toolbar">
+            <li id="tbPage">Pagina <span id="current-page-count">1</span><span>&nbsp; di &nbsp;</span><span id="total-pages-count">1</span>&nbsp;&nbsp;</li>
+
+            <li class="Mobile" id="tbZoomOut"><a href="#" onclick="Zoom(+1)" title="Riduci"><i class="fa fa-minus"></i></a></li>
+            <li class="Mobile"><span id="tbZoomValue">100%</span></li>
+            <li class="Mobile" id="tbZoomIn"><a href="#" onclick="Zoom(-1)" title="Ingrandisci"><i class="fa fa-plus"></i></a></li>
+            <li class="Mobile" id="tbZoomHeight"><a href="#" onclick="Zoom(+2)" title="Mostra Miniature"><i class="fa fa-th"></i></a></li>
+            <li class="Mobile" id="tbZoomWidth"><a href="#" onclick="Zoom(+3)" title="Adatta alla larghezza dello schermo"><i class="fa fa-file-o"></i></a></li>
+        </ul>
+    </div>
+    @if (Model.CanAddContent && Model.HasSignature)
+    {
+        <div class="StopSign hidden nav-toolbar-container MainToolbar">
+            <ul class="nav nav-toolbar">
+                <li class="StopSign hidden"><a href="#" onclick="AbortSign(this); return false" title="Annulla"><i class="fa fa-pencil"></i> Annulla apposizione firma</a></li>
+                <li>
+                    <button type="button" id="ok1" onclick="StopSign(this);return false;" class="btn btn-primary btn-small py-1 my-1 ms-1 tooltipstered" style="padding-right: 5px;padding-left: 5px;display: none" data-toggle="tooltip" data-placement="left">
+                        Applica
+                    </button>
+                </li>
+                <li>
+                    <button type="button" id="ok2" onclick="AbortSign(this);return false;" class="btn btn-small py-1 mx-2 my-1 tooltipstered" style="padding-right: 5px;padding-left: 5px;display: none;" data-toggle="tooltip" data-placement="left">
+                        Annulla
+                    </button>
+                </li>
+            </ul>
+        </div>
+    }
+
+    <div class="PreviewPanel Panel Background">
+        <image-viewer id="image-viewer" type="esteso" documentId="@Model.DocumentId" onRender="Zoom(4);" imageId="@Model.Document.Image.Id" pages="5" blur="@(Model.Document.PersonalData ? 1: 0)" >
+        </image-viewer>
+        <div class="Paginator">
+            <ul class="nav nav-toolbar">
+                <li id="tbPageUp"><a id="prev-page-button" href="#" title="Pagina Precedente"><i class="fa fa-arrow-up"></i></a></li>
+                <li id="tbPageDown"><a id="next-page-button" href="#" title="Pagina successiva"><i class="fa fa-arrow-down"></i></a></li>
+            </ul>
+        </div>
+    </div>
+@*     @if (Model.Document.Image != null)
+    {
+        <div class="Bottom Mobile" style="border-top:1px solid #eee">
+            <label><b>Versione: </b>@(Model.Document.Image.VersionNumber).@(Model.Document.Image.RevisionNumber.ToString("00"))</label>
+            <label><b>Dimensione: </b> @Model.Document.Image.FileSize Bytes</label>
+            <label><b>Pubblicazione: </b> @Model.Document.Image.SendingStatus @Model.Document.Image.SendingDate</label>
+        </div>
+    }
+ *@
+}
+
+
+<script>
+
+    var uid = "@uid";
+    var docId = "@Model.DocumentId";
+
+
+
+
+    const ImageViewer = document.getElementById('image-viewer');
+
+    // Crea gli input nascosti dove sono conservate le informazioni di: mouseX , mouseY, SignType, RenderType utili per pdfAction.js
+    // gli id degli stessi sono anche conosciuti in pdfAction.js
+    var inputsToCreate = ["MouseX", "MouseY", "SignType", "RenderType"]
+    var ppanel = $(".PreviewPanel");
+
+    inputsToCreate.forEach(input => {
+        var inputNascosto = document.createElement("input");
+
+        // Imposta gli attributi dell'elemento input
+        inputNascosto.type = "hidden";
+        inputNascosto.name = "LoadImage_" + input;
+        inputNascosto.id = "LoadImage_" + input;
+
+        ppanel.after(inputNascosto);
+    })
+
+    window.addEventListener("resize", () => {
+        Zoom(4);
+    });
+
+</script>

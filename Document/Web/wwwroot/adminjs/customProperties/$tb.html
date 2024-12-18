@@ -1,0 +1,71 @@
+﻿
+
+<script>
+
+    $(document).ready(function () {
+
+        function selectHelper(selectName) {
+            //funzione che va in sinergia con le LoadCustomProperties e CollectCustomProperties che si trovano in EditTypes di Metadati
+            $.ajax({
+                url: "/internalapi/LookupTable/$TABLES$",
+                type: "GET",
+            })
+                .done(function (type) {
+                    //prendo il valore contenuto in un tag inserito a seguito nell'html contenente il valore del select
+                    var selectValue = $("#" + selectName).attr("default-value");//.val();
+                    type.map(ds => {
+                        //Use it in the append
+                        var selectedFlag = "";
+                        if (ds.id === selectValue) { selectedFlag = "selected" }
+
+                        $("#" + selectName + ".customProperties").append(
+                            '<option value="' + ds.id + '" ' + selectedFlag + ' >' + ds.description + "</option>"
+                        );
+                    })
+                });
+        }
+
+        selectHelper("ConnectionId");
+
+    });
+</script>
+
+<div class="row">
+    <div class="select-wrapper col-md-12 mb-4">
+        <label for="ConnectionID">Tabella</label>
+        <select class="customProperties" id='ConnectionId'></select>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <input type="checkbox" class="defaultProperties" id="tag">
+        <label for="tag">Tag <small>Accetta valori multipli</small></label>
+    </div>
+</div>
+
+
+
+
+<div class="row mt-4">
+    <div class="col-md-6 mb-4">
+        <label class="active" for="defaultValue">Valore Predefinito</label>
+        <input type="text" class="defaultProperties" id="defaultValue">
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <label class="active" for="columnWidth">Larghezza Campo <small>Default: 100%</small></label>
+        <input type="text" max="20" class="defaultProperties" id="columnWidth">
+    </div>
+
+</div>
+
+
+<div class="row mt-4">
+
+    <div class="col-md-6 mb-4">
+        <label class="active" for="Classe">Classe CSS</label>
+        <input type="text" max="25" class="customProperties" id="Classe">
+    </div>
+
+</div>

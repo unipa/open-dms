@@ -1,0 +1,20 @@
+# Utilizza un'immagine Node.js
+FROM node:14
+
+# Crea una directory di lavoro
+WORKDIR /app
+
+# Copia i file package.json e package-lock.json nella directory di lavoro
+COPY package*.json ./
+
+# Copia la cartella node_modules personalizzata nella directory di lavoro
+COPY node_modules/ ./node_modules/
+
+# Copia il resto del codice sorgente dell'applicazione nella directory di lavoro
+COPY . .
+
+# Espone la porta 5100
+EXPOSE 5100
+
+# Avvia l'applicazione utilizzando il comando 'npm start'
+CMD ["npm", "start"]

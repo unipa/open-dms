@@ -1,0 +1,88 @@
+* {
+  margin: 0;
+}
+
+html,
+body,
+.container {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: sans-serif;
+}
+
+.tjs-container,
+.dmn-literal-expression-container > .viewer-container {
+  padding: 10px;
+}
+
+.modeler {
+  display: flex;
+  height: 100vh; /* Per far sì che il contenitore occupi l'intera altezza dello schermo */
+}
+
+#canvas {
+  flex-grow: 1; /* Permette al canvas di occupare tutto lo spazio rimanente */
+}
+
+#properties {
+  width: 300px; /* Puoi modificare questa larghezza secondo le tue esigenze */
+  border-left: 1px solid #ccc; /* Opzionale: aggiunge un bordo a sinistra per separare la sidebar */
+  overflow: auto; /* Permette lo scrolling se il contenuto eccede l'altezza del div */
+}
+
+/* #controls {
+  position: fixed;
+  left: 10px;
+  bottom: 10px;
+} */
+
+#controls button {
+  margin-right: 10px;
+}
+
+#canvas.dragover {
+  border: 2px solid #f00;
+}
+
+
+/* Stili per il pulsante Importa */
+/* #importButton {
+  background-color: #007BFF;
+}
+
+#importButton:hover {
+  background-color: #0056b3;
+} */
+
+/* Stili per il pulsante Esporta */
+/* #exportButton {
+  background-color: #28A745;
+}
+
+#exportButton:hover {
+  background-color: #1e7e34;
+} */
+
+.panel {
+  background-color: #fafafa;
+  border: solid 1px #ccc;
+  border-radius: 2px;
+  font-family: 'Arial', sans-serif;
+  padding: 10px;
+}
+
+#apibuttons {
+  right: 300px;
+  position: absolute;
+  top: 20px;
+  border: #ccc;
+}
+
+#controls {
+  bottom: 10px;
+  left: 20px;
+  position: absolute;
+}

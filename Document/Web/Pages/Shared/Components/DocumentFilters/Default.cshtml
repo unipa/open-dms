@@ -1,0 +1,276 @@
+﻿@using Microsoft.Extensions.Configuration
+@using OpenDMS.Domain.Entities;
+@using OpenDMS.Domain.Enumerators;
+@model DocumentFilters
+<script src="/js/custom/site.js"></script>
+<form class="DocumentFilters" onsubmit="return Search()">
+    <a href="#" class="SearchIcon" onclick="$('.DocumentFilters').toggleClass('open');" title="Cerca...">
+        <i class="fa fa-search"></i>
+    </a>
+    <input type="text" id="FreeText" autocomplete="off" list="autocompleteOff" asp-for="FreeText" placeholder="@Model.PlaceHolder" />
+
+    @if (Model.ParentId > 0)
+    {
+        <select id="ParentId" asp-for="ParentId">
+            <option value="@Model.ParentId">Fascicolo</option>
+            <option value="">Tutto</option>
+        </select>
+    }
+
+    <span>su</span>
+    <select id="SearchType" asp-for="SearchType">
+        <option value="">Metadati</option>
+        <option value="1">Contenuto</option>
+        @*<option value="2"><i class="fa fa-comments"></i> Commenti</option>*@
+        <option value="5">Identificativo Univoco</option>
+        <option value="3">Nr.Protocollo</option>
+        @*<option value="4">Pacchetto di Versamento</option>*@
+    </select>
+    <a href="#" class="FilterIcon" onclick="$('.AdvancedFilters').toggleClass('hidden')" title="Mostra Filtri Avanzati">
+        <i class="fa fa-filter"></i>
+        @if (!String.IsNullOrEmpty(Model.Filters))
+        {
+            <span class="NrFiltri">@Model.Filters</span>
+        }
+    </a>
+
+
+    <div class="AdvancedFilters hidden">
+        <div class="MainPanel">
+        <h6>Periodo</h6>
+        <div class="Row">
+            <label>
+                <select id="DateType" asp-for="DateType">
+                    <option value="0">Data Archiviazione</option>
+                    @if (string.IsNullOrEmpty(Model.DateLabel))
+                    {
+                        <option value="1">Data Documento</option>
+                    }
+                    <option value="2">Data Scadenza</option>
+                    <option value="3">Data Protocollo</option>
+                    <option value="4">Data Pubblicazione</option>
+                    <option value="5">Data Conservazione</option>
+                    <option value="9">Data Cancellazione</option>
+                </select>
+            </label>
+            <span>
+                <div style="max-width:220px">
+                    <input type="date" id="dt1" name="dt1" value="@Model.dc1" />
+                </div>
+                <div style="width:20px;justify-content:center;align-self:center;display:flex;">
+                    -
+                </div>
+                <div style="max-width:220px">
+                    <input type="date" id="dt2" name="dt2" value="@Model.dc2" />
+                </div>
+            </span>
+        </div>
+
+   
+        @if (!string.IsNullOrEmpty(Model.NumberLabel) || Model.MetaList.Count > 0 || Model.FieldList.Count > 0)
+        {
+            <h6><br />Metadati</h6>
+        }
+            @if (Model.UserProfile.Companies.Count > 1)
+            {
+                <div class="Row">
+                    <label>
+                        Sistema Informativo
+                    </label>
+                    <span>
+                        <select id="Companies" >
+                            <option value="">Qualsiasi</option>
+                            @foreach (var company in Model.UserProfile.Companies.Where(c => !c.OffLine))
+                            {
+                                if (company.Id.ToString() == Model.SelectedCompanies)
+                                {
+                                    <option selected value="@company.Id">@company.Description</option>
+                                }
+                                else
+                                {
+                                    <option value="@company.Id">@company.Description</option>
+
+                                }
+                            }
+                        </select>
+                    </span>
+                </div>
+            }
+            else
+            {
+                <input type="hidden" id="Companies" value="" />
+            }
+
+
+        @if (!string.IsNullOrEmpty(Model.NumberLabel))
+        {
+            <div class="Row">
+                <label>@Model.NumberLabel</label>
+                <span>
+                    <input type="@Model.DocumentNumberType.ControlType" value="@Model.DocumentNumber" id="nd" name="nd" tableId="@Model.DocumentNumberType.Id" placeholder="" />
+                </span>
+            </div>
+        }
+        @foreach (var m in Model.MetaList)
+        {
+            <div class="Row">
+                <label>@m.Title</label>
+                    <span><input type="@(m.ControlType ?? "textbox")" class="meta" name="meta_@m.Id" tableId="@m.Id" placeholder="@m.Description" value="@m.DefaultValue" /></span>
+            </div>
+        }
+        @foreach (var m in Model.FieldList)
+        {
+            <div class="Row">
+                <label>@m.Title</label>
+                <span><input type="@(m.FieldType.ControlType)" class="field" name="field_@m.FieldName" fieldId ="@m.FieldName" tableId="@m.FieldType.Id" placeholder="@m.FieldType.Description" value="@m.DefaultValue" /></span>
+            </div>
+        }
+        <h6><br />Stati</h6>
+        <div class="Row">
+            <label>Stato dei documenti</label>
+            <span>
+                <select id="Status" asp-for="Status">
+                    <option value="0"><i class="fa fa-question-mark"></i> Qualsiasi</option>
+                    <option value="1"><i class="fa fa-check"></i> Attivi</option>
+                    <option value="2"><i class="fa fa-pencil"></i> In Bozza</option>
+                    <option value="3"><i class="fa fa-barcode"></i> Protocollati</option>
+                    <option value="4"><i class="fa fa-lock"></i> Archiviati</option>
+                    <option value="5"><i class="fa fa-trash-o"></i> Cancellati</option>
+                </select>
+            </span>
+        </div>
+        <div class="Row">
+            <label>Stato spedizione/pubblicazione</label>
+            <span>
+                <select id="Status" asp-for="SendingStatus">
+                    <option value="0"><i class="fa fa-question-mark"></i> Qualsiasi</option>
+                    <option value="1"><i class="fa fa-clock-o"></i> Da Pubblicare</option>
+                    <option value="2"><i class="fa fa-check"></i> Pubblicati</option>
+                </select>
+            </span>
+        </div>
+        <div class="Row">
+            <label>Stato Sottoscrizione</label>
+            <span>
+                <select id="Status" asp-for="SignatureStatus">
+                    <option value=""><i class="fa fa-question-mark"></i> Qualsiasi</option>
+                    <option value="1"><i class="fa fa-clock-o"></i> Da Firmare</option>
+                    <option value="2"><i class="fa fa-check"></i> Firmati</option>
+                </select>
+            </span>
+        </div>
+        <div class="Row">
+            <label>Stato Conservazione</label>
+            <span>
+                <select id="Status" asp-for="PreservationStatus">
+                    <option value="0"><i class="fa fa-question-mark"></i> Qualsiasi</option>
+                    <option value="1"><i class="fa fa-clock-o"></i> Da Conservare</option>
+                    <option value="2"><i class="fa fa-check"></i> Conservati</option>
+                </select>
+            </span>
+        </div>
+        <h6><br/>Altri Filtri</h6>
+        <div class="Row">
+            <label>Utente Archiviatore</label>
+            <span>
+                <input type="lookup" asp-for="Utente" tableId="$us" />
+            </span>
+        </div>
+        </div>
+        <div style="margin-top:20px">
+            <button type="submit" class="btn btn-primary">Applica Filtri</button>
+            <a href="#" class="btn btn-outline-primary">Pulisci</a>
+            <a href="#" class="btn btn-link" onclick="$('.AdvancedFilters').toggleClass('hidden');">Chiudi</a>
+        </div>
+    </div>
+
+</form>
+@*<div class="right-header">
+    <ul class="nav nav-toolbar">
+        <li>
+        <a href="#" class="FilterIcon" onclick="$('.AdvancedFilters').toggleClass('hidden')" title="Mostra Filtri Avanzati">
+            <i class="fa fa-filter"></i>
+            <span class="NrFiltri"></span>
+        </a>
+        </li>
+    </ul>
+</div>
+*@
+<script>
+
+
+    function Search() {
+        var query = "";
+        var dttype = $("#DateType").val();
+        query += "DateType=" + dttype;
+
+        var dt1 = $("#dt1").val();
+        if (!dt1) dt1 = "0001-01-01";
+        query += "&dt1=" + dt1;
+        var dt2 = $("#dt2").val();
+        if (!dt2) dt2 = "0001-01-01";
+        query += "&dt2=" + dt2;
+
+        var freeText = $("#FreeText").val();
+        if (freeText) query += "&FreeText=" + freeText;
+
+        var docType = qs["DocumentType"];
+        if (docType) query += "&DocumentType=" + docType;
+
+        var companies = $("#Companies").val();
+        if (companies) query += "&Companies=" + companies;
+
+        var searchType = $("#SearchType").val();
+        if (searchType) query += "&FreeTextType=" + searchType;
+
+        var documentNumber = $("#nd").val();
+        if (documentNumber) query += "&nd=" + documentNumber;
+
+
+        var status = $("#Status").val();
+        if (status) query += "&Status=" + status;
+
+        var metas = $(".meta");
+        index=0;
+        metas.each((i,e)=>{
+            var id = $(e).attr("tableId");//.sustring(5);
+            var value = $(e).val();
+            if (value) {
+                index++;
+                query += "&mi"+index+"=" + id;
+                query += "&mv" + index + "=" + value;
+
+            }
+        });
+        query += "&metas=" + index;
+
+        var metas = $(".field");
+        index = 0;
+        metas.each((i, e) => {
+            var id = $(e).attr("fieldId");//.sustring(5);
+            var value = $(e).val();
+            if (value) {
+                index++;
+                query += "&fi" + index + "=" + id;
+                query += "&fv" + index + "=" + value;
+
+            }
+        });
+        query += "&fields=" + index;
+
+        // TODO: aggiungere le chiavi e gli altri stati
+
+        var parentId = $("#ParentId").val();
+        if (parentId)
+        {
+            query += "&id=" + parentId;
+            window.location.href = "/?" + query;
+        }
+        else
+        {
+            window.location.href = "/Folders/Documents?" + query;
+        }
+        return false;
+    }
+
+</script>

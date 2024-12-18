@@ -1,0 +1,170 @@
+﻿@page
+@using RemoteSignInfocert.Models;
+@using RemoteSignInfocert.Pages;
+@using RemoteSignInfocert;
+@inject IConfiguration Configuration
+@model LoadingModel
+@{
+}
+
+
+<script>
+
+    var path_base = "@Configuration["PATH_BASE"]";
+
+    document.addEventListener("DOMContentLoaded", () => {
+        performHttpGet();
+        const intervalId = setInterval(performHttpGet, 3000);
+    });
+
+    function performHttpGet() {
+        fetch(path_base + '/Sign/CheckDelivery/@Model.signRoom')
+            .then(response => response.json())
+            .then(data => {
+                if (data) {
+                    fetch(path_base + '/Sign/CheckDeliveryResult/@Model.signRoom')
+                        .then(response => {
+                            if (!response.ok)
+                                throw new Error(`Errore durante la richiesta: ${response.status}`);
+                            return response.text();
+                        })
+                        .then(data => {
+                            if (data.includes("ESITO:NON_POSITIVO;"))
+                                window.location = path_base + "/Failed?Result=" + data;
+                            else
+                                window.location = path_base + "/Success?Result=" + data;
+                        })
+                        .catch(error => {
+                            console.error('Errore nella chiamata GET:', error);
+                        });
+                }
+            })
+            .catch(error => {
+                console.error('Errore nella chiamata GET:', error);
+            });
+
+        fetch(path_base + '/Sign/CheckStatus/@Model.signRoom')
+            .then(response => {
+                if (!response.ok)
+                    throw new Error(`Errore durante la richiesta dello stato: ${response.status}`);
+                return response.text();
+            })
+            .then(data => {
+                if (data == "@SignRoomModel.GetDescription(SignRoomStatus.ReadyToSign)")
+                    window.location.reload()
+
+                document.getElementById("status").innerHTML = data;
+            })
+            .catch(error => {
+                console.error('Errore nella chiamata GET dello stato:', error);
+            });
+    }
+
+    function AbortSignRoom(signRoom) {
+        window.location = "/dms/remotesigninfocert/Deleted?signRoom=" + signRoom + "&username=@Model.Username";
+        //fetch(path_base + "/Sign/ClearSignRoom?SignRoom=@Model.signRoom&esito=Sessione di firma annullata dall'utente", {
+        //    method: 'DELETE',
+        //    headers: {
+        //        'Content-Type': 'application/json'
+        //    }
+        //})
+        //    .then(response => {
+        //        if (!response.ok)
+        //            throw new Error(`Errore durante la cancellazione della sessione di firma: ${response.status}`);
+        //        return response.text();
+        //    })
+        //    .then(data => {
+        //        //chiudere la modal
+        //        alert("sessione di firma cancellata.")
+
+        //    })
+        //    .catch(error => {
+        //        console.error('Errore nella chiamata DELETE della cancellazione della sessione di firma:', error);
+        //    });
+        //window.location = "/Deleted?signRoom=" + signRoom;
+    }
+
+</script>
+
+<div class="container-fluid mt-3">
+    <div class="row mt-3 w-100 h-100">
+        @Html.Hidden("SignRoom", Model.signRoom);
+        @if (!String.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger mt-2 alert-dismissible fade show mx-4 bg-white" role="alert" style="position: fixed;right: 0;left: 0;z-index: 101;width: -webkit-fill-available;">
+                <h6 class="alert-heading">Qualcosa è andato storto durante il caricamento dei dati: </h6>
+                <p>@Model.ErrorMessage</p>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Chiudi avviso">
+                    <svg class="icon">
+                        <use href="@($"/bootstrap-italia/svg/sprites.svg#it-close")"></use>
+                    </svg>
+                </button>
+            </div>
+        }
+
+        <h1>Documenti inoltrati correttamente, in attesa di firma</h1>
+        <div id="loading" class="d-flex align-items-center justify-content-center">
+            <div class="progress-spinner progress-spinner-active">
+                <span class="visually-hidden">Caricamento...</span>
+            </div>
+        </div>
+        <small>&Egrave; possibile chiudere la finestra corrente, verrai notificato quando i documenti saranno pronti.</small>
+        <h4>Stato sessione di firma: <strong id="status">@Model.Status</strong></h4>
+        <h4>Documenti</h4>
+        <table class="table table-hover">
+            <thead>
+                <tr class="text-end">
+                    <th class="text-start">
+                        Documento
+                    </th>
+                    <th>
+                        Tipo
+                    </th>
+                    <th>
+                        Dimensione (MB)
+                    </th>
+                    @*<th>
+                        Data di invio alla firma
+                    </th>*@
+                    @*<th>
+                    Eliminazione
+                    </th>*@
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    foreach (var fl in Model.ElencoFile)
+                    {
+                        <tr class="text-end">
+                            <td class="text-start">
+                                @fl.Document
+                            </td>
+                            <td>
+                                @fl.Type
+                            </td>
+                            <td>
+                                @fl.Dimension
+                            </td>
+                            @*<td>
+                                @fl.CreationTime
+                            </td>*@
+                            @*<td style="text-align: center">
+                    @if (fl.isErasable)
+                    {
+                    <button type="button" class="btn btn-danger" disabled id="@fl.FileName" onclick="deleteFile('@Model.SignRoom','@fl.FileName')">Elimina</button>
+                    }
+                    </td>*@
+                        </tr>
+                    }
+                }
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <div class="row">
+        <button class="btn btn-secondary col" type="button" id="RemoteSignAnnullButton" onclick="AbortSignRoom('@Model.signRoom')">Annulla</button>
+    </div>
+
+</div>

@@ -1,0 +1,246 @@
+﻿@page
+@model SignPADESModel
+@{
+    ViewData["Title"] = "Servizio di firma";
+}
+
+
+<script type="text/html" id="Tokens">
+    {{#Tokens}}
+       <option value="{{serial}}">{{label}} {{manufacturerId}} - {{model}}</option>
+     {{/Tokens}}
+
+</script>
+<script type="text/html" id="Certificates">
+    {{#Certificates}}
+       <option value="{{id}}">{{name}}</option>
+    {{/Certificates}}
+
+</script>
+
+<div class="MainWindow">
+
+    <div class="Header">
+        <i class="fa fa-usb"></i>
+        <h1><small>@Model.Vendor</small>Firma Digitale</h1>
+        <div class="right-header">
+            <a class="btn btn-link" href="#" onclick="CloseWindow()"><i class="fa fa-times"></i></a>
+        </div>
+    </div>
+
+    <div class="Panel">
+
+        <div class="Row">
+            <label>Driver di Firma
+                <a style="position:absolute;right:0;bottom:1px;" onclick="window.location.reload()" href="#" class="btn btn-link btn-sm" title="Aggiorna Elenco"><i class="fade fa-refresh"></i></a>
+            </label>
+            <span>
+                <select asp-for="Vendor">
+                    @foreach (var o in Model.Vendors.OrderBy(o => o.Key))
+                    {
+                        <option value="@o.Key">@o.Value</option>
+                    }
+                </select>
+            </span>
+        </div>
+        <div class="Row TokensPanel hidden">
+            <label>
+                Dispositivo
+                <a style="position:absolute;right:0;bottom:1px;" onclick="GetTokens()" href="#" class="btn btn-link btn-sm" title="Aggiorna Elenco"><i class="fade fa-refresh"></i></a>
+            </label>
+            <span>
+                <select id="Token">
+                </select>
+            </span>
+        </div>
+        <div class="Row CertificatePanel hidden">
+            <label>Certificato di Firma
+                <a style="position:absolute;right:0;bottom:1px;" onclick="GetCertificates()" href="#" class="btn btn-link btn-sm" title="Aggiorna Elenco"><i class="fade fa-refresh"></i></a>
+            </label>
+            <span>
+                <select id="Certificate">
+                </select>
+            </span>
+        </div>
+        <div class="Row">
+            <label>Motivazione (facoltativa)</label>
+            <span>
+                <input type="text" asp-for="Reason" />
+            </span>
+        </div>
+        <div class="Row">
+            <label>PIN</label>
+            <span>
+                <input type="password" asp-for="PIN" maxlength="8" />
+            </span>
+        </div>
+        @if (Model.Signatures.Count > 0)
+        {
+            <h3>Campi di Firma</h3>
+            <div class="Row">
+                <input type="radio" name="campofirma" value="" @(string.IsNullOrEmpty(Model.SignField) ? "checked" : "") />
+                <div style="padding-left:10px"> Nuovo campo di firma non visibile</div>
+            </div>
+
+            @foreach (var o in Model.Signatures)
+            {
+                <div class="Row">
+                    <input type="radio" name="campofirma" value="@o.Id" @(Model.SignField == o.Id ? "checked" : "") />
+                    <div style="padding-left:10px"> @o.Description</div>
+                    <div style="position:absolute;right:10px;top:0px;"> Pagina @o.Annotation</div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="InfoPanel">
+                <i class="fa fa-pencil-square-o"></i>
+                <h1>Nessun campo di firma presente</h1>
+                <p>La firma che stai per apporre non sarà graficamente visibile</p>
+                <p>Solitamente questo non presetna un problema, ma se vuoi che la tua firma sia visibile, aggiungi un campo di firma vuoto al documento</p>
+            </div>
+        }
+    </div>
+    <div class="Bottom">
+
+        <a id="startBtn" class="btn btn-primary" disabled href="#" onclick="StartSign()">Avvia Firma</a>
+        <a class="btn btn-link" href="#" onclick="CloseWindow()">Esci</a>
+    </div>
+</div>
+
+<script>
+    var certificate="@Model.Certificate";
+    var vendor = "@Model.Vendor";
+    var token = "@Model.Token";
+
+    $(document).ready(()=>{
+        $("#startBtn").hide();
+        $("#PIN").hide();
+        if (vendor) GetTokens();
+        $("#Vendor").on("change", () => {
+            vendor = $("#Vendor").val();
+            GetTokens();
+        })
+        $("#Token").on("change", () => {
+            token = $("#Token").val();
+            GetCertificates();
+        })
+
+    });
+
+    function GetTokens() {
+        $("#startBtn").hide();
+        var cpanel = $(".CertificatePanel");
+        cpanel.addClass("hidden");
+        var panel = $(".TokensPanel");
+        panel.addClass("hidden");
+        var h = encodeURIComponent('@(Model.Host)');
+        fetch("?handler=tokens&host=" + h + "&newVendor=" + vendor)
+            .then(response => { return response.json(); })
+            .then(data => {
+                var template = $("#Tokens").html();
+                var html = Mustache.to_html(template, { Tokens: data });
+                $("#Token").html(html)
+                if (data.length > 0)
+                {
+                    panel.removeClass("hidden");
+                    if (data.length == 1) {
+                        token = data[0].serial;
+                        GetCertificates()
+                    }
+                    $("#Token").val(token);
+                }
+            })
+    }
+
+
+    function GetCertificates()
+    {
+        $("#startBtn").hide();
+        var panel = $(".CertificatePanel");
+        panel.addClass("hidden");
+        var h = encodeURIComponent('@(Model.Host)');
+        fetch("?handler=certificate&host="+h+"&newVendor=" + vendor+"&tokenSerial="+token)
+            .then(response => { return response.json(); })
+            .then(data => {
+                var template = $("#Certificates").html();
+                var html = Mustache.to_html(template, { Certificates: data });
+                if (data.length > 1)
+                {
+                    html += "<option value=''>Nessuno</option>";
+                }
+                else if(data.length == 1)
+                {
+                    certificate = data[0].id;
+                }
+                $("#Certificate").html(html)
+                $("#Certificate").val(certificate);
+                panel.removeClass("hidden");
+                if ($("#Certificate").val() == certificate) {
+                    $("#PIN").show();
+                    $("#startBtn").show();
+                }
+            })
+    }
+
+    var InError = 0;
+    var Signed = 0;
+
+    function Sign (index)
+    {
+        $("#startBtn").attr("disabled");
+        $("#startBtn").text("Firma In corso...");
+        var h = encodeURIComponent('@(Model.Host)');
+        var campi = $("[name='campofirma']:checked").val();
+        if (!campi) campi = "";
+        var pin = $("#PIN").val();
+        //var files = $("tr[data-rowid]");
+        //if (index < files.length)
+        {
+            //e = files[index];
+            var id = index;// $(e).attr("data-rowid");
+            //var status = $(e).find(".status");
+            //status.html("<i class='fa fa-pencil'/>...");
+            var reason = $("#Reason").val();
+            fetch("?handler=signFile&host=" + h + "&vendor=" + encodeURIComponent(vendor) + "&tokenSerial=" + token + "&certificateSerial=" + encodeURIComponent(certificate) + "&reason="+ reason +"&pin=" + encodeURIComponent(pin) + "&file=" + id+"&signField="+campi)
+                .then(response => { return response.ok ? response.json() : response.text(); })
+                .then(data => {
+                    //status.html("<i class='fa fa-check'/>");
+                    //index++;
+                    //Signed++;
+                    //Sign (index);
+                    CloseThisWindow();
+                })
+                .catch(err => {
+
+                    alert("Si è verificato un errore durante il processo di firma:\n"+err);
+                    CloseThisWindow();
+                    //status.html("<i title='" + err + "' class='fa fa-bug'/>!");
+                    //index++;
+                    //    InError++;
+                    //Sign(index);
+                });
+        }
+    }
+
+    function StartSign ()
+    {
+        if (!confirm("Avviare il processo di firma ?")) return false;
+        InError=0;
+        Signed = 0;
+        var h = encodeURIComponent('@(Model.Host)');
+        var pin = $("#PIN").val();
+        if (!pin)
+        { 
+            alert("Non hai indicato il PIN.");
+            return false;
+        }
+        Sign (@Model.FileInfo.Id);
+    }
+
+    function CloseThisWindow() {
+        window.parent.postMessage({ op: "refresh", data: "" }, "*");
+    }
+
+
+</script>

@@ -1,0 +1,77 @@
+{
+  "name": "@bpmn-io/snarkdown",
+  "description": "Transform Markdown into HTML.",
+  "version": "2.2.0",
+  "main": "./dist/snarkdown.js",
+  "module": "./dist/snarkdown.es.js",
+  "modern": "./dist/snarkdown.modern.js",
+  "umd:main": "./dist/snarkdown.umd.js",
+  "unpkg": "./dist/snarkdown.umd.js",
+  "types": "./snarkdown.d.ts",
+  "scripts": {
+    "all": "npm run build && npm run test",
+    "build": "microbundle",
+    "dev": "microbundle watch",
+    "test": "eslint src test && NODE_ENV=test mocha --compilers @babel/register",
+    "prepublish": "npm run -s build",
+    "release": "npm run -s build && npm test && git commit -am $npm_package_version && git tag $npm_package_version && git push && git push --tags && npm publish"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "authors": [
+    "Jason Miller <jason@developit.ca>"
+  ],
+  "files": [
+    "src",
+    "dist",
+    "snarkdown.d.ts"
+  ],
+  "homepage": "https://github.com/bpmn-io/snarkdown",
+  "repository": "bpmn-io/snarkdown",
+  "license": "MIT",
+  "keywords": [
+    "markdown",
+    "gfm",
+    "md",
+    "html",
+    "parser"
+  ],
+  "devDependencies": {
+    "@babel/preset-env": "^7.11.5",
+    "@babel/register": "^7.11.5",
+    "chai": "^3.5.0",
+    "eslint": "^7.7.0",
+    "eslint-config-developit": "^1.2.0",
+    "microbundle": "^0.12.0",
+    "mocha": "^5.1.1",
+    "npm-merge-driver-install": "^1.1.1"
+  },
+  "eslintConfig": {
+    "extends": "developit",
+    "env": {
+      "browser": true,
+      "mocha": true,
+      "node": true,
+      "es6": true
+    },
+    "globals": {
+      "expect": true
+    },
+    "rules": {
+      "jest/valid-expect": 0,
+      "no-console": 1,
+      "no-cond-assign": 0,
+      "no-regex-spaces": 0
+    }
+  },
+  "babel": {
+    "env": {
+      "test": {
+        "presets": [
+          "@babel/preset-env"
+        ]
+      }
+    }
+  }
+}

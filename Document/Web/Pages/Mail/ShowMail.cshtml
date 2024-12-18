@@ -1,0 +1,328 @@
+﻿@page
+@model Web.Pages.ShowMailModel;
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "Invia messaggio";
+}
+
+
+<div class="Header">
+    <i class="@(Model.Message.Status == OpenDMS.Domain.Entities.MailStatus.Draft
+            ? "fa fa-pencil" 
+            : Model.Message.Status == OpenDMS.Domain.Entities.MailStatus.Failed 
+                ? "fa fa-bug" 
+                : Model.Message.Status == OpenDMS.Domain.Entities.MailStatus.Spam
+                    ? "fa fa-ban"
+                    : Model.Message.Status == OpenDMS.Domain.Entities.MailStatus.Claimed
+                        ? "fa fa-envelope-open"
+                        : Model.Message.Status == OpenDMS.Domain.Entities.MailStatus.Received
+                            ? "fa fa-inbox"
+                            : Model.Message.Status == OpenDMS.Domain.Entities.MailStatus.Archived
+                                ? "fa fa-check-circle"
+                                : Model.Message.Status == OpenDMS.Domain.Entities.MailStatus.Deleted
+                                    ? "fa fa-trash-o"
+                                    : Model.Message.Status == OpenDMS.Domain.Entities.MailStatus.Sent
+                                        ? "fa fa-paper-plan"
+                                        : "fa fa-envelope-o")">
+    </i>
+    <h1>
+        <small>@(Model.Message.MailType == "PEC" ? "Posta Elettronica Certificata" : "Posta Elettronica")</small>
+        <span>@Model.Message.Title</span>
+    </h1>
+    <div class="right-header">
+        <ul class="nav nav-toolbar">
+            <li>
+                <a href="#" class="btn btn-link" onclick="return selectMail()"><i class="fa fa-times"></i></a>
+            </li>
+        </ul>
+    </div>
+</div>
+<div class="nav-toolbar-container mt-2 mb-2">
+    <ul class="nav-toolbar">
+        @if (Model.Message.Id > 0 && (Model.Message.Status == OpenDMS.Domain.Entities.MailStatus.Draft || Model.Message.Status == OpenDMS.Domain.Entities.MailStatus.Failed))
+        {
+            <li>
+                <a href="#" title="Modifica il messaggio..." onclick="editMail(@Model.Message.Id)"><i class="fa fa-pencil"></i> Modifica...</a>
+            </li>
+        }
+        @if (Model.Message.Id > 0 && (Model.Message.Status == OpenDMS.Domain.Entities.MailStatus.Received || Model.Message.Status == OpenDMS.Domain.Entities.MailStatus.Claimed || Model.Message.Status == OpenDMS.Domain.Entities.MailStatus.Spam))
+        {
+            @if (Model.Message.DocumentId > 0)
+            {
+                <li>
+                    <a href="#" title="Rispondi al mittente" onclick="editMail(@Model.Message.Id,'REPLY')"><i class="fa fa-reply"></i></a>
+                </li>
+                <li>
+                    <a href="#" title="Inoltra il messaggio" onclick="editMail(@Model.Message.Id,'FORWARD')"><i class="fa fa-forward"></i></a>
+            </li>
+            }
+            @if (Model.Message.Id > 0 && Model.Message.Status == OpenDMS.Domain.Entities.MailStatus.Received)
+            {
+                <li>
+                    <a href="#" title="Prendi in carico il messaggio" onclick="Save(@Model.Message.Id)"><i class="fa fa-envelope-open"></i> Prendi in carico</a>
+                </li>
+                <li>
+                    <a href="#" title="Sposta il messaggio nella cartella degli 'ignorati'" onclick="updateStatus(@Model.Message.Id, @((int) OpenDMS.Domain.Entities.MailStatus.Spam))"><i class="fa fa-ban"></i>Ignora</a>
+                </li>
+            }
+            @if (Model.Message.Id > 0 && Model.Message.Status != OpenDMS.Domain.Entities.MailStatus.Received)
+            {
+                <li>
+                    <a href="#" title="Rilascia il messaggio nella posta ricevuta" onclick="updateStatus(@Model.Message.Id, @((int) OpenDMS.Domain.Entities.MailStatus.Received))"><i class="fa fa-inbox"></i> Rilascia</a>
+                </li>
+            }
+        }
+    </ul>
+    <ul class="nav-toolbar">
+        @if (Model.Message.DocumentId > 0)
+        {
+            <li>
+                <a href="#" onclick="return AddFolder(@Model.Message.DocumentId)" title="Fascicola il documento"><i class="fa fa-folder"></i> Fascicola</a>
+            </li>
+            <li>
+                <a href="#" onclick="return Share(@Model.Message.DocumentId)" title="Condividi il documento"><i class="fa fa-share-alt"></i> Condividi</a>
+            </li>
+            <li>
+                <a href="#" onclick="return ShowDocument(@Model.Message.DocumentId,true)" title="Visualizza la scheda del documento"><i class="fa fa-image"></i> Scheda Documento</a>
+            </li>
+
+        }
+        @if (Model.Message.Id > 0 && (Model.Message.Status == OpenDMS.Domain.Entities.MailStatus.WaitingForApproval || Model.Message.Status == OpenDMS.Domain.Entities.MailStatus.Claimed || Model.Message.Status == OpenDMS.Domain.Entities.MailStatus.Draft || Model.Message.Status == OpenDMS.Domain.Entities.MailStatus.Received || Model.Message.Status == OpenDMS.Domain.Entities.MailStatus.Spam || Model.Message.Status == OpenDMS.Domain.Entities.MailStatus.Failed))
+        {
+            <li>
+                <a href="#" title="Sposta il messaggio nel cestino" onclick="updateStatus(@Model.Message.Id, @((int) OpenDMS.Domain.Entities.MailStatus.Deleted))"><i class="fa fa-trash-o"></i></a>
+            </li>
+        }
+    </ul>
+</div>
+<div class="Panel">
+    <div style="position:relative">
+        <h2>
+            @Model.Message.Title
+        </h2>
+
+        @if (Model.Tasks.Count > 0)
+        {
+            <div style="position:absolute;right:4px;top:4px;">
+                <a href="#tasks" title="Ci sono @Model.Tasks.Count attività in corso!"><i style="font-size:2.2rem;color:red" class="fa fa-exclamation-circle"></i> </a>
+            </div>
+        }
+
+
+        <div style="position:relative;padding-left:8px">
+            <strong style="display:inline-block;width:35px;height:24px;">Da: </strong>
+            <a class="btn-link" href="">@Model.Message.From.Description</a>
+            <div style="position:absolute;right:4px;top:4px; font-size:.85rem;color:#666">
+                @Model.Message.Date
+            </div>
+        </div>
+        <div style="position:relative;padding-left:8px">
+            <strong style="display:inline-block;width:35px;height:24px;">A: </strong>
+            @foreach (var c in Model.Message.To)
+            {
+                <a class="btn-link" href="">@c.Description</a>
+                ;
+            }
+            @if (Model.Message.To.Count == 0)
+            {
+                <a class="btn-link" disabled href="">Nessuno</a>
+            }
+        </div>
+        @if (Model.Message.CC.Count > 0)
+        {
+            <div style="position:relative;padding-left:8px">
+                <strong style="display:inline-block;width:35px;height:24px;">CC: </strong>
+                @foreach (var c in Model.Message.CC)
+                {
+                    <a class="btn-link" href="">@c.Description</a>
+                    ;
+                }
+            </div>
+        }
+        @if (Model.Message.CCr.Count > 0)
+        {
+            <div style="position:relative;padding-left:8px">
+                <strong style="display:inline-block;width:35px;height:24px;">CCr: </strong>
+                @foreach (var c in Model.Message.CCr)
+                {
+                    <a class="btn-link" href="">@c.Description</a>
+                    ;
+                }
+            </div>
+        }
+        <br />
+        <br />
+    </div>
+    <div class="Panel">
+
+        <div class="accordion">
+            <div class="accordion-item">
+                <div class="accordion-button" data-bs-toggle="collapse" data-bs-target="#message">
+                    <i class="fa fa-comment" style="color:#aab;width:20px;margin-right:8px"></i> <strong>Messaggio</strong>
+                </div>
+                <div id="message" class="Panel accordionbackpanel collapseOne accordion-collapse collapse show">
+                        @Html.Raw(Model.Message.Body)
+                    @if (string.IsNullOrEmpty(Model.Message.Body))
+                    {
+                        <i>Nessuno</i>
+                    }
+                </div>
+            </div>
+
+            @if (Model.Message.Attachments.Count > 0)
+            {
+                <div class="accordion-item">
+                    <div class="accordion-button" data-bs-toggle="collapse" data-bs-target="#allegatiPanel">
+                        <i class="fa fa-paperclip" style="color:#aab;width:20px;margin-right:8px"></i> <strong>Allegati (@Model.Message.Attachments.Count)</strong>
+                    </div>
+                    <div id="allegatiPanel" class="accordionbackpanel collapseOne accordion-collapse collapse show">
+                        @foreach (var A in Model.Message.Attachments)
+                        {
+                            <div ><i class="fa fa-paperclip"></i> @A.Description</div>
+                        }
+                    </div>
+                </div>
+            }
+            @if (Model.Message.Next.Count > 0)
+            {
+                <div class="accordion-item">
+                    <div class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#next">
+                        <i class="fa fa-inbox" style="color:#aab;width:20px;margin-right:8px"></i> <strong>Ricevute (@Model.Message.Next.Count)</strong>
+                    </div>
+                    <div id="next" class="accordionbackpanel collapseOne accordion-collapse collapse">
+                        @foreach (var P in Model.Message.Next)
+                        {
+                            <div style="background-color:#f8f8f8;padding:8px;margin-bottom:10px;border-radius:10px">
+                                @Html.Raw(P.Body)
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (Model.Message.Previous.Count > 0)
+            {
+                <div class="accordion-item">
+                    <div class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#prev">
+                        <i class="fa fa-envelope-o" style="color:#aab;width:20px;margin-right:8px"></i> <strong>Messaggi Precedenti (@Model.Message.Previous.Count)</strong>
+                    </div>
+                    <div id="prev" class="accordionbackpanel collapseOne accordion-collapse collapse">
+                        @foreach (var P in Model.Message.Previous)
+                        {
+                            <div style="background-color:#f8f8f8;padding:8px;margin-bottom:10px;border-radius:10px">
+                                @Html.Raw(P.Body)
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (Model.Folders.Count > 0)
+            {
+                <div class="accordion-item">
+                    <div class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#folders">
+                        <i class="fa fa-folder" style="color:#aab;width:20px;margin-right:8px"></i> <strong>Fascicoli (@Model.Folders.Count)</strong>
+                    </div>
+                    <div id="folders" class="accordionbackpanel collapseOne accordion-collapse collapse">
+
+                        @foreach (var F in Model.Folders)
+                        {
+                            <div class="FolderPathPanel">
+                                <i class="fa fa-folder divider"></i>
+                                @foreach (var P in F.Path)
+                                {
+                                    <a href="#" target="_top" onclick="return ShowDocument(@P.Id,true)"> @P.Description</a>
+                                    <i class="divider">\</i>
+                                }
+                                <a href="#" target="_top" onclick="return ShowDocument(@F.Id,true)">@F.Description</a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (Model.Tasks.Count > 0)
+            {
+                <div class="accordion-item">
+                    <div class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#tasks">
+                        <i class="fa fa-tasks" style="color:#aab;width:20px;margin-right:8px"></i> <strong>Attività in Corso (@Model.Tasks.Count)</strong>
+                    </div>
+                    <div id="tasks" class="accordionbackpanel collapseOne accordion-collapse collapse">
+                        @foreach (var P in Model.Tasks)
+                        {
+                            <div style="background-color:#f8f8f8;padding:8px;margin-bottom:10px;border-radius:10px;position:relative;">
+                                <div>
+                                    <strong style="width:35px;height:22px; display:inline-block;">Da:</strong>
+                                    <span>
+                                        <img class="avatar" style="width:18px;height:18px" src="/internalapi/identity/Avatar/0@(P.Sender)" />
+                                        @P.SenderName
+                                    </span>
+                                </div>
+                                <div>
+                                <strong style="width:35px;height:22px;display:inline-block;">A:</strong>
+                                    @foreach (var d in P.ToList)
+                                    {
+                                        <span>
+                                            <img class="avatar" style="width:18px;height:18px" src="/internalapi/identity/Avatar/@(d.Id)" />
+                                            @d.Description
+                                        </span>
+                                    }
+                                </div>
+                                <div style="margin-top:10px;margin-bottom:24px">@Html.Raw(string.IsNullOrEmpty(P.Title) ? "<i>Nessun Oggetto</i>" : P.Title)</div>
+                                <div style="position:absolute;right:8px;top:8px;font-size:.8em;color:#888">@(P.CreationDate) <i class="fa fa-calendar-o"></i></div>
+                                <div style="position:absolute;right:8px;top:28px;font-size:.8em;color:#888">@(P.ExpirationDate)</div>
+                                <a href="#" onclick="return showTask(@P.Id)" class="btn btn-sx btn-secondary">Dettaglio Attività</a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function editMail(id, op) {
+        //$("#TaskDetail")[0].loading = "lazy";
+        if (op == undefined) op = "edit";
+        window.location.href = "/Mail/SendMail?Id=[" + id + "]&cmd=" + op;
+    }
+
+    function showTask(id) { 
+        OpenModal("/Tasks/Task?tid=" + id);
+        return false;
+    }
+
+    function updateStatus(id, newstatus) {
+        fetch("?handler=SetStatus&id=" + id + "&status=" + newstatus)
+            .then(r => { return r.text() })
+            .then(data => {
+                // if ( newstatus == @((int)OpenDMS.Domain.Entities.MailStatus.Deleted)
+                //     || newstatus == @((int)OpenDMS.Domain.Entities.MailStatus.Spam)
+                //     )
+                window.location.reload();
+                if (window.parent)
+                    window.parent.postMessage({ op: "updatebadge", data: newstatus }, "*");
+
+            });
+    }
+
+    function Save(id) {
+        fetch("?handler=Acquire&id=" + id)
+            .then(r => { return r.json() })
+            .then(data => {
+                window.location.reload();
+                if (window.parent)
+                    window.parent.postMessage({ op: "updatebadge", data: newstatus }, "*");
+            });
+    }
+    function selectMail() {
+        if (window.parent.selectMail)
+            window.parent.selectMail();
+        else
+            closeWindow();
+    }
+
+</script>

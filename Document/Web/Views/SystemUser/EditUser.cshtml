@@ -1,0 +1,123 @@
+﻿@using Microsoft.Extensions.Configuration
+@using OpenDMS.Domain.Entities;
+@using Web.DTOs;
+@model UserDetails_DTO
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "Dati Personali";
+    Layout = "_AdminSystemUserLayout";
+
+}
+
+
+
+<script>
+
+    $(document).ready(function () {
+        $(function () {
+
+            //Per aggiungere e togliere la classe Active agli elementi della lista laterale
+            Carica("liCustomize-ProfiloUtente");
+
+            //codice per far svanire i messaggi di successo
+            //FadeOutSuccessMessagge(3000);
+
+        });
+    })
+</script>
+<form id="form_profilo_utente" action="/Admin/SystemUser/EditUser" method="post" class="ListPanel">
+    <div class="container">
+        <h3>
+            <span>Profilo Utente di Sistema</span>
+            <div class="pull-right">
+                <ul class="nav nav-toolbar">
+                    <li>
+                        <a href="/Admin/SystemUser/Index" class="btn btn-link">
+                            Annulla
+                        </a>
+                    </li>
+                    <li>
+                        <button class="btn btn-primary" type="submit">Memorizza</button>
+                    </li>
+                </ul>
+            </div>
+        </h3>
+    </div>
+    <div class="Panel">
+        <div id="Message_Target"></div>
+        @if (String.IsNullOrEmpty(Model.ErrorMessage))
+        {
+
+            @*Banca Dati & Homepage & Profiles*@
+            <div class="Row">
+                <label class="active" for="FullName">Nome Utente</label>
+                <input required name="FullName" type="text" value="@Model.FullName" id="FullName">
+            </div>
+
+            <h3>Notifiche</h3>
+            <div class="Row">
+                <label class="active" for="NotificationType">Modalità Ricezione</label>
+                <select asp-for="@Model.NotificationType" name="NotificationType" id="NotificationType" style="background-color: #eee;width:100%">
+                    <option selected="selected" value="">Impostazione Globale</option>
+                    <option selected="selected" value="NO">Nessuna</option>
+                    <option value="MAIL">Email</option>
+                </select>
+            </div>
+            <div class="Row">
+                <label class="active" for="NotificationMailAddress">Email Invio/Ricezione</label>
+                <select asp-items="@Model.EmailAddresses" asp-for="@Model.NotificationMailAddress" name="NotificationMailAddress" id="NotificationMailAddress" style="background-color: #eee;width:100%;">
+                    <option selected="selected" value="">Nessuna</option>
+                </select>
+            </div>
+
+
+            <h3>Dati Anagrafici</h3>
+
+
+            <div class="Row">
+                <label class="active" for="SurName">Cognome</label>
+                <input name="SurName" type="text" value="@Model.SurName" id="SurName">
+            </div>
+
+            <div class="Row">
+                <label class="active" for="FirstName">Nome</label>
+                <input name="FirstName" type="text" value="@Model.FirstName" id="FirstName">
+            </div>
+
+
+            <div class="Row">
+
+                <label class="active" for="IdentityDocumentType">Tipo Documento</label>
+                <select asp-for="@Model.IdentityDocumentType" name="IdentityDocumentType" id="IdentityDocumentType" style="background-color: #eee;width:100%">
+                    <option selected="selected" value="">Nessuno</option>
+                    <option value="TIN">Codice Fiscale</option>
+                    <option value="PAS">Passaporto</option>
+                    <option value="IDC">Documento di Identità</option>
+                    <option value="VAT">Partita IVA</option>
+                    <option value="NTR">Registrazione Camera di Commercio</option>
+                </select>
+            </div>
+
+            <div class="Row">
+                <label class="active" for="IdentityDocumentId">Numero documento</label>
+                <input name="IdentityDocumentId" type="text" value="@Model.IdentityDocumentId" id="IdentityDocumentId">
+            </div>
+
+            <div class="Row">
+                <label class="active" for="Country">Sigla Nazione</label>
+                <input name="Country" type="text" minlength="2"  maxlength="2" value="@Model.Country" id="Country">
+            </div>
+
+
+
+
+        }
+    </div>
+</form>
+
+<div class="MainPanel">
+</div>
+
+
+
+

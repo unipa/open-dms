@@ -1,0 +1,25 @@
+﻿@page
+@model ErrorsModel
+@{
+    ViewData["Title"] = "Error";
+    Layout = "_MenuLayout";
+}
+
+<div class="Header">
+    @await  Component.InvokeAsync("CompanyLogo")
+</div>
+<div class="InfoPanel">
+    <i class="fa fa-bug"></i>
+    <h1>@Model.ErrorTitle</h1>
+    @if (Model.ShowRequestId)
+    {
+        <h5>
+            @Model.RequestId
+        </h5>
+    }
+
+    <a class="mt-5" href="#" onclick="return history.back()">
+        <button type="button" class="btn btn-secondary">Torna indietro</button>
+    </a>
+</div>
+

@@ -1,0 +1,179 @@
+﻿@using OpenDMS.Core.DTOs;
+@inject IConfiguration config
+@model IndexModel
+
+<link rel="stylesheet" href="https://unpkg.com/dmn-js@14.1.6/dist/assets/dmn-js-drd.css">
+<link rel="stylesheet" href="https://unpkg.com/dmn-js@14.1.6/dist/assets/dmn-js-decision-table.css">
+<link rel="stylesheet" href="https://unpkg.com/dmn-js@14.1.6/dist/assets/dmn-js-literal-expression.css">
+<link rel="stylesheet" href="https://unpkg.com/dmn-js@14.1.6/dist/assets/dmn-js-shared.css">
+<link rel="stylesheet" href="https://unpkg.com/dmn-js@14.1.6/dist/assets/dmn-font/css/dmn.css">
+
+  <style>
+    .bjs-powered-by
+    {
+        display:none;
+    }
+  </style>
+
+<div class="Page">
+    @if (Model != null)
+    {
+        <iframe frameborder="0" class=" CheckOut hidden MainPanel"></iframe>
+        <div class="Preview Page">
+            <div class="MainPanel">
+                <div class="nav-toolbar-container">
+                    <ul class="nav nav-toolbar">
+                        @if (Model.CanAddContent)
+                        {
+                            <li class="">
+                                <a class="dropdown-item" onclick="return AddFile(@Model.DocumentId)" href="#">
+                                    <i class="fa fa-upload"></i>
+                                    <span>Carica</span>
+                                </a>
+                            </li>
+                        }
+
+                        @if (Model.CanViewContent && Model.Document.ContentType == OpenDMS.Domain.Enumerators.ContentType.Document && Model.Document.Image != null)
+                        {
+                            <li id="tbDownload">
+                                <a href="#" role="button" class="MobileIcon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-download"></i> Scarica... <span class="fa fa-caret-down"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li class="btnDownload"><a onclick="return Download(@Model.DocumentId, '')" class="dropdown-item" href="#"><i class="fa fa-image"></i> Documento Originale</a></li>
+                                    @if (Model.Document.Image.PreviewStatus == OpenDMS.Domain.Enumerators.JobStatus.Completed)
+                                    {
+                                        <li class="btnPDF"><a onclick="return Download(@Model.DocumentId, '.pdf')" class="dropdown-item" href="#"><i class="fa fa-file-pdf-o"></i> Versione PDF</a></li>
+                                    }
+                                </ul>
+                            </li>
+                        }
+                        @if (Model.CanAddContent && Model.Document.Image != null)
+                        {
+                            <li id="tbEdit"><a href="#" onclick="return CheckOut()"><i class="fa fa-pencil-square"></i> Modifica</a></li>
+                        }
+                        @if (Model.CanDeploy && Model.Document.Image != null && Model.Document.Image.SendingStatus == OpenDMS.Domain.Enumerators.JobStatus.NotNeeded)
+                        {
+                            <li id="tbPublish"><a href="#" class="" onclick="return publish()">     <i class="fa fa-cloud"></i> Pubblica...</a></li>
+                        }
+                    </ul>
+                    <ul class="nav nav-toolbar">
+                    </ul>
+                    <ul class="nav nav-toolbar">
+                        <li class="Mobile" id="tbZoomIn"><a href="#" onclick="Zoom(-1)" title="Ingrandisci"><i class="fa fa-plus-circle"></i></a></li>
+                        <li class="Mobile" id="tbZoomOut"><a href="#" onclick="Zoom(+1)" title="Riduci"><i class="fa fa-minus-circle"></i></a></li>
+                        <li class="Mobile"><span id="tbZoomValue">100%</span></li>
+                        <li class="Mobile" id="tbZoomWidth"><a href="#" onclick="Zoom(+3)" title="Adatta alla larghezza dello schermo"><i class="fa fa-file-o"></i></a></li>
+                    </ul>
+                </div>
+                <div class="Panel">
+                    <container class="PreviewPanel">
+                        <div class="LoadingPanel">
+                            <h1>Caricamento in corso...</h1>
+                        </div>
+                        <div class="ErrorPanel" style="display:none">
+                            <h1>Si è verificato un errore durante l'estrazione del file</h1>
+                            <p class="ErrorMessage"></p>
+                        </div>
+                        <div class="canvas" style="width:4096px;height:4096px"></div>
+
+                    </container>
+                </div>
+                @if (Model.Document.Image != null)
+                {
+                    <div class="Bottom Mobile" style="border-top:1px solid #eee">
+                        <label><b>Versione: </b>@(Model.Document.Image.VersionNumber).@(Model.Document.Image.RevisionNumber.ToString("00"))</label>
+                        <label><b>Dimensione: </b> @Model.Document.Image.FileSize Bytes</label>
+                        <label><b>Pubblicazione: </b> @Model.Document.Image.SendingStatus @Model.Document.Image.SendingDate</label>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    else
+    {
+
+    }
+
+</div>
+
+
+<script src="/js/bpmn.io/dmn-viewer.production.min.js"></script>
+
+
+<script>
+
+
+    $(document).ready(() => {
+
+        const imageId = @Model.Document.Image.Id;
+        const imageViewer = document.querySelector('.PreviewPanel');
+
+        const dmnViewer = new DmnJS({
+            container: '.canvas'
+        });
+
+        fetch("/internalapi/preview/GetBase64/" + imageId)
+            .then((response) => { if (!response.ok) return response.text().then(text => { throw new Error(text) }); else return response.text() })
+            .then((data) => {
+                xml = atob(data);
+
+                const { warnings } = dmnViewer.importXML(xml);
+                // fetch currently active view
+                const activeView = dmnViewer.getActiveView();
+                // apply initial logic in DRD view
+                if (activeView != null && activeView.type === 'drd') {
+                    const activeEditor = dmnViewer.getActiveViewer();
+
+                    // access active editor components
+                    const canvas = activeEditor.get('canvas');
+                }
+
+                //viewer.get('canvas').zoom('fit-viewport');
+                $(".LoadingPanel").hide();
+            })
+                .catch (error => {
+            $(".LoadingPanel").hide();
+            $(".ErrorMessage").text(error.message);
+            $(".ErrorPanel").show();
+        })
+        });
+
+
+    function CheckOut() {
+        var basepath = window.location.origin;
+        var editor = "@Model.Editor";
+
+        //var previewPanel = $(".Preview");
+        //previewPanel.addClass("hidden");
+        //var checkout = $(".CheckOut");
+        //checkout.removeClass("hidden");
+        window.open("/bpm/" + editor + "?id=@Model.DocumentId");
+        //checkout[0].src = "/bpm/" + editor + "?id=@Model.DocumentId";
+
+    }
+
+    function publish() {
+        fetch("/internalapi/wf/deploy/@Model.DocumentId")
+            .then((response) => { return response.json })
+            .then((data) => {
+                window.location.reload();
+            })
+    }
+
+
+    var zoomFactor = 1;
+    function Zoom(factor) {
+        var panel = $(".PreviewPanel");
+        if (factor == 2) // larghezza
+            zoomFactor = .13348388671875;
+        else
+            if (factor == 3) // altezza
+                zoomFactor = 1;
+            else
+                zoomFactor = zoomFactor * (factor > 0 ? 3 / 4 : 4 / 3);
+        panel.css("zoom", zoomFactor);
+        $("#tbZoomValue").html(" " + Math.trunc(zoomFactor * 100) + "% ");
+
+    }
+
+
+</script>

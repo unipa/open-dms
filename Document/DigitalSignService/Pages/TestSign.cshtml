@@ -1,0 +1,155 @@
+﻿@page
+@model TestSignModel
+@{
+    ViewData["Title"] = "Verifica Dispositivo di Firma";
+}
+
+
+<script type="text/html" id="Tokens">
+    {{#Tokens}}
+       <option value="{{serial}}">{{label}} {{manufacturerId}} - {{model}}</option>
+    {{/Tokens}}
+
+</script>
+<script type="text/html" id="Certificates">
+    {{#Certificates}}
+       <option value="{{id}}">{{name}}</option>
+    {{/Certificates}}
+
+</script>
+
+<div class="MainWindow">
+
+    <div class="Header">
+        <i class="fa fa-usb"></i>
+        <h1><small>@Model.Vendor</small>Firma Digitale</h1>
+        <div class="right-header">
+            <a class="btn btn-link" href="#" onclick="CloseWindow()"><i class="fa fa-times"></i></a>
+        </div>
+    </div>
+
+    <div class="Panel">
+
+        <div class="Row">
+            <label>Driver di Firma
+                <a style="position:absolute;right:0;bottom:1px;" onclick="window.location.reload()" href="#" class="btn btn-link btn-sm" title="Aggiorna Elenco"><i class="fade fa-refresh"></i></a>
+            </label>
+            <span>
+                <select asp-for="Vendor">
+                    @foreach (var o in Model.Vendors.OrderBy(o=>o.Key))
+                    {
+                        <option value="@o.Key">@o.Value</option>
+                    }
+                </select>
+            </span>
+        </div>
+        <div class="Row TokensPanel hidden">
+            <label>
+                Dispositivo
+                <a style="position:absolute;right:0;bottom:1px;" onclick="GetTokens()" href="#" class="btn btn-link btn-sm" title="Aggiorna Elenco"><i class="fade fa-refresh"></i></a>
+            </label>
+            <span>
+                <select id="Token">
+                </select>
+            </span>
+        </div>
+
+        <div class="Row CertificatePanel hidden">
+            <label>Certificato di Firma
+                <a style="position:absolute;right:0;bottom:1px;" onclick="GetCertificates()" href="#" class="btn btn-link btn-sm" title="Aggiorna Elenco"><i class="fade fa-refresh"></i></a>
+            </label>
+            <span>
+                <select id="Certificate">
+                </select>
+            </span>
+        </div>
+        <div class="Row">
+            <label>PIN</label>
+            <span>
+                <input type="password" asp-for="PIN" maxlength="8" />
+            </span>
+        </div>
+    </div>
+    <div class="Bottom">
+        <a class="btn btn-link" href="#" onclick="CloseWindow()">Esci</a>
+    </div>
+</div>
+
+<script>
+    var certificate="@Model.Certificate";
+    var vendor = "@Model.Vendor";
+    var token = "@Model.Token";
+
+
+    $(document).ready(()=>{
+        if (vendor) GetTokens();
+        $("#Vendor").on("change", () => {
+            vendor = $("#Vendor").val();
+            GetTokens();
+        })
+        $("#Token").on("change", () => {
+            token = $("#Token").val();
+            GetCertificates();
+        })
+
+    });
+
+    function GetTokens() {
+        $("#startBtn").hide();
+        var cpanel = $(".CertificatePanel");
+        cpanel.addClass("hidden");
+        var panel = $(".TokensPanel");
+        panel.addClass("hidden");
+        var h = "";
+        fetch("?handler=tokens&host=" + h + "&newVendor=" + vendor)
+            .then(response => { return response.json(); })
+            .then(data => {
+                var template = $("#Tokens").html();
+                var html = Mustache.to_html(template, { Tokens: data });
+                $("#Token").html(html)
+                if (data.length > 0)
+                {
+                    panel.removeClass("hidden");
+                    if (data.length == 1) {
+                        token = data[0].serial;
+                        GetCertificates()
+                    }
+                    $("#Token").val(token);
+                }
+            })
+    }
+
+
+    function GetCertificates()
+    {
+        $("#startBtn").hide();
+        var panel = $(".CertificatePanel");
+        panel.addClass("hidden");
+        var h = "";
+        fetch("?handler=certificate&host="+h+"&newVendor=" + vendor+"&tokenSerial="+token)
+            .then(response => { return response.json(); })
+            .then(data => {
+                var template = $("#Certificates").html();
+                var html = Mustache.to_html(template, { Certificates: data });
+                if (data.length > 1)
+                {
+                    html += "<option value=''>Nessuno</option>";
+                }
+                else if(data.length == 1)
+                {
+                    certificate = data[0].id;
+                }
+                $("#Certificate").html(html)
+                $("#Certificate").val(certificate);
+                panel.removeClass("hidden");
+            })
+    }
+
+
+
+    function CloseWindow() {
+        window.parent.postMessage({ op: "close", data: "" }, "*");
+    }
+
+
+</script>

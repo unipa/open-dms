@@ -1,0 +1,32 @@
+/*Stile per l'immagine di errore*/
+.errorImage {
+  width: auto;
+  height: auto;
+  margin-top: 1.5%;
+}
+
+
+.onlyContainer {
+  background-color: #cacaca;
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  overflow: auto;
+}
+
+.ImagePage
+{
+    border:1px solid #888;
+    box-shadow:0 0 10px 0 rgba(0,0,0,.3);
+    margin:10px 8px;
+    border-radius:2px;
+    background-color:#fff;
+}
+
+.ObscuredImages {
+    filter: blur(4px);
+}
+
+.SelectedImage {
+    border: solid #19aa8d 2px;
+}

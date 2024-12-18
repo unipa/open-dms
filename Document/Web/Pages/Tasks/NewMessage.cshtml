@@ -1,0 +1,180 @@
+﻿@page
+@model NewMessageModel;
+@using OpenDMS.Domain.Entities;
+@using OpenDMS.Domain.Enumerators;
+@{
+    ViewData["Title"] = "Nuovo Messaggio";
+}
+
+
+
+
+<form id="form" class="MainPanel" onsubmit="return SaveTask()">
+    <div class="Header">
+        <i class="fa fa-comment"></i>
+        <h1>
+            <small>Nuovo </small>
+            <span>Messaggio</span>
+        </h1>
+        <div class="right-header">
+            <a class="btn btn-link" href="#" onclick="return CloseWindow()"><i class="fa fa-times"></i></a>
+        </div>
+    </div>
+
+    <div id="Message_Target"></div>
+    <input type="hidden" name="Note" value="prova" id="HiddenInputNote">
+    <div class="Panel">
+        @if (Model.ShareInfo.Companies.Count > 1)
+        {
+            <div class="Row NoWrap">
+                <label for="CompanyId">Sistema Informativo</label>
+                <span>
+                    <select id="CompanyId" name="CompanyId" style="width:100%">
+                        @foreach (var C in Model.ShareInfo.Companies)
+                        {
+                            @Html.Raw("<option "+(C.Id==Model.ShareInfo.CompanyId ? "selected" : "")+$" value='{C.Id}'>{C.Description}</option>")
+                        }
+            </select>
+            </span>
+            </div>
+        } else
+        {
+            <input type="hidden" id="CompanyId" name="CompanyId" value="@Model.ShareInfo.CompanyId" />
+        }
+        <div class="Row NoWrap">
+            <label>A</label>
+            <input id="To"
+                   name="To"
+                   type="lookup"
+                   value="@Model.ShareInfo.To"
+                   tableId="$ug"
+                   tag="true"
+                   visible="true"
+                   required
+                   placeholder="Scegli i destinatari" />
+        </div>
+        <div class="Row NoWrap">
+            <label>C.C.</label>
+            <input id="cc"
+                   name="cc"
+                   type="lookup"
+                   value="@Model.ShareInfo.Cc"
+                   tableId="$ug"
+                   tag="true"
+                   visible="true"
+                   
+                   placeholder="" />
+        </div>
+        @if (Model.CanAssignToAll)
+        {
+            <div class="">
+                <label for="AssignToAllUsers"><input type="checkbox" value="S" id="AssignToAllUsers" name="AssignToAllUsers" /> Assegna a tutti gli utenti dei gruppi e ruoli indicati</label>
+            </div>
+        }
+        else
+        {
+            <input type="hidden" value="" id="AssignToAllUsers" name="AssignToAllUsers" />
+        }
+        <div id="OggettoGroup" class="Row NoWrap">
+            <label>Oggetto</label>
+                <input type="textbox" required value="@Model.ShareInfo.Message" name="Oggetto" id="Oggetto" />
+        </div>
+        <div class="MainPanel">
+            <div class="textEditor"></div>
+        </div>
+    </div>
+
+    <div class="Bottom">
+        <button type="submit" id="SubmitButton" class="btn btn-primary">Crea</button>
+        <a href="#" onclick="return CloseWindow()" class="btn btn-link">Esci</a>
+    </div>
+</form>
+
+
+
+
+<script>
+
+    var textEditorSelector = ".textEditor";
+
+    $(document).ready(function () {
+
+        if ("@Model.ShareInfo.ErrorMessage" !== '') ShowMessage('alert', '@Model.ShareInfo.ErrorMessage', 'Message_Target', 'Index');
+
+        var Value = $('<textarea/>').html("@Model.ShareInfo.Message").text();
+        InizializzaTextEditor(textEditorSelector, Value, null, "100%").then(function () {
+            // da eseguire dopo il caricamento del text editor.
+        });
+    })
+
+    function SaveTask() {
+
+        var BodyValue = tinymce.activeEditor.getContent(textEditorSelector);
+        $("#HiddenInputNote").val(BodyValue);
+        var body = ShareInformation(getFormValues("form"));
+        ShowRequiredPopupJS("form");//faccio comparire i popup manualmente in caso di campi non validi
+        if (document.forms["form"].reportValidity()) { //controllo la validità dei campi
+            $.ajax({
+                url: "/internalapi/tasklist/CheckRecipients",
+                type: "POST",
+                headers: { "Content-Type": "application/json", 'accept': 'text/plain' },
+                data: JSON.stringify(body)
+            })
+                .done(function (max) {
+                    if (max == -1)
+                        ShowMessage("alert", "Hai indicato troppi utenti. Riduci il numero e ripeti", 'Message_Target', window.location.href);
+                    else
+                    {
+                        if (max > 0)
+                        {
+                            if (confirm ("Stai per inviare un messaggio a "+max+" utenti. Sei sicuro ?"))
+                            max = 0;
+                        }
+                        if (max == 0)
+                        {
+                            $.ajax({
+                                url: "/internalapi/tasklist/Message",
+                                type: "POST",
+                                headers: { "Content-Type": "application/json", 'accept': 'text/plain' },
+                                data: JSON.stringify(body)
+                            })
+                                .done(function (DocumentImage) {
+
+                                    ShowMessage("success", "messaggio condiviso con successo.", 'Message_Target');
+                                    CloseWindow(true);
+//                                    window.parent.selectTask();
+//                                    window.parent.updateFilters();
+
+                                }).fail(function (err) {
+                                    ShowMessage("alert", "Non è stato possibile inviare il messaggio. Errore: " + err.responseText, 'Message_Target', window.location.href);
+                                });
+
+                        }
+                    }
+                }).fail(function (err) {
+                    ShowMessage("alert", "Non è stato possibile inviare il messaggio. Errore: " + err.responseText, 'Message_Target', window.location.href);
+                });
+
+
+        }
+        return false;
+    }
+
+    function ShareInformation(Info) {
+        var shareInformation = {
+            Description: Info.note,
+            Title: Info.oggetto,
+            CompanyId: Info.companyId,
+            NotifyTo: (Info.to !== "") ? Info.to.split(",") : [],
+            NotifyCC: (Info.cc !== "") ? Info.cc.split(",") : [],
+            AssignToAllUsers: false,
+            EventId: ""
+        };
+
+        return shareInformation;
+    }
+
+
+
+
+</script>

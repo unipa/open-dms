@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Interfacce - Copia\**" />
+    <EmbeddedResource Remove="Interfacce - Copia\**" />
+    <None Remove="Interfacce - Copia\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Library\Core.DigitalSignature\Core.DigitalSignature.csproj" />
+    <ProjectReference Include="..\Library\Elmi.Core.DataAccess.Interfaces\Elmi.Core.DataAccess.Interfaces.csproj" />
+    <ProjectReference Include="..\Library\Elmi.Core.DataAccess\Elmi.Core.DataAccess.csproj" />
+    <ProjectReference Include="..\Library\Elmi.Core.FileTypes\Elmi.Core.FileConverters.csproj" />
+    <ProjectReference Include="..\OpenDMS.Domain\OpenDMS.Domain.csproj" />
+    <ProjectReference Include="..\OpenDMS.MultiTenancy\OpenDMS.MultiTenancy.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="itext7" Version="8.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.RazorPages" Version="2.2.5" />
+    <PackageReference Include="MimeKit" Version="4.5.0" />
+    <PackageReference Include="OpenPop.NET" Version="2.0.6.1120" />
+    <PackageReference Include="SixLabors.Fonts" Version="2.0.3" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.4" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.3" />
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.3.5" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="QueryService\" />
+  </ItemGroup>
+
+ 
+</Project>

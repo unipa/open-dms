@@ -1,0 +1,52 @@
+﻿<!-- RICORDARE!!! :
+    IN QUESTA PAGINA VENGONO GESTITI DEGLI INPUT DI METADATI.
+
+    -Nel caso di campi prioritari aggiungere all'input la classe 'defaultProperties'.
+    -Nel caso di campi custom aggiungere all'input la classe 'customProperties'.
+
+-->
+
+<div class="row mt-4">
+    <div class="col-md-6 mb-4">
+        <label class="active" for="defaultValue">Valore Predefinito</label>
+        <input type="text" class="defaultProperties" id="defaultValue">
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <label class="active" for="columnWidth">Larghezza Campo <small>Default: 100%</small></label>
+        <input type="text" max="20" class="defaultProperties" id="columnWidth">
+    </div>
+
+</div>
+
+
+    <!--<div class="form-group col-md-6 mb-4">
+        <label class="active" for="classe">Classe CSS</label>
+        <input type="text" max="25" class="customProperties" id="Classe">
+    </div>-->
+<div class="row mt-4">
+
+    <div class=" col-md-6 mb-4">
+        <label class="active" for="maxLength">Nr.Max Caratteri (0..4096)</label>
+        <input type="number" max="4096" class="customProperties" id="maxLength">
+    </div>
+
+
+    <div class="col-md-3 mb-4">
+        <label class="active" for="prefix">Prefisso</label>
+        <input type="text" max="255" class="customProperties" id="prefix">
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <label class="active" for="suffix">Suffisso</label>
+        <input type="text" max="255" class="customProperties" id="suffix">
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <input type="checkbox" class="defaultProperties" id="tag">
+        <label for="tag">Tag <small>Accetta valori multipli</small></label>
+    </div>
+</div>

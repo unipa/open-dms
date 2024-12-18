@@ -1,0 +1,76 @@
+﻿@using Web.Model.Admin;
+@model HomeViewModel;
+@{
+    ViewData["Title"] = "Amministrazione";
+    Layout = "_AdminLayout";
+}
+
+<script>
+
+    $(document).ready(function () {
+        if (`@Model.ErrorMessage` !== '') ShowMessage('alert', `@Html.Raw(Model.ErrorMessage)`, 'Message_Target', 'TemplateNotifiche');
+        if (`@Model.SuccessMessage` !== '') ShowMessage('success', '@Html.Raw(Model.SuccessMessage)', 'Message_Target', null);
+    })
+
+    function Redirect(href) {
+        window.location = href;
+    }
+
+</script>
+
+<style>
+    .ToFullCog {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        font-size: 55px;
+        text-shadow: none !important;
+        display: block;
+        padding-top: 25px;
+    }
+
+    .BgIconColor {
+        color: #1AB294;
+    }
+
+    .PreviewImage i {
+        /* text-shadow: 0 0 10px rgba(32,32,32,.3); */
+        color: #9999a4;
+        font-size: 4rem;
+    }
+   path {
+        filter: drop-shadow(0px 10px 40px rgba(0, 0, 0, 0.4));
+        stroke-linejoin: round; 
+        stroke-linecap: round; 
+        fill: #1AB294;
+    }
+
+</style>
+
+@section HeaderTitle
+    {
+    Tutte le Impostazioni
+}
+
+<div>
+    <div id="Message_Target"></div>
+
+    <div class="PreviewContainer pt-2">
+
+        @foreach (var area in Model.Aree)
+        {
+            <div class="PreviewRow" onclick="Redirect('@area.Href')">
+                <div class="PreviewImage LowProfile">
+                    <i class="@area.Icon" style="bottom: 2.1rem;"></i>
+                </div>
+                <div class="PreviewName">
+                    @area.Name
+                    <small>@area.Description</small>
+                </div>
+            </div>
+        }
+
+    </div>
+</div>

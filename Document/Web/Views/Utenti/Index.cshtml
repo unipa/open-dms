@@ -1,0 +1,186 @@
+﻿@using Web.Model.Admin
+
+@model UtentiViewModel
+@{
+    ViewData["Title"] = "Utenti";
+    Layout = "_AdminLayout";
+}
+
+@section HeaderTitle
+{
+    Utenti
+}
+
+<script>
+    var PopupWindow = undefined;
+
+    $(document).ready(() => {
+        $(".liadmin-Utenti").addClass("active");
+    });
+
+    function updatePageSize() {
+        var pageSize = document.getElementById("pageSizeSelect").value;
+        var searchQuery = document.getElementById("searchInput").value;
+        var currentUrl = window.location.pathname + "?pageNumber=@Model.PageNumber&pageSize=" + pageSize + "&search=" + encodeURIComponent(searchQuery);
+        window.location.href = currentUrl;
+    }
+
+    function refreshPage() {
+        var pageSize = document.getElementById("pageSizeSelect").value;
+        var searchQuery = document.getElementById("searchInput").value;
+        var currentUrl = window.location.pathname + "?pageNumber=@Model.PageNumber&pageSize=" + pageSize + "&search=" + encodeURIComponent(searchQuery);
+        window.location.href = currentUrl;
+    }
+
+</script>
+
+<style>
+    .pagination .page-item.active .page-link {
+        background-color: #007bff; /* Colore di sfondo */
+        color: white; /* Colore del testo */
+        border-color: #007bff; /* Colore del bordo */
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Ombra per il focus */
+    }
+
+    .pagination .page-item.active .page-link:focus {
+        outline: none; /* Rimuovi il contorno predefinito */
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Mantieni l'ombra quando in focus */
+    }
+
+    .pagination .page-link {
+        transition: background-color 0.3s, color 0.3s; /* Transizioni per un effetto fluido */
+    }
+</style>
+
+<div class="Page">
+    <div class="Panel">
+
+        <div class="header border-bottom pb-2">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <span style="padding:16px 12px; cursor: pointer;" class="Desktop fa fa-bars" 
+                          onclick="$('.ListPanel').addClass('hiddenOnMobile');$('.LeftMenu').addClass('active');">
+                    </span>
+                    <h2 class="mb-0 ml-3">Utenti</h2>
+                </div>
+                <a href="javascript:void(0);" onclick="refreshPage()" title="Ricarica" class="fa fa-refresh" style="font-size: 1.5em; text-decoration: none;"></a>
+            </div>
+        </div>
+
+
+        <div id="Message_Target"></div>
+
+        <div class="header d-flex justify-content-between align-items-center">
+            <!-- Sezione di ricerca (label sopra l'input) -->
+            <div class="d-flex flex-column">
+                <label for="searchInput" class="mb-2"><b>Cerca un nome o un codice fiscale:</b></label>
+                <form method="get" action="/Admin/Utenti/Index" class="d-flex">
+                    <input type="text" id="searchInput" class="form-control" name="search" value="@ViewBag.Search" placeholder="Nome o Codice Fiscale" />
+                    <input type="hidden" name="pageSize" value="@ViewBag.PageSize" />
+                </form>
+            </div>
+
+            <div class="d-flex flex-column">
+                <label for="pageSizeSelect" class="mb-2"><b>Elementi per pagina:</b></label>
+                <select id="pageSizeSelect" onchange="updatePageSize()">
+                    <option value="5" @(ViewBag.PageSize == 5 ? "selected" : "")>5</option>
+                    <option value="10" @(ViewBag.PageSize == 10 ? "selected" : "")>10</option>
+                    <option value="20" @(ViewBag.PageSize == 20 ? "selected" : "")>20</option>
+                    <option value="50" @(ViewBag.PageSize == 50 ? "selected" : "")>50</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="Panel border rounded border-primary border-2 my-2  table-overflow-y bg-white">
+            <table class="table table-responsive table-condensed table-hover row-fluid">
+                <thead>
+                    <tr>
+                        <th>Account</th>
+                        <th>Nome</th>
+                        <th>Cognome</th>
+                        <th>Codice Fiscale</th>
+                        <th>Azioni</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var utente in Model.utenti)
+                    {
+                        <tr>
+                            <td>@utente.Id</td>
+                            <td>@utente.Contact.FirstName</td>
+                            <td>@utente.Contact.SurName</td>
+                            <td>@utente.Contact.FiscalCode</td>
+                            <td>
+                                <a href="/Admin/Utenti/@utente.Id/Dettaglio" class="btn btn-sm btn-primary" target="_blank">
+                                    <i class="fa fa-eye"></i>
+                                </a>
+                                    <a href="/Admin/Utenti/@utente.Id/Modifica" class="btn btn-sm btn-info" target="_blank">
+                                    <i class="fa fa-pencil"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <nav aria-label="Paginazione">
+                <ul class="pagination">
+                    <!-- Link alla pagina precedente -->
+                    @if (Model.PageNumber > 1)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="/Admin/Utenti/Index?pageSize=@ViewBag.PageSize&pageNumber=@(Model.PageNumber - 1)&search=@ViewBag.search">Precedente</a>
+                        </li>
+                    }
+
+                    <!-- Link alla prima pagina -->
+                    @if (Model.TotalPages >= 1)
+                    {
+                        <li class="page-item @(Model.PageNumber == 1 ? "active" : "")">
+                            <a class="page-link" href="/Admin/Utenti/Index?pageSize=@ViewBag.PageSize&pageNumber=1&search=@ViewBag.search">1</a>
+                        </li>
+                    }
+
+                    <!-- Pagine intermedie -->
+                    @if (Model.PageNumber > 3)
+                    {
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    }
+
+                    @for (int i = Math.Max(2, Model.PageNumber - 1); i <= Math.Min(Model.PageNumber + 1, Model.TotalPages - 1); i++)
+                    {
+                        <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                            <a class="page-link" href="/Admin/Utenti/Index?pageSize=@ViewBag.PageSize&pageNumber=@i&search=@ViewBag.search">@i</a>
+                        </li>
+                    }
+
+                    @if (Model.PageNumber < Model.TotalPages - 2)
+                    {
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    }
+
+                    <!-- Link all'ultima pagina-->
+                    @if (Model.TotalPages > 1)
+                    {
+                        <li class="page-item @(Model.PageNumber == Model.TotalPages ? "active" : "")">
+                            <a class="page-link" href="/Admin/Utenti/Index?pageSize=@ViewBag.PageSize&pageNumber=@Model.TotalPages&search=@ViewBag.search">@Model.TotalPages</a>
+                        </li>
+                    }
+
+                    <!-- Link alla pagina successiva -->
+                    @if (Model.PageNumber < Model.TotalPages)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="/Admin/Utenti/Index?pageSize=@ViewBag.PageSize&pageNumber=@(Model.PageNumber + 1)&search=@ViewBag.search">Successivo</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>

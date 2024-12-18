@@ -1,0 +1,215 @@
+﻿@using OpenDMS.Core.DTOs;
+@inject IConfiguration config
+@model IndexModel
+
+
+@if (Model != null)
+{
+    <div class="nav-toolbar-container MainToolbar">
+        <ul class="nav nav-toolbar">
+            @if (Model.CanAddContent)
+            {
+@*                 @if (
+                    Model.Document.ContentType == OpenDMS.Domain.Enumerators.ContentType.Document   // se è un documento ...
+                    && Model.CanEditForm                                                            // ... che posso modificare via form 
+                    )
+                {
+                    <li id="tbEditContent"><a href="#" onclick="return EditForm()" title="Modifica il Form"><i class="fa fa-table"></i> Modifica</a></li>
+                }
+ *@
+                @if (Model.CanEditData)
+                {
+                    <li id="tbEditContent"><a href="#" onclick="ShowEditor()"><i class="fa fa-edit"></i> Modifica</a></li>
+                    <li id="tbSaveContent" class="hidden"><a href="#" onclick="SaveEditor()"><i class="fa fa-save"></i> Memorizza</a></li>
+                    <li id="tbUndoContent" class="hidden"><a href="#" onclick="HideEditor()"><i class="fa fa-undo"></i> Annulla</a></li>
+                }
+                    @* @if (Model.CanAddContent && String.IsNullOrEmpty(Model.Document.DocumentType.CreationFormKey)) *@
+
+                    @* Non carico se sono un documento nato da form (contenttype=doc && !form) *@
+                @if (
+                    (Model.Document.DocumentType.ContentType != OpenDMS.Domain.Enumerators.ContentType.Document) 
+                    || String.IsNullOrEmpty(Model.Document.DocumentType.CreationFormKey)
+                    || Model.IsAdmin
+               )
+                {
+                    <li class="">
+                        <a class="dropdown-item" onclick="return AddFile(@Model.DocumentId)" href="#">
+                            <i class="fa fa-upload"></i>
+                            <span>Carica</span>
+                        </a>
+                    </li>
+                }
+            }
+            @if (Model.Document.Image != null)
+            {
+                <li id="tbDownload">
+                    <a href="#" role="button" class="MobileIcon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-download"></i> Scarica... <span class="fa fa-caret-down"></span></a>
+                    <ul class="dropdown-menu">
+                        <li class="btnDownload"><a onclick="return Download(@Model.DocumentId, '')" class="dropdown-item" href="#"><i class="fa fa-image"></i> Documento Originale</a></li>
+                        @* <li class="btnDocX"><a onclick="return Download(@Model.DocumentId, '.docx')" class="dropdown-item" href="#"><i class="fa fa-file-word-o"></i> Versione Microsoft Word</a></li> *@
+                        <li class="btnPDF"><a onclick="return Download(@Model.DocumentId, '.pdf')" class="dropdown-item" href="#"><i class="fa fa-file-pdf-o"></i> Versione PDF</a></li>
+                    </ul>
+                </li>
+                @if (Model.IsAdmin)
+                {
+                    @if (Model.Document.Image != null)
+                    {
+                     <li id="tbConvert">
+                        <a href="#" role="button" class="MobileIcon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-save"></i> Converti In... <span class="fa fa-caret-down"></span></a>
+                        <ul class="dropdown-menu">
+                                @* <li class="btnDocX"><a onclick="return Convert(@Model.DocumentId, '.docx')" class="dropdown-item" href="#"><i class="fa fa-file-word-o"></i> Microsoft Word</a></li> *@
+                                <li class="btnPDF"><a onclick="return Convert(@Model.DocumentId, '.pdf')" class="dropdown-item" href="#"><i class="fa fa-file-pdf-o"></i> PDF</a></li>
+                        </ul>
+                    </li>
+                    }
+                }
+                @if (Model.CanAddContent && Model.CanSign && Model.Document.Image.PreviewStatus == OpenDMS.Domain.Enumerators.JobStatus.Completed)
+                {
+                    <li id="tbAddDigitalSignature"><a href="#" class="MobileIcon" onclick="return AddDigitalSign('[@Model.DocumentId]')" title="Apponi Firma Elettronica"><i class="fa fa-pencil"></i> Firma Elettronica</a></li>
+                }
+
+            }
+        </ul>
+        <label class="PreviewDocumentName"></label>
+        <ul class="nav nav-toolbar">
+            <li class="Mobile" id="tbZoomIn"><a href="#" onclick="Zoom(-1)" title="Ingrandisci"><i class="fa fa-plus-circle"></i></a></li>
+            <li class="Mobile" id="tbZoomOut"><a href="#" onclick="Zoom(+1)" title="Riduci"><i class="fa fa-minus-circle"></i></a></li>
+            <li class="Mobile"><span id="tbZoomValue">100%</span></li>
+            <li class="Mobile" id="tbZoomWidth"><a href="#" onclick="Zoom(+3)" title="Adatta alla larghezza dello schermo"><i class="fa fa-file-o"></i></a></li>
+        </ul>
+    </div>
+    <div class="Page">
+        <div class="Panel Background">
+            <container class="HTMLPage">
+                <div class="PreviewPanel">
+                    <div>
+                        <h1>Caricamento in corso...</h1>
+                    </div>
+                </div>
+                <div class="ErrorPanel" style="display:none">
+                    <h1>Si è verificato un errore durante l'estrazione del file</h1>
+                    <p class="ErrorMessage"></p>
+                </div>
+            </container>
+        </div>
+        <textarea id="editor" class="editor EditorPanel hidden" onkeyup="UpdatePreview()"></textarea>
+    </div>
+
+    @if (Model.Document.Image != null)
+    {
+
+        <div class="Bottom Mobile" style="border-top:1px solid #eee">
+            <label><b>Versione: </b>@(
+        Model.Document.Image.VersionNumber
+        ).@(
+                  Model.Document.Image.RevisionNumber.ToString("00")
+                  )</label>
+            <label><b>Dimensione: </b> @Model.Document.Image.FileSize Bytes</label>
+            <label><b>Pubblicazione: </b> @Model.Document.Image.SendingStatus @Model.Document.Image.SendingDate</label>
+        </div>
+    }
+}
+else
+{
+
+}
+
+<script>
+   function ShowEditor(){
+        $("#tbEditContent").addClass("hidden");
+        $("#tbSaveContent").removeClass("hidden");
+        $("#tbUndoContent").removeClass("hidden");
+
+        $(".EditorPanel").removeClass("hidden");
+        var html = $(".PreviewPanel").html();//.replace(/\n/ig,"<br/>");
+        $(".EditorPanel").text(html);
+
+    }
+    function SaveEditor(){
+        //TODO: salvare il form
+        var VerificationCode = "";
+        var RequestVerificationCode = document.getElementsByName("__RequestVerificationToken");
+        if (RequestVerificationCode.length > 0) {
+            VerificationCode = RequestVerificationCode[0].value;
+        }
+
+        $(".EditorPanel").removeClass("hidden");
+        var html = $(".EditorPanel").val();
+        html = unescape(encodeURIComponent(html));
+        fetch("/internalapi/action/UploadFile",
+        {
+            method: 'post',
+            headers: {
+                RequestVerificationToken: VerificationCode,
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+            },
+            body: JSON.stringify({
+                documentId: @Model.DocumentId,
+                filename: "@Model.Document.Image?.FileName",
+                data: btoa(html)
+                })
+        })
+        .then(response => {
+            return response.json();
+        })
+        .then(data => {
+            HideEditor();
+        });
+    }
+
+    function HideEditor() {
+        $(".EditorPanel").addClass("hidden")
+        $("#tbEditContent").removeClass("hidden");
+        $("#tbSaveContent").addClass("hidden");
+        $("#tbUndoContent").addClass("hidden");
+        window.location.reload();
+    }
+   var previewtimer = undefined;
+    function UpdatePreview()
+    {
+        if (previewtimer) window.clearTimeout(previewtimer);
+        previewtimer = window.setTimeout(() => {
+            var html = $(".PreviewPanel").html();
+            var newhtml = $(".EditorPanel").val();
+            if (html != newhtml)
+                $(".PreviewPanel").html(newhtml);
+            previewtimer = undefined;
+        }, 125)
+    }
+
+    var zoomFactor = 1;
+    function Zoom(factor) {
+        var panel = $(".PreviewPanel");
+        if (factor == 2) // larghezza
+            zoomFactor = .13348388671875;
+        else
+            if (factor == 3) // altezza
+                zoomFactor = 1;
+            else
+                zoomFactor = zoomFactor * (factor > 0 ? 3 / 4 : 4 / 3);
+        panel.css("zoom", zoomFactor);
+        $("#tbZoomValue").html(" " + Math.trunc(zoomFactor * 100) + "% ");
+
+    }
+
+    $(document).ready(() => {
+
+        const imageId = @Model.Document.Image.Id;
+        const imageViewer = document.querySelector('.PreviewPanel');
+
+        fetch("/internalapi/preview/GetText/" + imageId)
+            .then((response) => { if (!response.ok) return response.text().then(text => { throw new Error(text) }); else return response.text() })
+            .then((data) => {
+                imageViewer.innerHTML = data;
+                $(imageViewer).find("*").attr("disabled", "disabled");
+                $(imageViewer).find("*").attr("readony", "readony");
+            })
+            .catch(error => {
+                $(".PreviewPanel").hide();
+                $(".ErrorMessage").text(error.message);
+                $(".ErrorPanel").show();
+            });
+    });
+
+</script>

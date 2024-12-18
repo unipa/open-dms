@@ -1,0 +1,29 @@
+﻿@page
+@using RemoteSignInfocert.Pages;
+@model DeletedModel;
+@{
+}
+
+
+<script>
+
+</script>
+
+<div class="container-fluid mt-3">
+    <div class="row mt-3 w-100 h-100">
+        <div class="callout danger">
+            <div class="callout-inner">
+                <div class="callout-title d-flex align-items-center gap-2">
+                    <i class="fa fs-2 fa-thrash-o"></i>
+                    <span class="visually-hidden">Sessione di firma cancellata</span>
+                    <span class="text">Sessione di firma cancellata</span>
+                </div>
+                <p>
+                    <span class="h5">La sessione di firma è stata cancellata correttamente.</span>
+                    @Model.responsePhrase
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+

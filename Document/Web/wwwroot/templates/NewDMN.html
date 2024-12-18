@@ -1,0 +1,99 @@
+
+
+<div class="Panel">
+    <input type="hidden" document="documentDate" value="{{yyyy-MM-dd}}" />
+    <div style="display:flex;flex-direction:row">
+        <div style="width:30%">
+            <label class="active">Identificativo Univoco</label>
+            <span>
+                <input type="text"
+                       name="ExternalId"
+                       id="ExternalId"
+                       document="externalId"
+                       required
+                       onchange="return updateDescription()" />
+            </span>
+        </div>
+        <div style="width:68%;margin-left:2%;">
+            <label class="active">Descrizione</label>
+            <span>
+                <input type="text"
+                       maxlength="255"
+                       name="Description"
+                       id="Description"
+                       document="description"
+                       required />
+            </span>
+        </div>
+    </div>
+
+    <div>
+        <label class="active">Modello</label>
+        <select id="FormTemplate" name="FormTemplate" style="width:100%" onchange="return selectFormTemplate()">
+        </select>
+    </div>
+    <div id="Preview" class="hidden"></div>
+
+</div>
+
+
+<script>
+
+  function selectFormTemplate()
+  {
+  var $s = $("#FormTemplate");
+      FileContentName = $s.val();
+      FileContent = "";
+
+      try {
+          $("#Preview").html("");
+          fetch("/internalapi/Template/dmn/" + FileContentName)
+              .then(r => { if (r.ok) { return r.text() } else new Error("Form non trovato") })
+              .then(data => {
+                  if (data) {
+                      data = atob(data);
+                      FileContent = data;
+                      data = data.replace(/function Start/ig, "function _start").replace(/function Validate/ig, "function _validate");
+                      $("#Preview").html(data);
+                  }
+                  else
+                      $("#Preview").html("");
+              })
+              .catch(err => { $("#Preview").html(err); });
+      } catch (ex) {
+          $("#Preview").html(ex);
+      };  }
+
+  function Start()
+  {
+  // Questa funzione viene richiamata prima di renderizzare il form
+  // Può essere utilizzata per effettuare chiamate http e recuperare dati esterni
+  // o mostrare o nascondere informazioni in base al valore delle variabili.
+      fetch("/internalapi/Template/dmn")
+          .then(r => r.json())
+          .then(d => {
+              var sel = $("#FormTemplate")[0];
+
+              $(d).each((i, e) => {
+                  var name = e;
+                  name = name.substr(0, name.lastIndexOf('.'));
+                  var option = document.createElement("option");
+                  option.value = e;
+                  option.text = name
+                  sel.add(option);
+              });
+              selectFormTemplate();
+          });
+      ContentType = 5;
+  }
+
+    function Validate() {
+        // Questa funzione viene richiamata prima di salvare il form per validare i dati.
+        //
+        // Valore di ritorno:
+        // true  = Ok, prosegue con il salvataggio
+        // false = Annulla il salvataggio. La visualizzaizone di eventuali errori è a carico di questa funzione
+        return FileContentName;
+    }
+
+</script>

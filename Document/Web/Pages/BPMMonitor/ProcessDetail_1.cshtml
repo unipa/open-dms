@@ -1,0 +1,228 @@
+﻿@page
+@model Web.Pages.BPMMonitor.ProcessDetail1Model
+@{
+}
+
+
+
+<div id="Info">
+</div>
+<div class="Panel">
+    <div style="margin-bottom:20px">
+        <h4>Attività In Ritardo</h4>
+        <table class="Content">
+            <tr>
+                <th style="width:100%">Risorsa</th>
+                <th nowrap style="text-align:right;min-width:110px;padding-right:4px">Istanze</th>
+                <th nowrap style="text-align:right;min-width:110px;padding-right:4px">Max Ritardo</th>
+                <th nowrap style="text-align:right;min-width:110px;padding-right:4px">Min Ritardo</th>
+                <th nowrap style="text-align:right;min-width:110px;padding-right:4px">Media</th>
+            </tr>
+            <tbody id="ExpiredProcesses"></tbody>
+        </table>
+    </div>
+
+    <div>
+        <h4>Attività Concluse </h4>
+        <table class="Content">
+            <tr>
+                <th style="width:100%">Risorsa</th>
+                <th nowrap style="text-align:right;min-width:110px;padding-right:4px">Istanze</th>
+                <th nowrap style="text-align:right;min-width:110px;padding-right:4px">Max Anticipo</th>
+                <th nowrap style="text-align:right;min-width:110px;padding-right:4px">Min Anticipo</th>
+                <th nowrap style="text-align:right;min-width:110px;padding-right:4px">Media</th>
+            </tr>
+            <tbody id="ActiveProcesses"></tbody>
+        </table>
+    </div>
+
+
+</div>
+<div class="Bottom">
+    <a href="#" class="btn" onclick="selectTask()">Chiudi</a>
+</div>
+
+<script type="text/html" id="ProcessInfo">
+    {{#info}}
+    <div class="Header">
+        <i class="fa fa-sitemap"></i>
+    <h1>
+        <small>{{category}}</small>
+        <span>{{description}}</span>
+    </h1>
+    <div class="right-header">
+        <ul class="nav nav-toolbar">
+            <li>
+                <a href="#" onclick="selectTask()"><i class="fa fa-times"></i></a>
+            </li>
+        </ul>
+    </div>
+    </div>
+    <div class="Content" style="display:flex;flex-direction:row;margin:16px 0;">
+        <div  style="width:100%;display:flex;flex-direction:column">
+            <div class="chart">
+                <div class="intime-chart-bar" style="width:{{ notExpiredPercentage }}%"></div>
+                <div class="intime-chart-legend">{{ notExpiredPercentage }}%</div>
+            </div>
+            <div class="chart">
+                <div class="delayed-chart-bar" style="width:{{ expiredPercentage }}%"></div>
+                <div class="intime-chart-legend">{{ expiredPercentage }}%</div>
+            </div>
+
+        </div>
+        <div>
+            <label style="padding-left:10px;text-align:right;font-weight:600">Istanze</label>
+            <div style="text-align:right;font-weight:600;font-size:1.2em">{{count}}</div>
+        </div>
+@*         <div>
+            <label style="padding-left:10px;text-align:right;font-weight:600">Risorse</label>
+            <div style="text-align:right;font-weight:600;font-size:1.2em">{{users}}</div>
+        </div>
+ *@        <div>
+            <label style="padding-left:10px;text-align:right;min-width:200px;font-weight:600">Periodo</label>
+            <div style="text-align:right;font-weight:600;font-size:1.2em;text-wrap:nowrap;margin-left:10px">{{fromDate}} - {{toDate}}</div>
+
+        </div>
+    </div>
+    {{/info}}
+</script>
+
+
+
+<script type="text/html" id="ExpiredProcessRow">
+    {{#items}}
+          <tr style="margin-bottom:1px">
+            <td style="padding:4px;background-color: #ffeee0;border-bottom:1px solid #fff">
+                <img class="avatar" src="/internalapi/identity/avatar/0{{ userId}}" />
+                <b>
+                {{userName}}
+                </b>
+            </td>
+            <td align="right" style="padding:4px;background-color: #ffeee0;border-bottom:1px solid #fff">
+                    {{ tasks }}
+            </td>
+            <td align="right" style="padding:4px;background-color: #ffeee0;border-bottom:1px solid #fff">
+                {{ maxHours }}h
+            </td>
+            <td align="right" style="padding:4px;background-color: #ffddd0;border-bottom:1px solid #fff">
+                {{ minHours }}h
+            </td>
+            <td align="right" style="padding:4px;background-color: #ffccc0;border-bottom:1px solid #fff">
+                <b>
+                {{ avgHours }}h
+                </b>
+            </td>
+        </tr>
+    {{/items}}
+    {{^items}}
+          <tr style="margin-bottom:1px">
+              <td colspan="5" style="padding:4px 8px;background-color: #fff8d8;border-bottom:1px solid #fff">
+                  Nessuna
+              </td>
+        </tr>
+
+    {{/items}}
+
+</script>
+
+
+<script type="text/html" id="ProcessRow">
+    {{#items}}
+          <tr style="margin-bottom:1px">
+            <td style="padding:4px;background-color: #eee;border-bottom:1px solid #fff">
+                <img class="avatar" src="/internalapi/identity/avatar/0{{ userId}}" />
+                <b>
+                {{userName}}
+                </b>
+            </td>
+            <td align="right" style="padding:4px;background-color: #eee;border-bottom:1px solid #fff">
+                    {{ tasks }}
+            </td>
+            <td align="right" style="padding:4px;background-color: #eee;border-bottom:1px solid #fff">
+                {{ maxHours }}h
+            </td>
+            <td align="right" style="padding:4px;background-color: #ddd;border-bottom:1px solid #fff">
+                {{ minHours }}h
+            </td>
+            <td align="right" style="padding:4px;background-color: #ccc;border-bottom:1px solid #fff">
+                <b>
+                {{ avgHours }}h
+                </b>
+            </td>
+        </tr>
+    {{/items}}
+    {{^items}}
+          <tr style="margin-bottom:1px">
+              <td colspan="5" style="padding:4px 8px;background-color: #fff8d8;border-bottom:1px solid #fff">
+                  Nessuna
+              </td>
+        </tr>
+
+    {{/items}}
+
+</script>
+
+
+<script>
+
+
+
+    var qs = (function (a) {
+        if (a == "") return {};
+        var b = {};
+        for (var i = 0; i < a.length; ++i) {
+            var p = a[i].split('=', 2);
+            if (p.length == 1)
+                b[p[0]] = "";
+            else
+                b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
+        }
+        return b;
+    })(window.location.search.substr(1).split('&'));
+
+    $(document).ready(() => {
+        LoadClosedProcess(qs["period"], qs["pid"]);
+    });
+
+    function CreatePercentage(data, type) {
+        data.forEach((e) => {
+            e.count = e.expired + e.notExpired;
+            e.type = type;
+            if (e.count > 0) {
+                e.expiredPercentage = Math.trunc( e.expired * 100 / e.count);
+                e.notExpiredPercentage = Math.round(e.notExpired * 100 / e.count);
+            }
+        });
+        return data;
+    }
+
+    function selectTask() {
+        window.parent.selectTask();
+    }
+
+    function LoadClosedProcess(period, pid) {
+        fetch("/internalapi/wf/ClosedProcess?period=" + period + "&pid=" + pid)
+            .then(response => response.json())
+            .then(data => {
+                var template = $("#ProcessInfo").html();
+                var html = Mustache.to_html(template, { info: CreatePercentage(data, 1) });
+                $("#Info").html(html);
+
+
+                fetch("/internalapi/wf/ClosedProcessDetails?period=" + period + "&pid=" + pid)
+                    .then(response => response.json())
+                    .then(data => {
+                        var template = $("#ExpiredProcessRow").html();
+
+                        var html = Mustache.to_html(template, { items: data.expired });
+                        $("#ExpiredProcesses").html(html);
+
+                        template = $("#ProcessRow").html();
+                        var html = Mustache.to_html(template, { items: data.active });
+                        $("#ActiveProcesses").html(html);
+
+                    });
+            });
+    }
+
+</script>

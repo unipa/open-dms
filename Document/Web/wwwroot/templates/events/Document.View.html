@@ -1,0 +1,23 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <div class="alert alert-info">
+        Questa attività verrà archiviata automaticamente quando prenderai visione degli allegati.<br />
+        Se però ritieni di non dovere o potere effettuare questa operazione, indica una motivazione e archivia l'attività
+    </div>
+    <div class="MainPanel">
+        <label>Commento</label>
+        <textarea {Mandatory} id="Justification" name="Justification" rows="5"></textarea>
+    </div>
+    <script>
+        function Start() {
+            InizializzaTextEditor("#Justification", "", null, "200px");
+        }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,519 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  outline: none;
+  padding: 0;
+}
+
+html,
+body,
+#container {
+  height: 100%;
+}
+
+.hidden {
+  display: none;
+}
+
+.panel {
+  background-color: transparent;
+  border: none;
+  border-radius: 2px;
+  font-family: "Arial", sans-serif;
+  padding: 10px;
+}
+
+.panel :hover {
+  border-bottom: 2px solid #d9534f;
+}
+
+.djs-label {
+  font-family: "Arial", sans-serif;
+}
+
+.bpmn-icon-task.red {
+  color: #cc0000 !important;
+}
+
+.bpmn-icon-task.yellow {
+  color: #ffc800 !important;
+}
+
+.bpmn-icon-task.green {
+  color: #52b415 !important;
+}
+
+#quality-assurance {
+  color: #111;
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#quality-assurance #form input {
+  border: solid 1px #ccc;
+  border-radius: 2px;
+  font-family: "Arial", sans-serif;
+  padding: 10px;
+}
+
+#quality-assurance #form input[type="text"] {
+  width: 100%;
+}
+
+#quality-assurance #form #warning {
+  background-color: rgba(255, 0, 0, 0.25);
+  border-radius: 2px;
+  padding: 10px;
+}
+
+#quality-assurance #form input[type="submit"] {
+  background-color: #fafafa;
+  color: #111;
+}
+
+#hint {
+  z-index: 99;
+  border: 1px solid lightgray;
+  width: 400px !important;
+  height: 51px !important;
+  position: absolute !important;
+  top: 0px !important; /* Sposta la palette in alto */
+  left: 0 !important; /* Allinea la palette al bordo sinistro */
+  right: auto !important; /* Allinea la palette al bordo destro */
+  display: flex !important; /* Imposta il display a flex per un layout orizzontale */
+  flex-direction: row !important; /* Posiziona gli elementi della palette in una riga */
+  justify-content: center !important; /* Allinea gli elementi all'inizio della palette */
+  align-items: center !important; /* Centra gli elementi verticalmente */
+  flex-wrap: nowrap !important; /* Permetti agli elementi di passare alla riga successiva se non ci sta spazio */
+  background: #fff !important; /* Imposta un colore di sfondo se desiderato */
+  border-bottom: 1px solid #ccc !important; /* Aggiungi un bordo in basso per separare dalla canvas */
+  padding: 5px !important; /* Aggiungi un po' di spazio interno attorno agli elementi */
+}
+
+#apibuttons {
+  left: 110px;
+  position: absolute;
+  top: 20px;
+  border: #ccc;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #dfdfdf;
+}
+
+.left-section {
+  display: flex;
+  align-items: center;
+  margin-top: 15px;
+  margin-left: 15px;
+  margin-bottom: 15px;
+}
+
+.right-section {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  margin-right: 20px;
+  /* Altri stili per il logo */
+}
+
+.process-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.tab-container {
+  display: flex;
+  margin-right: 20px; /* O qualsiasi altro spazio tu voglia tra i tab e i controlli dello zoom */
+  margin-top: 43px;
+}
+
+.tab {
+  margin-left: 12px;
+  background: white;
+  padding: 4px;
+  border: 1px solid gray;
+  border-bottom: none;
+  border-radius: 0.2em;
+}
+
+.process-name {
+  font-weight: 800;
+  white-space: nowrap; /* Impedisce al testo di andare a capo */
+  overflow: hidden; /* Nasconde il contenuto che esce dal box */
+  text-overflow: ellipsis; /* Aggiunge i puntini di sospensione se il testo è troppo lungo */
+  max-width: 400px; /* Imposta la larghezza massima del div */
+}
+
+.process-version {
+  color: gray;
+}
+
+.disattivato {
+  background: #dfdfdf;
+  cursor: pointer;
+  border: none;
+}
+
+.disattivato:hover {
+  border-top: 1px solid gray;
+  border-left: 1px solid gray;
+  border-right: 1px solid gray;
+}
+
+.attivato {
+  background: white;
+  cursor: pointer;
+  border-top: 1px solid gray;
+  border-left: 1px solid gray;
+  border-right: 1px solid gray;
+}
+
+/* Stile del pop-up */
+.helper-popup {
+  position: fixed;
+  bottom: 20px; /* Distanza dal fondo */
+  right: 310px; /* Distanza dal lato destro */
+  width: 420px; /* Larghezza del popup */
+  height: 220px; /* Altezza del popup */
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  padding: 20px;
+  box-sizing: border-box;
+  display: none; /* Nasconde inizialmente il pop-up */
+  overflow: auto; /* Aggiunge scrollbar se il contenuto eccede l'altezza */
+  cursor: move;
+  z-index: 999999;
+}
+
+/* Stile del testo della descrizione */
+.helper-description {
+  overflow-y: auto;
+  margin-bottom: 20px;
+  height: calc(100% - 30px); /* Altezza meno il padding e il pulsante chiudi */
+  cursor: auto;
+}
+
+/* Stile del pulsante chiudi */
+.helper-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.close-bottom {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.keyboard-shortcuts-button {
+  position: absolute;
+  top: 145px;
+  left: 40px;
+  z-index: 1000; /* Assicurati che sia sopra agli altri elementi */
+}
+
+#keyboardShortcutBtn {
+  border: none;
+  background-color: #dfdfdf;
+  color: black;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#statusIndicators {
+  left: calc(
+    40px + 50px
+  ); /* Aumenta la larghezza se necessario in base alla larghezza effettiva del pulsante */
+  padding: 10px;
+  cursor: pointer;
+}
+
+#statusIndicators:hover {
+  border-bottom: 2px solid #d9534f;
+}
+
+.modal {
+  position: fixed;
+  z-index: 1001;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0, 0, 0);
+  background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 450px; /* Could be more or less, depending on screen size */
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.binding {
+  float: right;
+}
+
+.warning-overlay {
+  background: red;
+  color: white;
+  padding: 2px 5px;
+  border-radius: 2px;
+  font-size: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  cursor: help;
+}
+
+.warning-overlay2 {
+  background: orange;
+  color: white;
+  padding: 2px 5px;
+  border-radius: 2px;
+  font-size: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  cursor: help;
+}
+
+.log-panel {
+  display: none; /* o none, a seconda del comportamento iniziale desiderato */
+  position: fixed;
+  bottom: 0;
+  height: 40%; /* o qualsiasi altezza fissa desiderata */
+  left: 0;
+  right: 0;
+  background-color: #f9f9f9;
+  overflow-y: auto; /* abilita lo scroll verticale se il contenuto supera l'altezza */
+  z-index: 1000; /* Assicurati che sia sopra agli altri elementi */
+  border-top: 3px solid #d9534f; /* Un tocco di design, opzionale */
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.2); /* Ombra per dare profondità, opzionale */
+}
+
+.log-panel-header {
+  position: sticky;
+  top: 0;
+  background-color: #f9f9f9;
+  padding: 10px 15px;
+  border-bottom: 1px solid #ddd;
+  z-index: 5;
+}
+
+.close {
+  float: right;
+  font-size: 24px;
+  color: #d9534f; /* Stesso colore dell'intestazione per coerenza */
+  cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.tablinks.attivo,
+.tablinks:hover {
+  border-bottom: 2px solid #d9534f;
+}
+
+.error-count {
+  color: #d9534f;
+  font-weight: bold;
+}
+
+.error-list,
+.warning-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tablinks {
+  background-color: transparent;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-right: 5px;
+}
+
+.listaerr {
+  line-height: 2;
+  border-bottom: 1px solid;
+  cursor: pointer;
+}
+
+.listawarn {
+  cursor: inherit !important;
+}
+
+#logPanel {
+  overflow: auto; /* Assicura che il contenuto interno sia scrollabile se necessario. */
+  max-height: 100%; /* Imposta un'altezza massima per il div. */
+  min-height: 100px; /* Imposta un'altezza minima per il div. */
+}
+
+.resize-grip {
+  position: absolute;
+  top: 0; /* Posiziona la maniglia in alto */
+  left: 0;
+  width: 100%;
+  height: 10px;
+  background: #ccc;
+  cursor: ns-resize; /* Il cursore indica il ridimensionamento verticale */
+}
+
+.listaerr:hover {
+  background-color: lightgray;
+}
+
+.listaerr {
+  padding: 10px;
+  border-bottom: 1px solid #eee; /* Leggero per non distrarre */
+  cursor: pointer;
+}
+
+.listaerr:hover {
+  background-color: #f5f5f5; /* Feedback visivo al passaggio del mouse */
+}
+
+/* Ridimensionamento */
+.resize-grip {
+  height: 20px;
+  cursor: ns-resize;
+  z-index: 99999999999;
+  background: none;
+}
+
+.log-content-container {
+  overflow-y: auto; /* Applica lo scroll qui */
+  height: calc(
+    100% - 60px
+  ); /* Adegua in base all'altezza dell'intestazione e della resize grip */
+  padding: 10px;
+}
+
+.resize-grip {
+  height: 10px;
+  background: none;
+  cursor: ns-resize;
+  /* Posizionamento e stili per la resize grip */
+}
+
+.djs-search-container {
+  top: 100px;
+}
+
+/* .djs-popup-group{
+  display: ruby;
+} */
+
+.toast {
+  visibility: hidden;
+  min-width: 250px;
+  margin-left: -125px;
+  background-color: #5cb85c; /* Green background */
+  color: white;
+  text-align: center;
+  border-radius: 2px;
+  padding: 16px;
+  position: fixed;
+  z-index: 99999999;
+  left: 50%;
+  bottom: 30px;
+  font-size: 17px;
+}
+
+.toast.show {
+  visibility: visible;
+  -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+@-webkit-keyframes fadein {
+  from {
+    bottom: 0;
+    opacity: 0;
+  }
+  to {
+    bottom: 30px;
+    opacity: 1;
+  }
+}
+
+@keyframes fadein {
+  from {
+    bottom: 0;
+    opacity: 0;
+  }
+  to {
+    bottom: 30px;
+    opacity: 1;
+  }
+}
+
+@-webkit-keyframes fadeout {
+  from {
+    bottom: 30px;
+    opacity: 1;
+  }
+  to {
+    bottom: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes fadeout {
+  from {
+    bottom: 30px;
+    opacity: 1;
+  }
+  to {
+    bottom: 0;
+    opacity: 0;
+  }
+}
+
+.djs-minimap:not(.open) {
+  cursor: pointer;
+}
+
+.djs-minimap.open .toggle {
+  cursor: pointer;
+  padding: 8px !important;
+  background: gainsboro;
+}

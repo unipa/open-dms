@@ -1,0 +1,48 @@
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
+WORKDIR /app
+EXPOSE 443
+
+RUN apt-get update && apt-get install -y --allow-unauthenticated \
+fonts-dejavu-core \
+fonts-liberation \
+fonts-noto-cjk \
+fonts-noto-color-emoji \
+fonts-noto-core \
+fonts-noto-extra \
+fonts-opensymbol \
+fonts-symbola \
+ghostscript \
+	libgdiplus libc6-dev \
+	libx11-dev \
+	xfonts-75dpi \
+	fontconfig \
+	xfonts-base \
+	pdftohtml \ 
+	wget 
+	
+
+RUN	wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.bullseye_amd64.deb
+RUN dpkg -i wkhtmltox_0.12.6.1-3.bullseye_amd64.deb
+RUN apt --fix-broken install
+RUN rm wkhtmltox_0.12.6.1-3.bullseye_amd64.deb
+	 
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+WORKDIR /src
+COPY ["/API/OpenDMS.Document.API/OpenDMS.Document.API/OpenDMS.DocumentManager.API.csproj", "OpenDMS.Document.API/"]
+COPY ["/Core/OpenDMS.Infrastructure.Database/OpenDMS.Infrastructure.Database.csproj", "lib/OpenDMS.Infrastructure.Database/"]
+COPY ["/Core/OpenDMS.Infrastructure.VirtualFileSystem/OpenDMS.Infrastructure.VirtualFileSystem.csproj", "lib/OpenDMS.Infrastructure.VirtualFileSystem/"]
+COPY ["/Core/OpenDMS.Domain/OpenDMS.Domain.csproj", "lib/OpenDMS.Domain/"]
+COPY ["/Core/OpenDMS.MultiTenancy/OpenDMS.MultiTenancy.csproj", "lib/OpenDMS.MultiTenancy/"]
+COPY . .
+RUN dotnet build "API/OpenDMS.Document.API/OpenDMS.Document.API/OpenDMS.DocumentManager.API.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "API/OpenDMS.Document.API/OpenDMS.Document.API/OpenDMS.DocumentManager.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+COPY certs/dms_cert.pfx .
+ENV ASPNETCORE_URLS=https://+;http://+
+ENV ASPNETCORE_HTTPS_PORT=443
+ENTRYPOINT ["dotnet", "OpenDMS.DocumentManager.API.dll"]

@@ -1,0 +1,92 @@
+﻿
+
+
+<h3>Recupero Elementi</h3>
+<div class="row">
+    <div class="col-md-2 mb-4 mt-4">
+        <label for="LookupMethod">Metodo</label>
+        <select class="customProperties" id='LookupMethod'>
+            <option value="">GET</option>
+            <option value="POST">POST</option>
+            <option value="PUT">PUT</option>
+            <option value="PATCH">PATCH</option>
+            <option value="DELETE">DELETE</option>
+        </select>
+    </div>
+    <div class="col-md-8 mb-4 mt-4">
+        <label for="LookupURL">URL</label>
+        <input class="customProperties" type="text" id='LookupURL' />
+    </div>
+    <div class="col-md-2 mb-4 mt-4">
+        <label for="Cache">Cache ID</label>
+        <input class="customProperties" type="text" id='Cache' />
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-2 mb-4 mt-4">
+        <label for="AuthMethod">Autenticazione</label>
+        <select class="customProperties" id='AuthMethod'>
+            <option value="">Nessuna</option>
+            <option value="BASIC">Basic</option>
+            <option value="BEARER">Bearer Token</option>
+            <option value="JWT">JWT Token</option>
+        </select>
+    </div>
+    <div class="col-md-10 mb-4 mt-4">
+        <label for="Token">Token / Secret</label>
+        <input class="customProperties" type="text" id='Token' />
+    </div>
+</div>
+
+<h3>Payload JWT Token</h3>
+<div class="row">
+    <div class="col-md-3 mb-4 mt-4">
+        <label for="iss">Issuer</label>
+        <input class="customProperties" type="text" id='iss' />
+    </div>
+    <div class="col-md-3 mb-4 mt-4">
+        <label for="exp">Expiration</label>
+        <input class="customProperties" type="text" id='exp' />
+    </div>
+    <div class="col-md-3 mb-4 mt-4">
+        <label for="sub">Subject</label>
+        <input class="customProperties" type="text" id='sub' />
+    </div>
+    <div class="col-md-3 mb-4 mt-4">
+        <label for="aud">Audience</label>
+        <input class="customProperties" type="text" id='aud' />
+    </div>
+</div>
+
+<h3>Credenziali Autenticazione Basic</h3>
+<div class="row">
+    <div class="col-md-6 mb-4 mt-4">
+        <label for="UserName">UserName</label>
+        <input class="customProperties" type="text" id='UserName' />
+    </div>
+    <div class="col-md-6 mb-4 mt-4">
+        <label for="Password">Password</label>
+        <input class="customProperties" type="text" id='Password' />
+    </div>
+</div>
+
+<h3>Risposta del servizio</h3>
+
+<div class="row">
+    <div class="col-md-2 mb-4 mt-4">
+        <label for="Timeout">TimeOut (secs)</label>
+        <input class="customProperties" type="number" min="60" max="300" id='Timeout' />
+    </div>
+
+    <div class="col-md-4 mb-4 mt-4">
+        <label class="active" for="Codice">Campo Identificativo</label>
+        <input type="text" max="50" class="customProperties" id="Codice">
+    </div>
+
+    <div class="col-md-6 mb-4 mt-4">
+        <label class="active" for="Decodifica">Campi Descrittivi (separati da virgola)</label>
+        <input type="text" max="50" class="customProperties" id="Decodifica">
+    </div>
+
+</div>

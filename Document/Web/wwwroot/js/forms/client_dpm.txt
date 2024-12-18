@@ -1,0 +1,531 @@
+
+var formObj = undefined;
+var formjs = undefined;
+var formhtml = undefined;
+var Variables = [];
+var Container = undefined;
+var Template = undefined;
+var task = undefined;
+
+
+export function RemoveFile(variableName) {
+    var index = Variables.findIndex((v) => { return v.name == variableName });
+    if (index >= 0) {
+        var v = Variables[index];
+
+        var name = $("#" + v.name).attr("name");
+        if (name) {
+            $("#" + name + "_btn").show();
+            var container = undefined;
+            var c = $("#" + v.name).attr("container");
+            if (!c) {
+                container = $("#" + v.name + "_container");
+            } else
+                container = $("#" + c);
+
+            if (container) {
+                v.files.forEach((e, i) => {
+                    var file = container.find("[fname='" + v.name + "_" + e.name + "']");
+                    if (file.length > 0) {
+                        file.remove();
+                    }
+                });
+                var file = container.find("[fbtn='" + v.name + "']");
+                if (file.length > 0) {
+                    file.remove();
+                }
+
+                if (container.find("[fname]").length == 0)
+                    container.hide().addClass("hidden");
+            }
+        }
+        Variables = Variables.splice(index, 1)
+    }
+}
+
+function GUID() {
+    return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c =>
+        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+    );
+}
+
+export function SelectFile(variableName, multiple = false, accept = "*.*", index) {
+    if (!variableName) variableName = GUID();
+    var fileAInput = $("#addfile_" + variableName);
+    if (fileAInput.length == 0) {
+        fileAInput = $("<input type='file' id='addfile_" + variableName + "' style='display: none' accept='" + accept + "' " + (multiple ? "multiple" : "") + " />");
+        window.document.body.appendChild(fileAInput[0]);
+        var VerificationCode = "";
+        var RequestVerificationCode = document.getElementsByName("__RequestVerificationToken");
+        if (RequestVerificationCode.length > 0) {
+            VerificationCode = RequestVerificationCode[0].value;
+        }
+
+        fileAInput[0].onchange = () => {
+            var index = Variables.findIndex((v) => { return v.name === variableName });
+            if (index >= 0)
+                Variables[index].files = [...fileAInput[0].files]
+            else
+                Variables.push({ name: variableName, files: [...fileAInput[0].files] });
+
+            updateFields();
+        }
+    }
+    fileAInput.click();
+}
+
+
+$(document).ready(() => {
+
+    //var attachments = $(".Attachment");
+    //attachments.each((i, el) => {
+    //    var e = $(el);
+    //    var name = e.attr("name");
+    //    if (name) {
+    //        var value = e.val();
+    //        var isTag = e.attr("tag");
+    //        var extensions = e.attr("extennsios");
+    //        if (!extensions) extensions = "*.*";
+    //        var label = e.attr("label");
+    //        if (!label) label = "Carica File...";
+    //        var container = e.attr("container");
+
+    //        if (value)
+    //            updateAttachment(name, JSON.parse(value));
+    //        else {
+    //            var btn = $("<a id='" + name + "_btn' href='#' class='btn btn-secondary'>" + label + "</a>");
+    //            e.after(btn);
+    //            btn.off("click").on("click", () => { SelectFile(name, isTag, extensions) });
+    //        }
+    //    }
+    //});
+
+    enableformula(document.forms[0]);
+});
+
+
+
+
+
+function updateFields() {
+    Variables.forEach((v, i) => {
+        // Creo il contenitore con i file selezionati
+        var name = $("#" + v.name).attr("name");
+        if (name) {
+            var container = undefined;
+            $("#" + name + "_btn").hide();
+            var c = $("#" + v.name).attr("container");
+            if (!c) {
+                container = $("#" + v.name + "_container");
+                if (container.length == 0) {
+                    var parent = $("#" + v.name).parent();
+                    container = $("<div id='" + v.name + "_container'><div class='file'></div></div>");
+                    parent.append(container);
+                }
+            } else
+                container = $("#" + c);
+            container.show().removeClass("hidden");
+            v.files.forEach((e, i) => {
+                var file = container.find("[fname='" + v.name + "_" + e.name + "']");
+                if (file.length == 0) {
+                    var html = container.find(".file.hidden");
+                    if (html.length==0) html = $("<div class='file'></div>");
+                    file = html.clone();
+                    file.removeClass("hidden");
+                    file.attr("fname", v.name + "_" + e.name);
+                    file.removeAttr("file");
+                    container.prepend(file);
+                }
+                var name = file.find(".name");
+                if (name.length == 0) {
+                    name = $("<div class='name'></div>");
+                    file.append(name);
+                }
+                name.text(e.name);
+                var size = file.find(".size");
+                if (size.length > 0) {
+                    size.text(e.length);
+                }
+                var btn = container.find("[fbtn='" + v.name + "']");
+                if (btn.length == 0) {
+                    btn = $("<a href='#' fbtn='" + v.name + "' class='btn btn-link'><i class='fa fa-trash-o'></i></a>");
+                    container.append(btn);
+                }
+                btn.off("click").on("click", () => { RemoveFile(v.name) });
+            });
+        }
+
+    });
+}
+
+
+function addRow(templateId) {
+    let e = $("[template=" + templateId + "]");
+    var index = e.attr("index");
+    var min = e.attr("min");
+    if (!min) min = 0;
+    if (!index) index = 0;
+    index++;
+    e.attr("index", index);
+
+    let template = $("<div />").append(e.clone()).html();
+    template = template.replace("template", "_template");
+    template = template.replace(/{index}/ig, index);
+
+    let newE = $(template);
+    if (index > parseInt( min)) {
+        let btn = newE.find(".removeRow");
+        btn.removeClass("hidden");
+        btn.on("click", () => { newE.remove(); var u = newE.attr("update"); if (u) { $u = $("[name=" + u + "]"); if($u.length> 0) calcola(u[0]); } });
+    }
+
+    e.parent().append(newE);
+    newE.show();
+    enableformula(newE[0]);
+
+}
+
+function calcola(e) {
+    if (!e.name) return;
+    var name = "{" + e.name + "}";
+    //var val = "";
+    //if ((e.type == "checkbox" || e.type == "radio"))
+    //    if (e.checked) val = e.value; else val = val;
+    //else
+    //    if ((e.tagName == "INPUT" || e.tagName == "SELECT" || e.tagName == "TEXTAREA"))
+    //        val = e.value
+    //    else
+    //        val = e.innerText;
+
+    $(document).find("[visibleFor*='" + name + "']").each((index, e2) => {
+        var formula = $(e2).attr("visibleFor");
+        var val = CalcolaFormula(e2, formula);
+        if (val)
+            $(e2).removeClass("hidden");
+        else
+            $(e2).addClass("hidden");
+    });
+    $(document).find("[hiddenFor*='" + name + "']").each((index, e2) => {
+        var formula = $(e2).attr("visibleFor");
+        var val = CalcolaFormula(e2, formula);
+        if (!val)
+            $(e2).removeClass("hidden");
+        else
+            $(e2).addClass("hidden");
+    });
+    $(document).find("[enabledFor*='" + name + "']").each((index, e2) => {
+        var formula = $(e2).attr("visibleFor");
+        var val = CalcolaFormula(e2, formula);
+        if (val)
+            $(e2).removeAttr("disabled");
+        else
+            $(e2).attr("disabled", true);
+    });
+    $(document).find("[disabledFor*='" + name + "']").each((index, e2) => {
+        var formula = $(e2).attr("visibleFor");
+        var val = CalcolaFormula(e2, formula);
+        if (!val)
+            $(e2).removeAttr("disabled");
+        else
+            $(e2).attr("disabled", true);
+    });
+    var $e = $(e);
+    var category = $e.attr("userSetting");
+    if (category) {
+        var VerificationCode = "";
+        var RequestVerificationCode = document.getElementsByName("__RequestVerificationToken");
+        if (RequestVerificationCode.length > 0) {
+            VerificationCode = RequestVerificationCode[0].value;
+        }
+        fetch("/internalapi/userSetting/Setting",
+            {
+                method: 'post',
+                headers: {
+                    RequestVerificationToken: VerificationCode,
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                },
+                body: JSON.stringify({
+                    attributeId: category + "." + e.name,
+                    contactId: "-",
+                    companyId: 0,
+                    value: $e.val()
+                })
+            });
+    }
+
+
+    function CalcolaFormula(e, formula) {
+        if (!formula) return "";
+        var IsNumber = formula[0] != "'" && formula[formula.length - 1] != "'";
+        var decimal = $(e).attr("decimal");
+        var emptyvalue = $(e).attr("emptyvalue");
+        if (!emptyvalue) emptyvalue = "";
+        var i = formula.indexOf("{");
+        while (i >= 0) {
+            //debugger
+            var j = formula.indexOf("}");
+            if (j >= 0) {
+                var nomecampo = formula.substring(i + 1, j);
+                var padre = $(e).parent();
+                var campo = padre.find("[name=" + nomecampo + "]");
+                while (campo && campo.length == 0) {
+                    //debugger
+                    padre = padre.parent();
+                    if (padre != padre.parent() && padre.length > 0)
+                        campo = padre.find("[name=" + nomecampo + "]");
+                    else
+                        break;
+                }
+                var val = IsNumber ? 0 : "";
+                if (campo && campo.length > 0) {
+                    campo.each((i, e) => {
+
+                        var v = "";
+                        if ((e.type == "checkbox" || e.type == "radio"))
+                            if (e.checked) v = e.value; else v = v;
+                        else
+                            if ((e.tagName == "INPUT" || e.tagName == "SELECT" || e.tagName == "TEXTAREA"))
+                                v = e.value
+                            else
+                                v = e.innerText;
+                        if (!v) v = emptyvalue;
+                        let IsDate = (e.tagName == "INPUT" && e.type == "date");
+                        if (IsDate) {
+                            IsNumber = false;
+                            val = "";
+                        }
+                        if (IsNumber) {
+                            v = parseFloat(v);
+                            if (isNaN(v)) v = 0;
+                            val += v;
+                        }
+                        else {
+                            if (val && v) val += ",";
+                            val += v;
+                        }
+                    });
+                    //				var val = campo.val();
+                    if (!val && emptyvalue) {
+                        val = emptyvalue;
+                    }
+                    if (IsNumber) {
+                        if (!val) val = "0";
+                        if (decimal)
+                            val = parseFloat(val).toFixed(decimal);
+                        else
+                            val = parseFloat(val);
+                    }
+                }
+                formula = formula.substring(0, i) + val + formula.substring(j + 1);
+                i = formula.indexOf("{");
+            } else i = -1;
+        }
+        var valore = "";
+        try {
+
+            valore = eval(formula);
+            if (IsNumber && decimal) valore = parseFloat(valore).toFixed(decimal);
+        }
+        catch (ex) {
+            console.debug(ex)
+        };
+        return valore;
+    }
+
+    $(document).find("[formula*='" + name + "']").each((index, e) => {
+        // estraggo i campi dalla formula
+
+        var formula = $(e).attr("formula");
+        var valore = ""+CalcolaFormula(e, formula);
+        try {
+            var lookup = $(e).attr("lookup");
+            let currentValue = $(e).val();
+            if (currentValue != valore) {
+                if (lookup) {
+                    if ((e.type == "checkbox" || e.type == "radio" || e.type == "input" || e.type == "select" || e.type == "textarea"))
+                        $(e).val("...");
+                    else
+                        $(e).text("...");
+
+                    fetch("/internalapi/ui/DataType/Lookup/" + escape(lookup) + "/1/" + escape(valore))
+                        .then(r => r.json())
+                        .then(valore => {
+
+                            if ((e.type == "checkbox" || e.type == "radio"))
+                                e.checked = valore;
+                            else
+
+
+                                var lookups = $("[lookup=" + lookup + "]");
+                            if (lookups.length > 0) {
+                                lookups.each(el => {
+                                    var l = $(el);
+                                    var html = l.html();
+                                    if (html.indexOf("{") >= 0) {
+                                        html = html
+                                            .replace(/{icon}/g, valore[0].icon)
+                                            .replace(/{formattedValue}/g, valore[0].formattedValue)
+                                            .replace(/{lookupValue}/g, valore[0].lookupValue)
+                                            .replace(/{value}/g, valore[0].value);
+                                        valore[0].fields.forEach(e => {
+                                            html = html
+                                                .replace("{fields." + e.id + "}", e.value)
+                                                .replace("{" + e.id + "}", e.value);
+                                        })
+                                        l.html(html);
+                                    }
+                                    else {
+                                        if ((e.tagName == "INPUT" || e.tagName == "SELECT" || e.tagName == "TEXTAREA"))
+                                            l.val(valore[0].lookupValue);
+                                        else
+                                            l.html(valore[0].lookupValue);
+                                    }
+                                })
+                            }
+                            $(e).trigger("change");
+                        })
+                }
+                else {
+                    if ((e.type == "checkbox" || e.type == "radio"))
+                        e.checked = valore;
+                    else
+                        if ((e.tagName == "INPUT" || e.tagName == "SELECT" || e.tagName == "TEXTAREA"))
+                            $(e).val(valore);
+                        else
+                            $(e).html(valore);
+                    $(e).trigger("change");
+
+                }
+            }
+        }
+        catch (ex) {
+            console.debug(ex)
+        };
+
+    });
+}
+
+function enableformula(container) {
+    $(container).find("[addRow]").each((index, e) => {
+        $(e).off("click").on("click", () => {
+            addRow($(e).attr("addRow"));
+        });
+    });
+    $(container).find("input,select,textarea,checkbox,option").each((index, e) => {
+        $(e).off("change").on("change", () => {
+            calcola(e);
+        });
+        calcola(e);
+    });
+
+    $(container).find("[visibleFor],[enabledFor]").each((index, e) => {
+        calcola(e);
+    });
+
+    $(container).find("[query]").each((index, e) => {
+        Query(e);
+    });
+}
+
+
+function updateAttachment(name, value) {
+    var name = $("#" + name);
+    if (name.length > 0) {
+        var c = $("#" + name).attr("container");
+        var container = undefined;
+        if (!c) {
+            container = $("#" + name + "_container");
+            if (container.length == 0) {
+                var parent = $("#" + name).parent();
+                container = $("<div id='" + name + "_container'><div class='file'></div></div>");
+                parent.prepend(container);
+            }
+        }
+        else
+            container = $("#" + c);
+
+        container.show().removeClass("hidden");
+        value.forEach((e, i) => {
+            fetch("/internalapi/Content/" + e)
+                .then(response => {
+                    return response.json();
+                })
+                .then(data => {
+                    var file = container.find("[fname='" + data.imageId + "']");
+                    if (file.length == 0) {
+                        file = container.find(".file");
+                        file.attr("fname", data.imageId);
+                        container.append(file);
+                    }
+                    var name = file.find(".name");
+                    if (name.length == 0) {
+                        name = $("<div class='name'></div>");
+                        file.append(name);
+                    }
+                    name.text(data.fileName);
+                    var size = file.find(".size");
+                    if (size.length > 0) {
+                        size.text(data.fileSize);
+                    }
+                    var btn = file.find(".remove");
+                    if (btn.length > 0) {
+                        file.remove(btn);
+                    }
+                })
+                .catch(err => {
+                    alert(err);
+                });
+        });
+    }
+}
+
+var queries = new Object();
+var names = new Object();
+
+function Query(control) {
+    let $c = $(control);
+    let dataSource = $c.attr("db");
+    let tag = $c.attr("record");
+    let sql = $c.attr("query");
+    let pageSize = $c.attr("pageSize");
+    let pageIndex = $c.attr("pageIndex");
+    if (!pageIndex) pageIndex = 0;
+    if (!pageSize) pageSize = 50;
+    if (dataSource && sql) {
+        fetch("/internalapi/ExternalDatasource/Query?Id=" + escape(dataSource) + "&Query=" + escape(sql) + "&pageSize=" + pageSize + "&pageIndex=" + pageIndex)
+            .then(r => r.json())
+            .then(data => {
+                names[tag] = data[0];
+                queries[tag] = data.slice(1);
+                let o = "";
+                queries[tag].forEach((e, i) => {
+                    o += "<option value='" + e[0] + "'>" + e[1] + "</option>";
+                });
+                $c.html(o);
+                if (tag) {
+                    $c.off("change").on("change", (e) => {
+                        calcola(control);
+                        let selectedIndex = $c.prop('selectedIndex');
+                        var record = queries[tag][selectedIndex];
+                        $("[" + tag + "]").each((i, e) => {
+                            let $e = $(e);
+                            var fieldName = $e.attr(tag);
+                            let nameIndex = names[tag].indexOf(fieldName);
+                            if (nameIndex >= 0) {
+                                let valore = record[nameIndex];
+                                if ((e.tagName == "INPUT" || e.tagName == "SELECT" || e.tagName == "TEXTAREA")) {
+                                    $e.val(valore);
+                                    e.dispatchEvent(new Event("change"));
+                                }
+                                else
+                                    $e.html(valore);
+                            }
+                        })
+                    })
+                }
+                control.dispatchEvent(new Event("change"));
+            });
+    }
+}
+

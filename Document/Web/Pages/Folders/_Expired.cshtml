@@ -1,0 +1,42 @@
+﻿@page
+@model Web.Pages.Folders.ExpiredModel
+@{
+    ViewData["Title"] = "Scadenzario";
+    Layout = "_FolderLayout";
+}
+
+@section Icon       {
+        <i class="fa fa-clock-o"></i>
+    }
+@section Header     {
+    Scadenzario
+  }
+@section SubHeader  {
+    Registro 
+ }
+@section Folders
+    {
+    <div class="FolderPathPanel">
+        <a href="#" class="MobileIcon" onclick="return ShowDocument(0)"><i class="fa fa-folder divider"></i> Archivio Fascicoli</a>
+        <a href="#" onclick="return FolderType('@Model.DocumentType.Id')"><i class="divider">\</i> @Model.DocumentType.Name</a>
+        <i class="divider">\</i> <strong>Scadenzario</strong>
+    </div>
+}
+
+<form class="MainWindow" method="post">
+        <div class="SearchPanel">
+                <div class="container">
+                    <input type="date" id="dc1" name="dc1" asp-for="dc1" />
+                    <span> - </span>
+                    <input type="date" id="dc2" name="dc2" asp-for="dc2" />
+                </div>
+                <div class="container-fluid">
+                    <input class="SearchText" type="textbox" asp-for="SearchText" placeholder="Cerca un testo..." />
+                    <button type="submit" class="btn btn-primary">Avvia Ricerca</button>
+                </div>
+        </div>
+        <div class="MainWindow">
+            @await  Component.InvokeAsync("FileExplorer", Model.FileFilters)
+        </div>
+</form>
+

@@ -1,0 +1,15 @@
+{
+  "urls": [
+    {
+      "domain": "localhost:",
+      "types_url": "/descriptors/elmi.json",
+      "AttrUrl": "/descriptors/elmiAttr.json",
+      "popupmenu_url": "/descriptors/customelements.json",
+      "changeelement_url": "/descriptors/customchange.json",
+      "custompalette_url": "/descriptors/custompalette.json",
+      "formvalues_url": "/descriptors/formvalues.json",
+      "form_js_url": "https://localhost/bpm/form",
+      "iframepath": "https://dms.elmisoftware.com"
+    }
+  ]
+}

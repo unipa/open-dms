@@ -1,0 +1,278 @@
+﻿@page
+@model Web.Pages.EstrazioneModel
+@{
+    ViewData["Title"] = "Pagina di Estrazione";
+    Layout = "_ConservazioneLayout";
+}
+
+
+
+<style>
+    .nav.nav-pills li {
+        list-style-type: none;
+        display: inline-block;
+        margin-right: 10px;
+        background-color: #aad4f5;
+        transition: background-color 0.3s;
+        padding: 5px 10px;
+    }
+
+    .nav.nav-pills li a {
+        text-decoration: none;
+    }
+
+    .nav.nav-pills li.selected {
+        background-color: #0066cc;
+        color: white;
+    }
+
+    .nav.nav-pills li.selected a {
+         color: white;
+    }
+
+</style>
+
+<div class="MainWindow">
+    <div class="Header">
+        <i class="fa fa-certificate"></i>
+        <h1>
+            <small>
+                Estrazione
+            </small>
+            <span id="HeaderTitle">Documenti da portare in conservaizone digitale</span>
+        </h1>
+        <div class="right-header">
+            <a href="#" onclick="return CloseWindow()"><i class="fa fa-times"></i></a>
+        </div>
+    </div>
+
+
+    <div id="ContentPanel" class="MainPanel FullHeight" style="height: 517px; position: relative;">
+
+
+        <div id="Table" class="FullHeight" style="height: 517px; position: relative;">
+            <div style="padding-top:10px">
+                <ul class="nav nav-pills" id="Anni">
+                    @for (int i = DateTime.Now.Year; i >= DateTime.Now.Year - 10; i--)
+                    {
+                        <li>
+                            <a href="#" data-anno="@i" onclick="CambiaAnno('@i')">@i</a>
+                        </li>
+                    }
+                </ul>
+
+            </div>
+          
+
+
+
+
+            <div style="position: absolute; width: 400px; top: 10px; right: 10px; text-align: right; vertical-align: baseline">
+                <div style="display: flex; gap: 10px;">
+                    <div style="border-radius: 3px; border: 1px solid #ccc; display: inline-block;">
+                        <input type="date" id="dateInizio" name="dateInizio" style="width: 150px; min-height: 28px; border: 1px;">
+                    </div>
+
+                    <div style="border-radius: 3px; border: 1px solid #ccc; display: inline-block">
+                        <input type="date" id="dateFine" name="dateFine" style="width: 150px; min-height: 28px; border: 1px;">
+                    </div>
+                    <button type="submit" class="btn" onclick="FiltraPerDate()">
+                        <i class="tbRefresh"></i>Aggiorna 
+                    </button>
+
+                </div>
+            </div>
+
+
+
+            <div style="position: relative; padding-top:10px" class="FullHeight">
+                <table id="Grid" class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th nowrap="" style="width: 100%">Tipologia</th>
+                        <th nowrap="" style="text-align: right; max-width: 100px; min-width: 100px">Gruppo</th>
+                        <th class="desktop" nowrap="" style="text-align: right; max-width: 150px; min-width: 100px">Range</th>
+                        <th class="desktop" nowrap="" style="text-align: right; max-width: 80px; min-width: 80px">Periodo</th>
+                        <th class="desktop" nowrap="" style="min-width: 100px; text-align: right">Da Firmare</th>
+                        <th nowrap="" style="min-width: 100px; text-align: right">Da Estrarre</th>                                                                                                                     
+                    </tr>
+                    </thead>
+                    <tbody id="TableBody" style="opacity: 1;"> </tbody>
+                </table>
+            </div>              
+        </div>
+    </div>
+
+</div>
+
+
+    <script>
+        var selectedYear = new Date().getFullYear();
+
+        function CambiaAnno(anno) {
+            selectedYear = anno;
+            $.ajax({
+                url: '@Model.EndPointEstrazione',
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    orderByPeriodStartDate(data);
+                    PopolaTabella(data);
+                },
+                error: function () {
+                    console.log("Errore durante la richiesta dei dati dall'API.");
+                }
+            });
+        }
+
+        function orderByPeriodStartDate(data) {
+            data.sort(function (a, b) {
+                return new Date(a.periodoInizio) - new Date(b.periodoInizio);
+            });
+        }
+
+        function CambiaAnnoFromLink(link) {
+            var anno = $(link).data("anno");
+            CambiaAnno(anno);
+        }
+
+        function formatDate(date) {
+            if (typeof date === 'string') {
+                date = new Date(date);
+            }
+
+            if (!(date instanceof Date)) {
+                return 'Data non valida';
+            }
+
+            var day = date.getDate();
+            var month = date.getMonth() + 1;
+            var year = date.getFullYear();
+            return (day < 10 ? '0' : '') + day + '/' + (month < 10 ? '0' : '') + month + '/' + year;
+        }
+
+        function formatPeriod(periodoInizio, periodoFine) {
+            var formattedInizio = formatDate(periodoInizio);
+            var formattedFine = formatDate(periodoFine);
+            return formattedInizio + " - " + formattedFine;
+        }
+
+        function PopolaTabella(dati) {
+            var tableBody = $("#TableBody");
+            tableBody.empty();
+
+            for (var i = 0; i < dati.length; i++) {
+                var periodoInizio = new Date(dati[i].periodoInizio);
+
+                if (!isNaN(periodoInizio.getFullYear()) && periodoInizio.getFullYear() === selectedYear) {
+                    var riga = $("<tr>").addClass("risultatiricerca");
+
+                    $("<td>").append($("<label>").text(dati[i].tipologia)).appendTo(riga);
+                    $("<td>").css("text-align", "right").append($("<label>").text(dati[i].gruppo)).appendTo(riga);
+                    $("<td>").addClass("desktop").css("text-align", "right").append($("<label>").text(dati[i].range)).appendTo(riga);
+                    $("<td>").addClass("desktop").css("text-align", "right").append($("<label>").text(formatPeriod(dati[i].periodoInizio, dati[i].periodoFine))).appendTo(riga);
+                    $("<td>").addClass("desktop").css("min-width", "100px").css("text-align", "right").append($("<h6>").css("padding-top", "8px").text(dati[i].daFirmare)).appendTo(riga);
+                    $("<td>").css("text-align", "right").append($("<h6>").css("padding-top", "8px").text(dati[i].daEstrarre)).appendTo(riga);
+
+                    var buttonsCell = $("<td>").css("text-align", "right").appendTo(riga);
+
+                    if (dati[i].versamentoInCorso) {
+                        buttonsCell.append(
+                            $("<label>")
+                                .attr("data-tooltip", "Mostra i documenti da firmare")
+                                .append($("<i>").addClass("fa fa-gift"))
+                                .append(" Versamento in corso...")
+                        );
+                    } else {
+                        var buttonsContainer = $("<div>").css("display", "flex").css("gap", "5px").appendTo(buttonsCell);
+
+                        buttonsContainer.append(
+                            $("<a>")
+                                .attr("data-tooltip", "Mostra i documenti da firmare")
+                                .addClass("btn btn-small")
+                                .attr("href", "#")
+                                .attr("onclick", "return Mostra('6A180E39-D3E0-4F3F-BC7F-D7C74A74D800','',2023);")
+                                .append($("<i>").addClass("fa fa-eye"))
+                                .append(" Visualizza")
+                        );
+                        buttonsContainer.append(
+                            $("<a>")
+                                .attr("data-tooltip", "Effettua un controllo rapido")
+                                .addClass("btn btn-small")
+                                .attr("href", "#")
+                                .attr("onclick", "return VerificaVeloce('6A180E39-D3E0-4F3F-BC7F-D7C74A74D800','',2023,this);")
+                                .append($("<i>").addClass("fa fa-check"))
+                                .append(" Check Rapido")
+                        );
+                        buttonsContainer.append(
+                            $("<a>")
+                                .attr("data-tooltip", "Elabora i documenti da portare in conservazione")
+                                .addClass("btn btn-primary")
+                                .attr("href", "#")
+                                .attr("onclick", "return Estrai('6A180E39-D3E0-4F3F-BC7F-D7C74A74D800','',2023,this);")
+                                .append($("<i>").addClass("fa fa-search-plus"))
+                                .append(" Estrazione")
+                        );
+                    }
+
+                    riga.appendTo(tableBody);
+                }
+            }
+        }
+
+
+
+
+        function FiltraPerDate() {
+            var dateInizio = new Date($("#dateInizio").val());
+            var dateFine = new Date($("#dateFine").val());
+
+            var righeTabella = $("#Grid tbody tr");
+
+            righeTabella.each(function () {
+                var riga = $(this);
+                var periodoInizioFine = riga.find("td:eq(3)").text().split(' - '); 
+                var periodoInizio = new Date(periodoInizioFine[0]);
+                var periodoFine = new Date(periodoInizioFine[1]);
+
+                if (periodoInizio >= dateInizio && periodoFine <= dateFine) {
+                    riga.show();
+                } else {
+                    riga.hide();
+                }
+            });
+        }
+
+
+
+
+
+
+
+        function formatDateToISO(dateString) {
+            var parts = dateString.split('-');
+            if (parts.length === 3) {
+                var day = parts[0];
+                var month = parts[1];
+                var year = parts[2];
+                return year + '-' + month + '-' + day + 'T00:00:00';
+            }
+            return '';
+        }
+
+
+        $(document).ready(() => {
+            $(".mnuEstrazione").addClass("active");
+
+            var currentYear = new Date().getFullYear();
+            CambiaAnno(currentYear);
+
+            $(".nav.nav-pills li a").on("click", function (e) {
+                e.preventDefault();
+                CambiaAnnoFromLink(this);
+            });
+
+            $(".btn").on("click", CambiaAnno);
+        });
+
+    </script>

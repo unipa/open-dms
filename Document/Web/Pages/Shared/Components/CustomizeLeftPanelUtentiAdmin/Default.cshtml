@@ -1,0 +1,73 @@
+﻿@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@model Web.Model.Customize.CustomizeLeftPanelViewModel
+@{
+    //string path = Configuration["Endpoint:UserService"] ?? "";
+    string uid = Model.UserId;
+    string name = User.Claims.FirstOrDefault(c => c.Type == "name")?.Value;
+    string mail = User.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
+    if (string.IsNullOrEmpty(name)) name = uid;
+    string url = "/internalapi/identity/Avatar/0" + uid;
+}
+
+<style>
+    .lista.nav-list:last-of-type {
+        margin-top: auto; /* Push this list to the bottom */
+    }
+</style>
+
+<div class="MainPanel InsidePanel" id="OptionPage">
+
+    <div id="Avatar" class="sidebar-wrapper">
+        <div class="nav-icon d-flex justify-content-center">
+            <img class="avatar" src='@url' style="border: 1px solid #ddd;width: 84%;height: auto;padding: 6px;background-color: #fff;" />
+        </div>
+        <div style="text-align:center" class="mt-2">
+            <h6>
+                @Model.UserName
+            </h6>
+        </div>
+    </div>
+    <div class="MainPanel">
+        <div class="MainPanel">
+            <ul class="nav nav-list">
+                @foreach (var Page in Model.OptionPages.Where(p => p.Group == 1))
+                {
+
+                    <li codice="@Page.Id">
+                        <a href="@Page.Href">
+                            <i class="@Page.Icon"></i>
+                            @Page.Name
+                            <sub class="Desktop"><i class="fa fa-chevron-right"></i> </sub>
+                        </a>
+                    </li>
+
+                }
+
+                @foreach (var Page in Model.OptionPages.Where(p => p.Group == 2))
+                {
+                    <li codice="@Page.Id">
+                        <a href="@Page.Href">
+                            <i class="@Page.Icon"></i>
+                            @Page.Name
+                            <sub class="Desktop"><i class="fa fa-chevron-right"></i> </sub>
+                        </a>
+                    </li>
+                }
+
+
+            </ul>
+            <ul class="nav nav-list lista">
+                <li codice="liCustomize-Utenti">
+                    <a href="javascript:void(0)" onclick="window.close();">
+                        <i class="fa fa-users"></i>
+                        Tutti gli Utenti
+                        <sub class="Desktop"><i class="fa fa-chevron-right"></i></sub>
+                    </a>
+
+                </li>
+            </ul>
+        </div>
+    </div>
+
+</div>

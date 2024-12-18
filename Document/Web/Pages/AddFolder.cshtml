@@ -1,0 +1,212 @@
+﻿@page
+@model Web.Pages.AddFolderModel
+@{
+
+}
+
+
+<div class="Header">
+    <i class="DocumentIcon fa fa-folder"></i>
+    <h1>
+        <small>Stai per fascicolare nr.@Model.Selected</small>
+        <span>Fascicola</span>
+    </h1>
+    <div class="right-header">
+        <a class="btn btn-link" href="#" onclick="CloseWindow()"><i class="fa fa-times"></i></a>
+    </div>
+</div>
+
+<div class="SelectDocumentType MainPanel">
+    <div class="Panel">
+        <ul class="nav nav-list">
+            @if (Model.PersonalFolder.Count > 0)
+            {
+                @foreach (var f in Model.PersonalFolder)
+                {
+                    <li>
+                        <a href="#" onclick="Select(@f.Id)">
+                            <i style="color: @(string.IsNullOrEmpty(f.IconColor) ? "orange" : f.IconColor)" class="@(string.IsNullOrEmpty(f.Icon) ? "fa fa-folder" : f.Icon)"></i>
+                            @f.Name
+                            <small>@f.DocumentType</small>
+                        </a>
+                    </li>
+                }
+            }
+
+            @if (Model.SharedFolder.Count > 0)
+            {
+                @foreach (var f in Model.SharedFolder)
+                {
+                    <li>
+                        <a href="#" onclick="Select(@f.Id)">
+                            <i style="color: @(string.IsNullOrEmpty(f.IconColor) ? "violet" : f.IconColor)" class="@(string.IsNullOrEmpty(f.Icon) ? "fa fa-folder" : f.Icon)"></i>
+                            @f.Name
+                            <small>@f.DocumentType</small>
+                        </a>
+                    </li>
+                }
+            }
+
+            @if (Model.FolderTypes.Count > 0)
+            {
+                @foreach (var f in Model.FolderTypes)
+                {
+                    <li>
+                        <a href="#" onclick="Search('@f.DocumentType')">
+                            <i style="color: @(string.IsNullOrEmpty(f.IconColor) ? "deepskyblue" : f.IconColor)" class="@(string.IsNullOrEmpty(f.Icon) ? "fa fa-folder" : f.Icon)"></i>
+                            @f.Name
+                            <small>@Constant.Labels.SpecialFolder</small>
+                        </a>
+                    </li>
+                }
+            }
+        </ul>
+        @if (Model.LastAdded.Count > 0)
+        {
+            <div class="NewFolders">
+                <h3><i class="fa fa-magic"></i> Ultimi Fascicoli Creati</h3>
+                <ul class="nav nav-list">
+                    @foreach (var f in Model.LastAdded)
+                    {
+                        <li>
+                            <a href="#" onclick="Select(@f.Id)">
+                                <i style="color: @(string.IsNullOrEmpty(f.IconColor) ? "orange" : f.IconColor)" class="@(string.IsNullOrEmpty(f.Icon) ? "fa fa-folder" : f.Icon)"></i>
+                                @f.Name
+                                <small>@f.DocumentType</small>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
+    </div>
+    <div class="Bottom">
+        <a class="btn btn-link" href="#" onclick="CloseWindow()">Esci</a>
+    </div>
+</div>
+
+<div class="SearchParameters MainPanel hidden">
+</div>
+
+<div class="NavigatePanel hidden MainPanel">
+    <div class="FolderHeader Content">
+    </div>
+
+    <div class="Panel" style="border-top:1px dashed #ccc">
+        <h3>Sotto Fascicoli</h3>
+        <ul class="nav nav-list FolderList">
+        </ul>
+    </div>
+    <div class="Bottom">
+        <a class="btn btn-link" href="#" onclick="CloseWindow()">Esci</a>
+    </div>
+</div>
+
+<script type="text/html" id="NavigateHeader">
+    <div class="FolderPathPanel">
+        <a href="#" onclick="return Select(0)"><i class="fa fa-folder divider"></i> Archivio Fascicoli</a>
+            {{#info.path}}
+            <a href="#" onclick="return Select({{id}})"><i class="divider">\</i> {{description}}</a>
+            {{/info.path}}
+    </div>
+    <div style="position:relative;">
+        <h4>
+            <i style="color:{{info.iconColor}}" class="{{info.icon}}"></i>{{info.description}}
+            <small>{{info.documentType.name}}</small>
+        </h4>
+        <div style="position:absolute;right:8px;top:0px">        
+            {{#canAddContent}}
+            <a class="btn btn-primary btn-xs" href="#" onclick="Save({{info.id}})">Fascicola qui</a>
+            {{/canAddContent}}
+        </div>
+    </div>
+</script>
+
+<script type="text/html" id="NavigateRow">
+                    {{#canAddContent}}
+    <li>
+        <a class="" href="#" onclick="CreateFolder({{info.id}},'{{info.documentType.Id}}')"><i class="fa fa-plus"></i> Crea un nuovo sotto-fascicolo...</a>
+    </li>
+                    {{/canAddContent}}
+
+    {{#folders}}
+    <li>
+        <a href="#" onclick="Select({{id}})">
+            <i style="color:{{iconColor}}" class="{{icon}}"></i> {{name}}
+            <small>{{documentType}}</small>
+        </a>
+    </li>
+    {{/folders}}
+
+        {{^folders}}
+    <li>
+        <div class="InfoPanel">
+            <i class="fa fa-folder"></i>
+            <h3>Nessun sotto-fascicolo presente.</h3>
+        </div>
+    </li>
+    {{/folders}}
+</script>
+
+<script>
+    function Select(id) {
+        if (id == 0) {
+            window.location.reload();
+        }
+        else {
+            $(".SelectDocumentType").addClass("hidden");
+            $(".NavigatePanel").removeClass("hidden");
+
+            fetch("?handler=Navigate&ParentId=" + id)
+                .then(response => { return response.json(); })
+                .then(data => {
+                    var template = $("#NavigateHeader").html();
+                    var html = Mustache.to_html(template, data );
+                    $(".FolderHeader").html(html);
+                    var template = $("#NavigateRow").html();
+                    var html = Mustache.to_html(template, data );
+                    $(".FolderList").html(html);
+                })
+        }
+    }
+
+    function Search(id) {
+        if (id == 0) {
+            window.location.reload();
+        }
+        else {
+            $(".SelectDocumentType").addClass("hidden");
+            $(".NavigatePanel").removeClass("hidden");
+
+            fetch("?handler=Search&DocType=" + id)
+                .then(response => { return response.json(); })
+                .then(data => {
+                    var template = $("#NavigateHeader").html();
+                    var html = Mustache.to_html(template, data);
+                    $(".FolderHeader").html(html);
+                    var template = $("#NavigateRow").html();
+                    var html = Mustache.to_html(template, data);
+                    $(".FolderList").html(html);
+                })
+        }
+    }
+
+
+    window.addEventListener("message", (event) => {
+        if (event.data.op == "newdocument") {
+            //alert("Fascicolo " + event.data.data + " aggiunto")
+            Select(event.data.data);
+        } 
+    });
+
+    function Save(id) {
+        fetch("?handler=AddToFolder&Id=" + id+"&Documents=@Model.Documents")
+            .then(response => { return response.json(); })
+            .then(data => {
+              window.parent.postMessage({ op: "addfolder", data: data }, "*");
+              CloseWindow();
+            }).catch(function (err) {
+                ShowMessage("alert", "Non è stato possibile inserire i documenti nel fascicolo. Errore: " + err.responseText, 'Message_Target', window.location.href);
+            });
+    }
+</script>

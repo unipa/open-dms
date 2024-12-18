@@ -1,0 +1,189 @@
+﻿@page
+@using OpenDMS.Domain.Entities;
+@using OpenDMS.Domain.Entities.Schemas;
+@using OpenDMS.Domain.Entities.Settings;
+@model NewModel
+@inject IConfiguration Configuration
+@{
+    ViewData["Title"] = "Nuovo Documento";
+}
+
+<script>
+    function Loader() {
+        $("#myform").addClass("hidden");
+        $("#Loader").removeClass("hidden");
+        return true;
+    }
+
+</script>
+
+<div id="Loader" class="InfoPanel hidden">
+    <i class="fa fa-spinner fa-spin"></i>
+    <h3>Caricamento in corso...</h3>
+</div>
+
+<div class="MainWindow" id="myform">
+    <div id="Message_Target"></div>
+
+    <div class="Header">
+        <i class="fa fa-magic"></i>
+        <h1>
+            <small>
+                Scegli il tipo di documento da creare
+            </small>
+            <span>Crea Nuovo...</span>
+        </h1>
+        <div class="right-header">
+            <a href="#" class="btn btn-link" onclick="return CloseWindow()"><i class="fa fa-times"></i></a>
+        </div>
+    </div>
+    <div class="Content">
+        <input type="text" onkeyup="Filter(this)" placeholder="Filtra..." class="SearchText" data-focus-mouse="false">
+    </div>
+
+
+
+    <div class="Panel">
+        <div class="accordion">
+
+            @if (Model.InEvidenza.Count > 0 || Model.CanAddGenericDocument)
+            {
+                <div class="accordion-item">
+                    <div class="accordion-button" data-bs-toggle="collapse" data-bs-target="#preferred">
+                        <i class="fa fa-star" style="color:orange;width:20px;margin-right:8px"></i> <strong>In Evidenza</strong>
+                    </div>
+                    <div id="preferred" class="accordionbackpanel collapseOne accordion-collapse collapse show">
+                        <div class="PreviewContainer" id="InEvidenza">
+                            @foreach (NewItem dt in Model.InEvidenza)
+                            {
+                                <a itemid="@dt.Id" class="tipologie PreviewRow" href="@dt.URL" onclick="Loader()">
+                                    <div class="PreviewImage">
+                                        <img class="NewImagePage loadingImage" loading="lazy"
+                                             src="/internalapi/preview/GetDocumentType?DocumentTypeId=@dt.Id&IsFolder=@dt.IsFolder" />
+                                        <i class="@dt.Icon" style="bottom: 6%;right:-2%;position: absolute;font-size: 6vw;text-shadow: 1px 1px 2px rgba(0, 0, 0, .8);color: @(dt.IconColor);"></i>
+                                    </div>
+                                    <div class="PreviewName">
+                                        <div class="text-center">
+                                            @dt.Name
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(dt.Id))
+                                        {
+                                            <div class="star" onclick="TogglePreferred(this.children[0], `@dt.Id`)"><i class="@Html.Raw(dt.Starred ? "fa fa-star" : "fa fa-star-o")"></i></div>
+                                        }
+                                    </div>
+                                </a>
+                            }
+                            @if (Model.CanAddGenericDocument)
+                            {
+                                <a class="tipologie PreviewRow" href="#" onclick="return AddContent(@Model.FolderId)">
+                                    <div class="PreviewImage">
+                                        <img class="NewImagePage loadingImage" loading="lazy"
+                                             src="/internalapi/preview/GetDocumentType?DocumentTypeId=&IsFolder=False" />
+
+                                        <i class="fa fa-file-pdf-o"
+                                           style="bottom: 6%;right:-2%;position: absolute;font-size: 6vw;text-shadow: 1px 1px 2px rgba(0, 0, 0, .8);color: crimson;opacity:.8;filter:brightness(.6)">
+                                        </i>
+                                    </div>
+                                    <div class="PreviewName">
+                                        <div class="text-center">
+                                            Documento da File...
+                                        </div>
+                                    </div>
+                                </a>
+
+                            }
+                        </div>
+
+                    </div>
+                </div>
+            }
+            @if (Model.Tipologie.Count > 0)
+            {
+                @foreach (var cat in Model.Tipologie)
+                {
+                    <div class="accordion-item">
+                        <div class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#CAT_@cat.Id.Replace("$", "S")">
+                            <i class="fa fa-tag @cat.Icon" style="color:#468;width:20px;margin-right:8px"></i> <strong>@cat.Name</strong>
+                        </div>
+                        <div id="CAT_@cat.Id.Replace("$","S")" class="accordionbackpanel collapseOne accordion-collapse collapse ">
+                            <div class="PreviewContainer">
+                                @foreach (NewItem dt in cat.Items)
+                                {
+                                    <a itemid="@dt.Id" class="tipologie PreviewRow" href="@dt.URL" onclick="Loader()">
+                                        <div class="PreviewImage">
+                                            <img class="NewImagePage loadingImage" loading="lazy"
+                                                 src="/internalapi/preview/GetDocumentType?DocumentTypeId=@dt.Id&IsFolder=@dt.IsFolder" />
+                                            <i class="@dt.Icon" style="bottom: 6%;right:-2%;position: absolute;font-size: 6vw;text-shadow: 1px 1px 2px rgba(0, 0, 0, .8);color: @(dt.IconColor);"></i>
+                                        </div>
+                                        <div class="PreviewName">
+                                            <div class="text-center">
+                                                @dt.Name
+                                            </div>
+                                            @if (!string.IsNullOrEmpty(dt.Id))
+                                            {
+                                                <div class="star" onclick="TogglePreferred(this.children[0], `@dt.Id`)"><i class="@Html.Raw(dt.Starred ? "fa fa-star" : "fa fa-star-o")"></i></div>
+                                            }
+                                        </div>
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+
+            
+        </div>
+    </div>
+
+    <nav class="Bottom">
+        <a href="#" onclick="return CloseWindow()" class="btn">Esci</a>
+    </nav>
+
+
+
+    <script>
+        function TogglePreferred(a, docType) {
+            var inactive = a.className.indexOf("fa-star-o") >= 0;
+            fetch("?handler=TogglePreferred&DocumentTypeId=" + docType + "&Preferred=" + (inactive ? "true" : "false"))
+                .then(response => response.json)
+                .then(data => {
+                    if (inactive) {
+                        a.className = "fa fa-star";
+                        let parent = $(a.parentNode.parentNode.parentNode).clone();
+                        $("#InEvidenza").append(parent);
+                    }
+                    else {
+                        a.className = "fa fa-star-o";
+                        let parent = $("#InEvidenza [itemid='" + docType + "']");
+                        if (parent.length > 0)
+                            parent.remove();
+                    }
+                });
+            event.preventDefault();
+            event.stopPropagation();
+            return true;
+        }
+        $(document).ready(function () {
+            if ("@Model.ErrorMessage" !== '') ShowMessage('alert', '@Model.ErrorMessage', 'Message_Target', 'Index');
+        })
+
+        function Filter(me) {
+            var v = $(me).val().toLowerCase();
+            var l = $(".tipologie");
+            $(l).each(function (i, e) {
+                var ok = $(e).find("div.PreviewName").text().toLowerCase().indexOf(v) >= 0;
+                if (!ok)
+                    $(e).css("display", "none");
+                else
+                    $(e).css("display", "");
+
+            });
+        }
+
+        function AddContent(folderId) {
+            AddFile(0, folderId, (data) => { CloseWindow(); window.parent.ShowDocument(data.documentId, true); })
+        }
+
+    </script>
+

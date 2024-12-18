@@ -1,0 +1,81 @@
+﻿@using Microsoft.Extensions.Configuration
+@using Web.Pages.Shared.Components.MainMenuPanel
+@model List<OpenDMS.CustomPages.Models.CustomPageDTO>
+@{
+    string uid = User.Identity.Name;
+    string url = "/internalapi/identity/Avatar/0" + uid;
+}
+<script>
+    if (window.Worker) {
+        var myWorker = new Worker("/js/NotificationWorker.js");
+    @foreach (var p in Model.Where(i => !string.IsNullOrEmpty(i.BadgeURL)))
+    {
+        @Html.Raw("myWorker.postMessage({ url: '" + p.BadgeURL + "', badge: 'badge-" + p.PageId + "', message: '" + p.BadgeMessage + "', pageURL: '" + p.URL + "' });")
+    }
+            myWorker.onmessage = function (e) {
+                if (e.data.value) {
+                    $("." + e.data.badge).show();
+                    $("." + e.data.badge).html(e.data.value);
+                }
+                else
+                    $("." + e.data.badge).hide();
+
+            }
+    }
+</script>
+<ul class="nav MainPanel">
+    <li class="Hamburger">
+        <a href="#" onclick="$('.MainMenu').toggleClass('open')">
+            <i class="fa fa-bars"></i>&nbsp;
+        </a>
+    </li>
+    @if (!string.IsNullOrEmpty(uid))
+    {
+    <li class="user">
+        <a href="/Customize/Index">
+            <img class="avatar" src="@(url)" />
+            @ViewData["UserName"].ToString() 
+        </a>
+    </li>
+    }
+    @foreach (var p in Model.Where(i => i.Alignment == 0))
+    {
+        <li @(string.IsNullOrEmpty(p.URL) ? (string.IsNullOrEmpty(p.Title) ? "class='divider'" : "class='header'") : "class='" + p.PageId + "'")>
+            <a href="@p.URL" target="@p.Target" title="@p.Title">
+                @Html.Raw(p.Icon)
+                @p.Title
+                @if (!string.IsNullOrEmpty(p.BadgeURL))
+                {
+                    <span style="display:none" class="badge badge-@p.PageId @p.BadgeCss"></span>
+                }
+            </a>
+        </li>
+    }
+</ul>
+<ul class="nav">
+    <li class="mnuHelp">
+        <a href="/Help">
+            <i class="fa fa-question-circle"></i>
+            Aiuto
+        </a>
+    </li>
+    @foreach (var p in Model.Where(i => i.Alignment != 0))
+    {
+        <li @(string.IsNullOrEmpty(p.URL) ? (string.IsNullOrEmpty(p.Title) ? "class='divider'" : "class='header'") : "class='" + p.PageId + "'")>
+            <a href="@p.URL" target="@p.Target" title="@p.Title">
+                @Html.Raw(p.Icon)
+                @p.Title
+                @if (!string.IsNullOrEmpty(p.BadgeURL))
+                {
+                    <span style="display:none" class="badge badge-@p.PageId @p.BadgeCss"></span>
+                }
+            </a>
+        </li>
+    }
+    <li class="mnuLogout">
+        <a href="/Admin/Home/Logout">
+            <i class="fa fa-sign-out"></i>
+            Disconnetti
+        </a>
+    </li>
+</ul>

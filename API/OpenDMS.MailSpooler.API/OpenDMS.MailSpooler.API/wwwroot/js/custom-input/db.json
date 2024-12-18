@@ -1,0 +1,72 @@
+{
+    "users": [
+        {
+            "id": 1,
+            "lookupValue": "John Doe",
+            "value": "0JOHN",
+            "children": [
+                {
+                    "id": 5,
+                    "lookupValue": "John Doe Jr.",
+                    "value": "0JOHN1"
+                },
+                {
+                    "id": 6,
+                    "lookupValue": "John Doe Jr. II",
+                    "value": "0JOHN2",
+                    "children": [
+                        {
+                            "id": 11,
+                            "lookupValue": "John Doe Jr. II Jr.",
+                            "value": "1JOHN1"
+                        },
+                        {
+                            "id": 12,
+                            "lookupValue": "John Doe Jr. II Jr. II",
+                            "value": "1JOHN2"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "lookupValue": "Jane Doe",
+            "value": "0JANE",
+            "children": [
+                {
+                    "id": 7,
+                    "lookupValue": "Jane Doe Jr.",
+                    "value": "0JANE3"
+                },
+                {
+                    "id": 8,
+                    "lookupValue": "Jane Doe Jr. II",
+                    "value": "0JANE2"
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "lookupValue": "John Smith",
+            "value": "0SMITH",
+            "children": [
+                {
+                    "id": 9,
+                    "lookupValue": "John Smith Jr.",
+                    "value": "0SMITH2"
+                },
+                {
+                    "id": 10,
+                    "lookupValue": "John Smith Jr. II",
+                    "value": "0SMITH3"
+                }
+            ]
+        },
+        {
+            "id": 4,
+            "lookupValue": "Jane Smith",
+            "value": "0SMITH4"
+        }
+    ]
+}

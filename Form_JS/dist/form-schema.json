@@ -1,0 +1,37 @@
+{
+  "components": [
+    {
+      "label": "Text area",
+      "type": "textarea",
+      "id": "Field_064dbuc",
+      "key": "field_12355dm"
+    },
+    {
+      "label": "Number",
+      "type": "number",
+      "id": "Field_0cde7xw",
+      "key": "field_0mv7uus"
+    },
+    {
+      "values": [
+        {
+          "label": "Value",
+          "value": "value"
+        }
+      ],
+      "label": "Checklist",
+      "type": "checklist",
+      "id": "Field_143dysh",
+      "key": "field_112no48"
+    }
+  ],
+  "schemaVersion": 7,
+  "exporter": {
+    "name": "Foo Editor",
+    "version": "1.0.0"
+  },
+  "type": "default",
+  "id": "Form_1v99ha5",
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.16.0"
+}

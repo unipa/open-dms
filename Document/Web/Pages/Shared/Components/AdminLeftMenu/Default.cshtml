@@ -1,0 +1,94 @@
+﻿@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@{
+    string path = Configuration["Endpoint:UserService"] ?? "";
+    string uid = User.Identity.Name;
+    string name = User.Claims.FirstOrDefault(c => c.Type == "name")?.Value;
+    if (string.IsNullOrEmpty(name)) name = uid;
+    string url ="internalapi/identity/Avatar/0" + uid;
+}
+
+@{
+    var flag_nav_header = false;
+    foreach (var area in Model.Aree)
+    {
+        if (area.Group.Equals("Sistema informativo") && !flag_nav_header)
+        {
+            flag_nav_header = true;
+            //<li class="nav-header ms-4 sidebarText">Sistema informativo</li>
+        }
+        if (area.Group.Equals("Sistema informativo"))
+        {
+
+            <li id="@area.Id" class="@area.Class">
+                <a href="@area.Href">
+                    <i class="@area.Icon"></i>
+                    @area.Name
+                </a>
+            </li>
+
+        }
+    }
+}
+@{
+    flag_nav_header = false;
+    foreach (var area in Model.Aree)
+    {
+        if (area.Group.Equals("Impostazioni Globali") && !flag_nav_header)
+        {
+            flag_nav_header = true;
+            //<li class="nav-header ms-4 sidebarText">Impostazioni Globali</li>
+        }
+        if (area.Group.Equals("Impostazioni Globali"))
+        {
+            <li id="@area.Id" class="@area.Class">
+                <a href="@area.Href">
+                    <i class="@area.Icon"></i>
+                    @area.Name
+                </a>
+            </li>
+        }
+    }
+}
+@{
+    flag_nav_header = false;
+    foreach (var area in Model.Aree)
+    {
+        if (area.Group.Equals("Moduli") && !flag_nav_header)
+        {
+            flag_nav_header = true;
+            <li class="nav-header" style="width:100%;margin-left: 5px;">Moduli</li>
+        }
+        if (area.Group.Equals("Moduli"))
+        {
+
+            <li id="@area.Id" class="@area.Class">
+                <a href="@area.Href">
+                    <i class="@area.Icon"></i>
+                    @area.Name
+                </a>
+            </li>
+        }
+    }
+}
+@{
+    flag_nav_header = false;
+    foreach (var area in Model.Aree)
+    {
+        if (area.Group.Equals("Sistema") && !flag_nav_header)
+        {
+            flag_nav_header = true;
+            <li class="nav-header" style="width:100%;margin-left: 5px;">Sistema</li>
+        }
+        if (area.Group.Equals("Sistema"))
+        {
+
+            <li id="@area.Id" class="@area.Class">
+                <a href="@area.Href">
+                    <i class="@area.Icon"></i>
+                    @area.Name
+                </a>
+            </li>
+        }
+    }
+}

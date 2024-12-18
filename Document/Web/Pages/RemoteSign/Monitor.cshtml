@@ -1,0 +1,138 @@
+﻿@page
+@inject IConfiguration Configuration
+@model Web.Pages.RemoteSign.MonitorModel
+@{
+    var uid = User.Identity.Name;
+}
+
+<div class="Header">
+    <i class="fa fa-pencil"></i>
+    <h1>
+        <small class="DocumentType">
+            @((!String.IsNullOrEmpty(Model.Provider)) ? "Servizio di Firma Remota " + Model.Provider : "Firma Digitale Remota")
+
+        </small>
+        <span class="Description">
+            Firma Remota
+        </span>
+    </h1>
+    <div class="right-header">
+        <a href="#" class="btn btn-link" onclick="return CloseWindowAndRefresh()"><i class="fa fa-times"></i></a>
+    </div>
+</div>
+
+
+<script>
+
+    var Ok = false;
+
+    function CheckFiles() {
+        $.ajax({
+            url: '?handler=Files&SignRoom=@Model.SignRoom',
+            type: 'POST',
+        }).done(function (data) {
+            if (data.ErrorMessage) {
+                $("#retry").removeClass("hidden");
+            }
+            var $table = $("#files");
+            $table.empty();
+            data.files.forEach((item) => {
+                var tr = "<tr><td></td><td>" + "</td><td><b>" + item.name + "</b><br/>" + item.docType + "</td><td>" + item.owner + "</td><td>" + item.motivation + "</td></tr>";
+                $table.append(tr);
+            });
+            if (data.signRoom.status == 1) {
+                window.location.href = "/RemoteSign/OTP/?SignRoom=@(Model.SignRoom)"
+            } else
+                if (data.signRoom.status == 2) {
+                    window.location.href = "/RemoteSign/OTP/?SignRoom=@(Model.SignRoom)"
+                } else
+                    if (data.signRoom.status == 3) {
+                        $("#status").text("Processo di Firma Remota in corso...")
+                    } else
+                        if (data.signRoom.status == 4) {
+                            $("#status").text("Processo di Firma Remota in completamento...")
+                        } else
+                            if (data.signRoom.status == 5) {
+                                $("#status").text("Processo di Firma Remota Annullata")
+                            } else
+                                if (data.signRoom.status == 6) {
+                                    $("#status").text("Processo di Firma Remota Annullata")
+                                } else
+                                    {
+                                        $("#status").text("Processo di Firma Remota Conclusa")
+
+                                    }
+            if (data.signRoom.delivered) {
+                $("#message").val(data.signRoom.deliveredResult)
+                $("#success").removeClass("Hidden")
+            } else {
+                window.setTimeout(() => { CheckFiles() }, 500);
+            }
+        }).fail(function (err) {
+            ShowMessage('alert', err.responseText, 'Message_Target', null);
+        })
+    }
+
+    $(document).ready(() => {
+        CheckFiles();
+    });
+
+    function CloseWindowAndRefresh()
+    {
+        CloseWindow(true);
+    }
+
+</script>
+
+<div class="MainPanel">
+    <div id="Message_Target"></div>
+
+    <div id="content" class="MainPanel">
+        <h1 id="status">Processo di Firma Remota in corso...</h1>
+        <div class="Panel">
+            <h3 style="margin-top: 5px;">
+                Documenti in firma
+            </h3>
+            <div class="Panel" style="border:2px solid var(--primary-bg-b1);border-radius:6px;padding:10px;margin-bottom:10px">
+                <table>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>Documento</th>
+                            <th>Utente</th>
+                            <th style="text-align:right">Stato</th>
+                        </tr>
+                    </thead>
+                    <tbody id="files">
+                    </tbody>
+                </table>
+            </div>
+            <div id="success" class="alert alert-success hidden">
+                <h3>Processo di Firma Concluso</h3>
+                <span id="message"></span>
+            </div>
+            @if (!String.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger">
+                    <strong>Si è verificato un errore</strong>
+                    <p>@Html.Raw(Model.ErrorMessage)</p>
+                </div>
+            }
+
+            <div class="Bottom" style="gap:8px;">
+                @if (!String.IsNullOrEmpty(Model.ErrorMessage))
+                {
+                    @if (!String.IsNullOrEmpty(Model.SignRoom))
+                    {
+                        <a href="/RemoteSign/OTP/@Model.SignRoom" class="btn btn-primary">Riprova</a>
+                    }
+                    <a href="/Customize/Firme" target="_blank" class="btn btn-outline-primary">Configura la Firma Digitale</a>
+                }
+                <a href="/RemoteSign/OTP/@Model.SignRoom" id="retry" class="hidden btn btn-primary">Riprova</a>
+                <a href="#" class="btn btn-link" onclick="return CloseWindowAndRefresh()">Esci</a>
+            </div>
+        </div>
+    </div>
+
+</div>

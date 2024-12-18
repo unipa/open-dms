@@ -1,0 +1,68 @@
+# File di configurazione di Visual Studio
+.vs
+
+# File binari generati dalla compilazione
+bin
+obj
+
+# File di pubblicazione dell'applicazione
+**/*.pdb
+**/*.dll
+**/*.exe
+
+# File di log
+**/*.log
+
+# File di backup
+**/*.bak
+
+# File temporanei
+**/*.tmp
+
+# Altri file di build
+**/packages
+**/node_modules
+**/bower_components
+**/npm-debug.log
+
+# Cartelle di cache
+.nuget
+.vscode
+# Aggiungi altre cartelle di cache specifiche del tuo ambiente o toolchain
+
+# File di configurazione per il debug
+launchSettings.json
+.vsconfig
+
+# File di configurazione per strumenti di analisi del codice
+EditorConfig
+
+# File di configurazione dell'IDE
+*.suo
+*.user
+*.sln.docstates
+
+# File di configurazione di test
+TestResults
+
+# File di configurazione specifici del tuo ambiente di sviluppo o IDE
+# Aggiungi qui i file che non sono necessari per l'immagine Docker
+
+# Cartelle di debug
+/bin/Debug
+/obj/Debug
+# Aggiungi altre cartelle di debug specifiche del tuo ambiente o toolchain
+
+# Cartelle di release
+/bin/Release
+/obj/Release
+# Aggiungi altre cartelle di release specifiche del tuo ambiente o toolchain
+
+# Altre cartelle non necessarie per l'immagine Docker
+docs
+test
+
+
+
+
+

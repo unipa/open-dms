@@ -1,0 +1,11 @@
+﻿@page
+@model Web.Pages.ClientAuthenticationModel
+@{
+}
+
+<div class="InfoPanel">
+    <i class="fa fa-user-circle-o"></i>
+    <h1>Applicazione @Model.AppName </h1>
+    <p>Accesso Autorizzato</p>
+    <a class="btn btn-primary" href="https://localhost:@(Model.Port)/Register?clientSecret=@Model.ClientSecret&returnUrl=@(Model.returnURL)&host=@Model.Host">Torna all'applicazione</a>
+</div>

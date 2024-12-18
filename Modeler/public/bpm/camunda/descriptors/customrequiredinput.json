@@ -1,0 +1,23 @@
+{
+  "name": "MyCustomModdle",
+  "uri": "http://mycompany.org/mymoddle",
+  "prefix": "my",
+  "xml": {
+    "tagAlias": "lowerCase"
+  },
+  "types": [
+    {
+      "name": "ExtendedInput",
+      "extends": [
+        "zeebe:Input"
+      ],
+      "properties": [
+        {
+          "name": "required",
+          "isAttr": true,
+          "type": "Boolean"
+        }
+      ]
+    }
+  ]
+}

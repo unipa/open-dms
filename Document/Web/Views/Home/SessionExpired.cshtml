@@ -1,0 +1,13 @@
+﻿@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@{
+    ViewData["Title"] = "SessionExpire";
+}
+
+<div class="header">
+    <h1>Sessione scaduta</h1>
+    <p>Si prega di rieffettuare il login.</p>
+</div>
+@*@Configuration["PATH_BASE"]*@
+<a class="mt-5" href="/Home/Logout"><button type="button" class="btn btn-secondary">Login</button></a>
+

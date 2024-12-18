@@ -1,0 +1,391 @@
+﻿@page
+
+<link rel="stylesheet" href="https://unpkg.com/@@bpmn-io/form-js@1.1.0/dist/assets/form-js.css">
+<style>
+    h2 p {
+        padding: 0;
+        margin: 0;
+    }
+
+    .fjs-powered-by {
+        display: none !important;
+    }
+
+    .fjs-container .cds--grid {
+        padding: 0 !important;
+    }
+
+    .fjs-form-field-label {
+        font-size: 1rem;
+    }
+
+    .fjs-container .fjs-form-field:not(.fjs-powered-by) {
+        margin: 0 !important;
+        ;
+    }
+
+    .fjs-container {
+        border-bottom: 0px dashed #ccc;
+        margin-bottom: 20px;
+    }
+</style>
+
+@* import tinymce *@
+<script src="~/js/tinymce/tinymce.min.js"></script>
+@*language*@
+<script src="~/js/tinymce/langs/it.js"></script>
+
+@*plugins*@
+<script src="~/js/tinymce/plugins/advlist/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/autolink/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/lists/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/link/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/image/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/charmap/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/preview/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/anchor/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/searchreplace/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/visualblocks/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/fullscreen/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/insertdatetime/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/media/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/table/plugin.min.js"></script>
+<script src="~/js/tinymce/plugins/code/plugin.min.js"></script>
+
+
+
+<script src="/js/bpmn.io/form-viewer.umd.js"></script>
+<script type="module" src="/components/ImageViewer/dist/image-viewer.js"></script>
+<script type="module" src="/components/data-entry/data-entry.js"></script>
+<script type="module">
+    import { RenderForm, Save, Claim, Release, Reassign, AddProgress, Execute, SelectFile, LoadTask, RemoveFile, checkNextProcessTask, DisableFormComponents } from "/js/forms/client.js";
+    window.RenderForm = RenderForm;
+    window.Save = Save;
+    window.Claim = Claim;
+    window.Release = Release;
+    window.LoadTask = LoadTask;
+    window.Reassign = Reassign;
+    window.AddProgress = AddProgress;
+    window.Execute = Execute;
+    window.SelectFile = SelectFile;
+    window.RemoveFile = RemoveFile;
+    window.DisableFormComponents = DisableFormComponents;
+    window.checkNextProcessTask = checkNextProcessTask;
+</script>
+
+
+<div id="Task" class="MainPanel">
+</div>
+
+
+<div id="WaitForNewTask" class="MainPanel" style="display:none">
+    <div class="Header">
+        <i class="fa fa-cogs"></i>
+        <h1>
+            <small>Processo Interattivo</small>
+            <span>Archiviazion Attività</span>
+        </h1>
+        <div class="right-header">
+            <a class="btn btn-link" href="#" onclick="CloseWindow()"><i class="fa fa-times"></i></a>
+        </div>
+    </div>
+
+    <div class="Panel">
+
+        <div class="InfoPanel">
+            <i class="fa fa-clock-o"></i>
+            <h1>Attività Archiviata</h1>
+            <p>Puoi chiudere questa scheda</p>
+        </div>
+    </div>
+    <div class="Bottom">
+        <a href="#" class="btn btn-link" onclick="CloseWindow()">Esci</a>
+    </div>
+
+
+</div>
+
+
+<script type="text/html" id="Item">
+    <div class="Header">
+      <i class="{{taskIcon}}"></i>
+      <h1>
+           <small>{{taskStatusName}}</small>
+           <span>{{&taskTypeName}}</span>
+      </h1>
+      <div class="right-header">
+          <ul class="nav nav-toolbar">
+          {{#Releasable}}
+          <li>
+          <a href="#" class="MobileIcon" title="Rilascia questa attività'" onclick="Release()"><i class="fa fa-outdent"></i> Rilascia</a>
+          </li>
+          {{/Releasable}}
+          {{#Claimable}}
+          <li class="">
+          <a href="#" class="MobileIcon" title="Prendi in carico questa attiivtà" onclick="Claim()"><i class="fa fa-indent"></i> Prendi in Carico</a>
+          </li>
+          <li>
+          <a href="#" class="MobileIcon" title="Riassegna questa attività a qualcun altro" onclick="Reassign()"><i class="fa fa-forward"></i> Riassegna</a>
+          </li>
+          {{/Claimable}}
+          {{#Executable}}
+            <li class="">
+               <a href="#" class="" title="Archivia l'attività come completata/eseguita'" onclick="Execute()"><i class="fa fa-folder"></i> Archivia</a>
+            </li>
+          {{/Executable}}
+
+          <li>
+          <a href="#" class="btn btn-link"  onclick="selectTask()"><i class="fa fa-times"></i></a>
+          </li>
+          </ul>
+      </div>
+    </div>
+    <div class="Panel">
+        <h2>{{&taskItemInfo.title}}</h2>
+        <div class="companyInformation"><i class="fa fa-building"></i><strong>{{&taskItemInfo.company.description}}</strong></div>
+        <div style="display:flex;flex-direction:row;position:relative;margin-bottom:10px">
+            <img src="/internalapi/identity/avatar/{{taskItemInfo.sender}}" class="avatarInList" style="margin-right:8px;" />
+            <div style="display:flex;flex-direction:column">
+                <b>{{taskItemInfo.senderName }}</b>
+                {{#taskItemInfo.toList.length}}
+                <div style="font-size:.85rem;margin-top:-4px;padding-right:200px;">
+                    A: {{#taskItemInfo.toList}}
+                        <span class="tag">
+                        <img src="/internalapi/identity/avatar/{{&id}}" class="smallavatar" />
+                        {{description}}</span>
+                    {{/taskItemInfo.toList}}
+                </div>
+                {{/taskItemInfo.toList.length}}
+                 {{#taskItemInfo.ccList.length}}
+                <div style="font-size:.85rem;margin-top:-4px;">
+                    CC: {{#taskItemInfo.ccList}}
+                        <span class="tag">
+                            <img src="/internalapi/identity/avatar/{{&id}}" class="smallavatar" />
+                            {{description}}</span>
+                    {{/taskItemInfo.ccList}}
+                </div>
+                 {{/taskItemInfo.ccList.length}}
+                <div style="position:absolute;top:2px;right:8px; text-align:right;font-size:.85rem;color:#999">
+                    {{ creationDate }} <i class="Rank_{{ executionStatus }}" title="{{ executionStatus }}"></i><i class="fa fa-bell" title="Data Notifica"></i> <br/>
+                    {{ expirationDate }} <i class="fa fa-calendar" title="Data Scadenza"></i> <br/>
+                </div>
+            </div>
+        </div>
+        <div class="Panel">
+             <div class="accordion">
+                 <div class="accordion-item">
+                     <div class="accordion-button"  data-bs-toggle="collapse" data-bs-target="#taskaction" >
+                        <i class="fa fa-check-square-o" style="color:#aab;width:20px;margin-right:8px"></i> <strong>Messaggio</strong>
+                     </div>
+                     <div id="taskaction" class="accordionbackpanel collapseOne accordion-collapse collapse show">
+                         <div class="TaskDescription">
+                             {{&taskItemInfo.description}}
+                         </div>
+                         {{#Activity}}
+                             {{#taskItemInfo.form.schema}}
+                             <div class="TaskForm">
+                             </div>
+                             {{/taskItemInfo.form.schema}}
+
+                             {{#taskItemInfo.form.html}}
+                             <form id="htmlform"  class="TaskForm">
+                                 {{&taskItemInfo.form.html}}
+                             </form>
+                             {{/taskItemInfo.form.html}}
+                             {{/Activity}}
+                     </div>
+                 </div>
+
+
+
+                 <div class="accordion-item">
+                     {{#taskItemInfo.attachments.length}}
+                     <div class="accordion-button collapsed"  data-bs-toggle="collapse" data-bs-target="#attachmentList" >
+                        <i class="fa fa-paperclip" style="color:#aab;width:20px;margin-right:8px"></i> <strong>Allegati ({{taskItemInfo.attachments.length}})</strong>
+                     </div>
+                     {{/taskItemInfo.attachments.length}}
+                     <div id="attachmentList" class="accordionbackpanel collapseOne accordion-collapse collapse">
+                         <div class="DocumentSummary">
+                            {{#taskItemInfo.attachments}}
+                            <div class="PreviewRow" onclick="ShowPreview({{id}})">
+                                <div class="PreviewDocument">
+                                        <image-viewer type="compatto" id="link" pages="1"  documentId="{{id}}" imageId="0"  />
+                                </div>
+                                <span class="PreviewName">{{description}}<small>{{documentTypeName}}
+                                    {{#documentNumberFormattedValue.length}}
+                                        {{documentType.documentNumberLabel}} {{documentNumberFormattedValue}}
+                                    {{/documentNumberFormattedValue.length}}
+                                    </small></span>
+                                {{#protocol.number}}
+                                <span class="PreviewProtocol">PROT. {{protocol.formattedNumber}}</span>
+                                {{/protocol.number}}
+                            </div>
+                            {{/taskItemInfo.attachments}}
+                         </div>
+                    </div>
+                 </div>
+                {{#Activity}}
+                 <div class="accordion-item">
+                     <div class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#progressList" >
+                         <i class="fa fa-signal" style="color:#aab;width:20px;margin-right:8px"></i><strong>Progressi ({{taskItemInfo.progress.length}})</strong>
+                     </div>
+                     <div id="progressList" class="accordionbackpanel collapseOne accordion-collapse collapse">
+                         <div style="position:relative;margin:2px 2px;border-bottom:1px dashed #aaa">
+                            <strong>Registra un nuovo progresso</strong>
+                            <textarea id="notaProgresso" rows="2" maxlength="4096" placeholder="descrivi l'attività svolta..."></textarea>
+                            <div style="margin-bottom:10px;display:flex;flex-direction:row;align-items:center;justify-content:end;">
+                                <span><span id="ValoreProgresso">0</span>%</span>
+                                <input type="range" value="0" min="0" max="100" onchange="$('#ValoreProgresso').text(this.value)" value="100" id="percentualeProgresso" style="width:200px;height:4px;margin:0 20px;">
+                                <a href="#" class="btn btn-secondary" style="padding:8px 16px;font-size:inherit.8em;" onclick="AddProgress()">Aggiungi Progresso</a>
+                            </div>
+                         </div>
+                         <ul class="nav nav-list">
+                         {{#taskItemInfo.progress}}
+                            <li>
+                                <a style="display:flex;flex-direction:row;">
+                                    <img src="/internalapi/identity/avatar/{{userId}}" class="avatarInList" />
+                                    <div style="display:flex;flex-direction:column">
+                                        <b>{{userName}}</b>
+                                        <p style="margin-top:-4px;">{{message}}</p>
+                                        <span style="font-size:.85rem;position:absolute;right:8px;top:11px;">{{creationDate}}</span>
+                                        <div style="position:absolute;right:180px;top:21px;width:200px;height:5px;border-radius:3px;background-color:#fff;border:1px solid #ccc">
+                                            <div style="position:absolute;right:0;top:0;width:{{percentage}}%;height:3px;background-color:#8cf;"></div>
+                                        </div>
+                                        <span style="font-size:.8rem;position:absolute;right:400px;top:10px;">{{percentage}} %</span>
+                                    </div>
+                                </a>
+                            </li>
+                         {{/taskItemInfo.progress}}
+                         </ul>
+                    </div>
+                </div>
+                {{/Activity}}
+             </div>
+        </div>
+    </div>
+    <div class="Bottom Mobile hidden">
+        {{#Executable}}
+           <a href="#" class="btn btn-primary" title="Archivia questa attività come completata/eseguita" onclick="Execute()">Archivia</a>
+        {{/Executable}}
+        {{#Claimable}}
+            <a href="#" class="btn btn-link" title="Prendi in carico questa attività" onclick="Claim()"><i class="fa fa-indent"></i> Prendi in Carico</a>
+        {{/Claimable}}
+
+          <a href="#" class="btn btn-link" onclick="selectTask()">Chiudi</a>
+    </div>
+</script>
+
+<script>
+
+    $(document).ready(() => {
+        LoadTask(qs["tid"], "#Task", "#Item");
+    });
+
+    function ShowPreview(id) {
+        parent.ShowDocument(id, true);
+    }
+
+    function selectTask() {
+        if (window.parent["selectTask"])
+            window.parent.selectTask();
+        else
+            CloseWindow();
+    }
+
+
+    // function Execute() {
+    //     Save((formdata) => {
+    //         var pik = qs["pik"];
+    //         var VerificationCode = "";
+    //         var RequestVerificationCode = document.getElementsByName("__RequestVerificationToken");
+    //         if (RequestVerificationCode.length > 0) {
+    //             VerificationCode = RequestVerificationCode[0].value;
+
+    //             var varstr = JSON.stringify(formdata);
+    //             fetch("/internalapi/tasklist/Execute/" + task.id, // qs["tid"],
+    //                 {
+    //                     method: "PATCH",
+    //                     headers: {
+    //                         RequestVerificationToken: VerificationCode,
+    //                         'Content-Type': 'application/json',
+    //                         Accept: 'application/json',
+    //                     },
+    //                     body: JSON.stringify(varstr)
+    //                 })
+    //                 .then(response => {
+    //                     return response.json();
+    //                 })
+    //                 .then(data => {
+    //                     {
+    //                         task = data;
+    //                         if (window.parent) {
+    //                             var $tlist = $(window.parent.document).find("#TaskList");
+    //                             if ($tlist.length > 0) {
+    //                                 var $li = $tlist.find("#" + task.id);
+    //                                 if ($li.length > 0)
+    //                                     $li.remove();
+    //                             }
+    //                         }
+    //                         if (window.parent["updateFilters"])
+    //                             window.parent.updateFilters();
+    //                         if (pik)
+    //                             checkNextProcessTask(pik);
+    //                         else {
+    //                             if (window.parent) {
+    //                                 var $tlist = $(window.parent.document).find("#TaskList");
+    //                                 if ($tlist.length > 0) {
+    //                                     var $li = $tlist.find("li");
+    //                                     if ($li.length > 0)
+    //                                         return LoadTask($li[0].id);
+    //                                 }
+    //                                 if (window.parent["selectTask"])
+    //                                     window.parent.selectTask();
+    //                                 else
+    //                                     CloseWindow();
+    //                             }
+    //                             else
+    //                                 CloseWindow();
+    //                         }
+    //                     }
+    //                 })
+    //                 .catch(err => {
+    //                     alert("Si è verificato un errore durante il salvataggio: " + err);
+    //                 });
+    //         }
+    //     });
+    //     return false;
+    // }
+
+
+    // function AddProgress() {
+    //     var VerificationCode = "";
+    //     var RequestVerificationCode = document.getElementsByName("__RequestVerificationToken");
+    //     if (RequestVerificationCode.length > 0) {
+    //         VerificationCode = RequestVerificationCode[0].value;
+    //         var message = $("#notaProgresso").val();
+    //         var percentage = $("#percentualeProgresso").val();
+    //         var varstr = JSON.stringify({ justification: message });
+    //         fetch("/internalapi/tasklist/Progress/" + task.id + "/" + escape(message) + "/" + escape(percentage),  //qs["tid"] + "/" + escape(message) + "/" + escape(percentage),
+    //             {
+    //                 method: "POST",
+    //                 headers: {
+    //                     RequestVerificationToken: VerificationCode,
+    //                     'Content-Type': 'application/json',
+    //                     Accept: 'application/json',
+    //                 },
+    //                 body: JSON.stringify(varstr)
+    //             })
+    //             .then(response => {
+    //                 return response.json();
+    //             })
+    //             .then(data => {
+    //                 LoadTask(task.id, "#Task", "#Item"); //qs["tid"], "#Task", "#Item");
+    //             })
+    //             .catch(err => {
+    //                 alert("Si è verificato un errore durante il salvataggio: " + err);
+    //             });
+    //     }
+
+    // }
+
+</script>

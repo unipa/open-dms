@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta Content-Security-Policy: frame-ancestors  />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - IdentiyMultiTenant</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/IdentiyMultiTenant.styles.css" asp-append-version="true" />
+    <style>
+        body {
+            display:flex; height:100vh;
+            margin:auto;
+            flex-direction:column;
+        }
+    </style>
+    <script language="javascript">
+        function LoadFrame(url) {
+            $("#mainPage").hide();
+            $("#frame").show();
+            //var w = window.open(url, "w");
+            //w.addEventListener("load", (data) {
+            //    var html = w.document.body.innerHTML;
+            //    var html_src = 'data:text/html;charset=utf-8,' + html;
+            //    $("#frame").attr("src", html_src);
+            //});
+            //$.get(url, function (html) {
+            //    var html_src = 'data:text/html;charset=utf-8,' + html;
+            //    $("#frame").attr("src", html_src);
+            //} );
+            $("#frame")[0].src = url;
+
+            return false;
+        }
+
+    </script>
+</head>
+<body>
+    <header style="position:sticky; top:0;z-index:1;">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3" style="background-color: #e0f5ff">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-page=""><i class="fa fa-database"></i> <b>Gestione Tenant</b></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="~/">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark"  href="~/swagger/index.html">Swagger</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="#" onclick="return LoadFrame('https://dms-test.elmisoftware.com/tasks')">Task</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="#" onclick="return LoadFrame('https://localhost:7001')">Admin</a>
+                        </li>
+                    </ul>
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container-fluid" style="height:100%;">
+        <main id="mainPage" role="main" class="pb-3" style="height:100%">
+            @RenderBody()
+        </main>
+        <iframe id="frame" frameborder="0" sandbox="allow-same-origin allow-scripts allow-top-navigation allow-popups allow-forms allow-modals " class="pb-3" style="display:none;height:100%;width:100%;border:2px solid blue;background-color:#eee" width="100%" height="100%"></iframe>
+    </div>
+
+@*    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2022 - IdentiyMultiTenant - <a asp-area="" asp-page="/Privacy">Privacy</a>
+        </div>
+    </footer>
+*@
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

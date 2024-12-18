@@ -1,0 +1,273 @@
+﻿<style>
+    h2 p {
+        padding: 0;
+        margin: 0;
+    }
+
+    .fjs-powered-by {
+        display: none !important;
+    }
+
+    .fjs-container .cds--grid {
+        padding: 0 !important;
+    }
+
+    .fjs-form-field-label {
+        font-size: 1rem;
+    }
+
+    .fjs-container .fjs-form-field:not(.fjs-powered-by) {
+        margin: 0 !important;
+        ;
+    }
+
+    .fjs-container {
+        border-bottom: 0px dashed #ccc;
+        margin-bottom: 20px;
+    }
+</style>
+
+<div id="Task" class="MainPanel">
+</div>
+
+<div id="Task_Loading" class="MainPanel" style="display:none">
+    <div class="Header">
+        <i class="fa fa-cogs"></i>
+        <h1>
+            <small>Processo Interattivo</small>
+            <span>Completamento Attività</span>
+        </h1>
+        <div class="right-header">
+            <a class="btn btn-link" href="#" onclick="CloseWindow()"><i class="fa fa-times"></i></a>
+        </div>
+    </div>
+
+    <div class="Panel">
+
+        <div class="InfoPanel">
+            <i class="fa fa-clock-o"></i>
+            <h1>Attività Completata</h1>
+            <p>Puoi chiudere questa scheda</p>
+        </div>
+    </div>
+    <div class="Bottom">
+        <a href="#" class="btn btn-link" onclick="CloseWindow()">Esci</a>
+    </div>
+
+
+</div>
+
+
+<script type="text/html" id="Item">
+    <div class="Header">
+      <i class="{{taskIcon}}"></i>
+      <h1>
+           <small>{{taskStatusName}}</small>
+           <span>{{&taskTypeName}}</span>
+      </h1>
+      <div class="right-header">
+          <ul class="nav nav-toolbar">
+          {{#Releasable}}
+          <li>
+          <a href="#" class="MobileIcon" title="Rilascia questa attività'" onclick="Release()"><i class="fa fa-outdent"></i> Rilascia</a>
+          </li>
+          {{/Releasable}}
+          {{#Claimable}}
+          <li class="">
+          <a href="#" class="MobileIcon" title="Prendi in carico questa attiivtà" onclick="Claim()"><i class="fa fa-indent"></i> Prendi in Carico</a>
+          </li>
+          <li>
+          <a href="#" class="MobileIcon" title="Riassegna questa attività a qualcun altro" onclick="Reassign()"><i class="fa fa-forward"></i> Riassegna</a>
+          </li>
+          {{/Claimable}}
+          {{#Executable}}
+            <li class="">
+                       <a href="#" class="MobileIcon" title="Completa e Archivia l'attività" onclick="Execute()"><i class="fa fa-check"></i> {{archivia}}</a>
+            </li>
+          {{/Executable}}
+
+          <li>
+          <a href="#" class="btn btn-link"  onclick="selectTask()"><i class="fa fa-times"></i></a>
+          </li>
+          </ul>
+      </div>
+    </div>
+    <div class="Panel">
+        <h2>{{&taskItemInfo.title}}</h2>
+        <div class="companyInformation"><i class="fa fa-building"></i><strong>{{&taskItemInfo.company.description}}</strong></div>
+        <div style="display:flex;flex-direction:row;position:relative;margin-bottom:10px">
+            <img src="/internalapi/identity/avatar/{{taskItemInfo.sender}}" class="avatarInList" style="margin-right:8px;" />
+            <div style="display:flex;flex-direction:column;width:100%">
+                <b>{{taskItemInfo.senderName }}</b>
+                {{#taskItemInfo.toList.length}}
+                <div style="font-size:.85rem;margin-top:-4px;padding-right:200px;">
+                    A: {{#taskItemInfo.toList}}
+                        <span>{{description}}</span>
+                    {{/taskItemInfo.toList}}
+                </div>
+                {{/taskItemInfo.toList.length}}
+                 {{#taskItemInfo.ccList.length}}
+                <div style="font-size:.85rem;margin-top:-4px;">
+                    CC: {{#taskItemInfo.ccList}}
+                        <span>{{description}}</span>
+                    {{/taskItemInfo.ccList}}
+                </div>
+                 {{/taskItemInfo.ccList.length}}
+                <div style="position:absolute;top:2px;right:8px; text-align:right;font-size:.85rem;color:#999">
+                    {{ creationDate }} <i class="Rank_{{ executionStatus }}" title="{{ executionStatus }}"></i><i class="fa fa-bell" title="Data Notifica"></i> <br/>
+                    {{ expirationDate }} <i class="fa fa-calendar" title="Data Scadenza"></i> <br/>
+                </div>
+            </div>
+        </div>
+                    {{#taskItemInfo.progress.length}}
+                        <div style="font-size:.85rem;display:flex;flex-direction:row;justify-content:space-between;color:#888">
+                            <i style="margin:2px 9px" class="fa fa-signal"></i>
+                            <strong style="color:#444; white-space:nowrap;margin-right:8px;">{{taskItemInfo.progress.0.userName}}</strong>
+                            <div style="width:100%;text-overflow:ellipsis;white-space:nowrap;height:20px">{{&taskItemInfo.progress.0.message}}</div>
+                            <span style="white-space:nowrap;margin:0 8px;">{{taskItemInfo.progress.0.percentage}} %</span>
+                            <span style="white-space:nowrap;margin-left:8px">{{taskItemInfo.progress.0.creationDate}}</span>
+                            <span style="margin-left:2px;margin-right:8px" class="fa fa-calendar-o"></span>
+                        </div>
+                    {{/taskItemInfo.progress.length}}
+            <div class="Panel">
+             <div class="accordion">
+
+                 <div class="accordion-item">
+                     <div class="accordion-button"  data-bs-toggle="collapse" data-bs-target="#taskaction" >
+                        <i class="{{taskIcon}}" style="color:#aab;width:20px;margin-right:8px"></i> <strong> {{&taskTypeName}}</strong>
+                     </div>
+                     <div id="taskaction" class="collapseOne accordion-collapse collapse show">
+                         <div class="TaskDescription">
+                             {{&taskItemInfo.description}}
+                         </div>
+                         {{#Activity}}
+@*                              {{#taskItemInfo.form.schema}}
+                             <div class="TaskForm">
+                             </div>
+                             {{/taskItemInfo.form.schema}}
+
+                             {{#taskItemInfo.form.html}}
+                             <form id="htmlform"  class="TaskForm">
+                                 {{&taskItemInfo.form.html}}
+                             </form>
+                             {{/taskItemInfo.form.html}}
+ *@
+                             <form id="htmlform"  class="" >
+                                     @* {{&taskItemInfo.form.html}} *@
+                             </form>
+                             <div style="margin:24px 4px 0 0">
+                                {{#Executable}}
+                                    <a href="#" class="btn btn-primary" title="Completa e Archivia l'attività " onclick="Execute()"><i class="fa fa-check"></i> Completa Attività</a>
+                                    @* <a href="#" class="btn btn-outline-primary" title="Memorizza un progresso sull'attività" onclick="ShowProgress()"><i class="fa fa-folder"></i> Salva Progressi...</a> *@
+                                {{/Executable}}
+                                {{#Claimable}}
+                                        <a href="#" class="btn btn-outline-secondary" title="Memorizza i progressi effettuati su questa attività senza completarla" onclick="AddProgress(true)"> Salva Progressi</a>
+                                {{/Claimable}}
+                             </div>
+                             {{/Activity}}
+                     </div>
+
+                 </div>
+
+                 <div class="accordion-item">
+                     {{#taskItemInfo.attachments.length}}
+                     <div class="accordion-button"  data-bs-toggle="collapse" data-bs-target="#attachmentList" >
+                        <i class="fa fa-paperclip" style="color:#aab;width:20px;margin-right:8px"></i> <strong>Allegati - {{taskItemInfo.attachments.length}}</strong>
+                     </div>
+                     {{/taskItemInfo.attachments.length}}
+                     <div id="attachmentList" class="accordionbackpanel accordion-collapse collapse show">
+                         <div class="DocumentSummary">
+                            {{#taskItemInfo.attachments}}
+                            <div class="PreviewRow" onclick="ShowPreview({{id}})">
+                                <div class="PreviewDocument">
+                                        <image-viewer type="compatto" id="link" pages="1"  documentId="{{id}}" imageId="0"  />
+                                </div>
+                                <span class="PreviewName">{{description}}<small>{{documentTypeName}}
+                                    {{#documentNumberFormattedValue.length}}
+                                        {{documentType.documentNumberLabel}} {{documentNumberFormattedValue}}
+                                    {{/documentNumberFormattedValue.length}}
+                                    </small></span>
+                                {{#protocol.number}}
+                                <span class="PreviewProtocol">PROT. {{protocol.formattedNumber}}</span>
+                                {{/protocol.number}}
+                            </div>
+                            {{/taskItemInfo.attachments}}
+                         </div>
+                    </div>
+                 </div>
+                {{#Activity}}
+                 <div class="accordion-item">
+                     <div class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#progressList" >
+                         <i class="fa fa-signal" style="color:#aab;width:20px;margin-right:8px"></i><strong>Progressi - {{taskItemInfo.progress.length}}</strong>
+                     </div>
+                     <div id="progressList" class="accordionbackpanel accordion-collapse collapse">
+
+                         {{#Executable}}
+                         <div style="position:relative;margin:2px 0">
+                            <textarea id="notaProgresso" rows="2" maxlength="4096" placeholder="descrivi l'attività svolta e indica una percentuale di completamento..."></textarea>
+                            <div style="margin-bottom:10px;display:flex;flex-direction:row;align-items:center;justify-content:end;position:relative">
+                                    <div style="position:absolute;right:350px;top:4px"><span id="ValoreProgresso">0</span>%</div>
+                                    <input style="position:absolute;right:125px;top:14px;width:205px;height:5px;" type="range" min="0" max="100" onchange="$('#ValoreProgresso').text(this.value)" value="{{MinPercentage}}" id="percentualeProgresso">
+                                <a href="#" class="btn btn-xs btn-secondary" style="padding:8px 16px;margin-right:10px;font-size:inherit.9em;" onclick="AddProgress()">Aggiungi</a>
+                            </div>
+                         </div>
+                         {{/Executable}}
+                         <ul class="nav nav-list" style="padding:0;background-color:#fafafa;border-radius:6px">
+                         {{#taskItemInfo.progress}}
+                            <li>
+                                <a style="display:flex;flex-direction:row;">
+                                    <img src="/internalapi/identity/avatar/{{userId}}" class="avatarInList" />
+                                    <div style="display:flex;flex-direction:column;align-self:normal">
+                                        <b>{{userName}}</b>
+                                        <div style="margin-top:-4px;">{{&message}}</div>
+                                        <span style="font-size:.8rem;position:absolute;right:8px;top:11px;">{{creationDate}}</span>
+                                        <div style="position:absolute;right:125px;top:20px;width:200px;height:5px;border-radius:3px;background-color:#fff;border:1px solid #ccc">
+                                             <div style="position:absolute;left:0;top:0;width:{{percentage}}%;height:3px;background-color:#00ff7e"></div>
+                                        </div>
+                                        <span style="font-size:.8rem;position:absolute;right:350px;top:10px;">{{percentage}} %</span>
+                                    </div>
+                                </a>
+                            </li>
+                         {{/taskItemInfo.progress}}
+                         </ul>
+                    </div>
+                </div>
+                {{/Activity}}
+             </div>
+        </div>
+    </div>
+    <div class="Bottom Mobile hidden">
+        {{#Executable}}
+           <a href="#" class="btn btn-primary" title="Completa e Archivia questa attività" onclick="Execute()"> {{archivia}}</a>
+        {{/Executable}}
+        {{#Claimable}}
+            <a href="#" class="btn btn-link" title="Prendi in carico questa attività" onclick="Claim()"><i class="fa fa-indent"></i> Prendi in Carico</a>
+        {{/Claimable}}
+
+          <a href="#" class="btn btn-link" onclick="selectTask()">Chiudi</a>
+    </div>
+</script>
+
+<script>
+
+    $(document).ready(() => {
+        // Ricarico quando si chiude una finestra aperta in modale dal task 
+        window.addEventListener("message", (event) => {
+            if (event.data.op == "close") {
+                if (window.Modal) {
+                    $(window.Modal).find("#PopupWindow").attr("src", "");
+                    $(window.Modal).addClass("hidden");
+                }
+                LoadTask(qs["tid"]);
+            }
+            if (event.data.op == "refresh") {
+                if (window.Modal) {
+                    $(window.Modal).find("#PopupWindow").attr("src", "");
+                    $(window.Modal).addClass("hidden");
+                }
+                LoadTask(qs["tid"]);
+            }
+        });
+    });
+
+</script>

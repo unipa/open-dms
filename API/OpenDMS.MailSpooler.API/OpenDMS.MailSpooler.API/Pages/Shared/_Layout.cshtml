@@ -1,0 +1,22 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+@*    <style>
+        body {
+            display: flex;
+            height: 100vh;
+            margin: auto;
+            flex-direction: column;
+        }
+    </style>*@
+</head>
+<body>
+    <div class="container-fluid" style="height:100%;">
+        <main id="mainPage" role="main" class="pb-3" style="height:100%">
+            @RenderBody()
+        </main>
+    </div>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

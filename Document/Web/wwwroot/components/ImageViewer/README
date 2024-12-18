@@ -1,0 +1,48 @@
+##########################################################
+###  COMPONENTE DI PREVIEW E VISUALIZZAZIONE IMMAGINI  ###
+##########################################################
+
+Uso del componente:
+
+Importare la cartella del componente e utilizzare il custom tag <image-viewer> con gli attributi OBBLIGATORI:
+
+#########################################
+### type = "esteso" oppure "compatto" ###
+#########################################
+
+- L'attributo esteso avrà il comportamento di image viewer 
+- L'attributo compatto servirà per le preview dei documenti
+
+##############################################
+### Set degli endpoint per le chiamate api ###
+##############################################
+
+Gli endpoint per le chiamate API vanno settati nel file endpoint.json e verranno automaticamente caricati all'interno del codice in esecuzione.
+
+#####################################################################
+### Impostazione delle batch di caricamento nella versione esteso ###
+#####################################################################
+
+Inserire il valore nell'attributo n_pages (deve essere un intero, se non impostato o non intero il valore di default è 3)
+
+####################################################
+### Impostazione del fattore di ZoomIn e ZoomOut ###
+####################################################
+
+Inserire il valore nell'attributo zoomFactor (deve essere un float,se non impostato o non intero il valore di default è 0.25)
+
+###################################################
+### Impostazione del fattore di Zoom In massimo ###
+###################################################
+
+Inserire il valore nell'attributo maxZoomIn (deve essere un intero, se non impostato o non intero il valore di default è 238)
+
+Il valore indica la percentuale massima della maxWidth. 
+
+###################################################
+### Impostazione del fattore di Zoom Out minimo ###
+###################################################
+
+Inserire il valore nell'attributo maxZoomMin (deve essere un intero, se non impostato o non intero il valore di default è 4)
+
+Il valore indica la percentuale minima della maxWidth. 

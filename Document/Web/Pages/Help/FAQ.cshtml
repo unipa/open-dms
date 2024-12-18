@@ -1,0 +1,230 @@
+﻿@page
+@model FAQDetailModel
+@{
+    Layout = "_HelpLayout";
+}
+
+
+
+@section SubHeader {
+    Supporto Online
+}
+@section Header {
+        Frequently Asked Questions
+}
+
+@section Releases
+{
+    @foreach (var f in Model.ReleaseNotes)
+    {
+        <li>
+            <a href="?releaseNote=@f"><i class="fa fa-file-text-o"></i> @f</a>
+        </li>
+    }
+}
+
+
+<div class="Panel" style="margin:0 32px;">
+
+    <div style="text-align:center;margin:32px;">
+        <h1 style="font-size:5em;margin:.4em 0">Frequently Asked Questions</h1>
+        <input type="text" style="width:33%;min-width:400px" id="question" placeholder="Indica un argomento o una parola chiave..." />
+        <i style="margin-left:-24px" class="fa fa-search"></i>
+    </div>
+    <div id="Results" class="results hidden">
+        <h3><span class="resultTitle"></span></h3>
+        <div style="border-bottom:1px solid #444; display:flex;flex-direction:row;flex-wrap:wrap;justify-items:center">
+        </div>
+    </div>
+
+
+    <div class="groups hidden">
+        <h3>Argomenti</h3>
+        <div style="border-top:1px solid #444; display:flex;flex-direction:row;flex-wrap:wrap;" class="groupList">
+        </div>
+    </div>
+    @if (Model.IsFAQAdmin)
+    {
+        <a style="width:240px" class="btn btn-outline-primary btnAdd" title="Crea una nuova FAQ"><i class="fa fa-plus"></i> Crea una nuova FAQ...</a>
+    }
+    <div class="document"></div>
+</div>
+
+
+<script type="text/html" id="Document">
+    <div class="Window">
+        <div class="Body MainPanel">
+            <div class="Header">
+                <i class="fa fa-question-circle"></i> FAQ
+            </div>
+            <input type="hidden" value="{{id}}" id="did" />
+            <div class="Panel">
+                <div>
+                    <label>Argomento</label>
+                    <input type="text" tableId="argomentofaq" required id="argomento" name="argomento" value="{{tableId}}" />
+                </div>
+                <div>
+                    <label>Domanda</label>
+                    <input type="text" required id="domanda" maxlength="255" value="{{description}}" placeholder="scrivere il titolo di una domanda..." />
+                </div>
+                <div class="MainPanel">
+                    <label>Risposta</label>
+                    <textarea style="height:100%" rows="5" required id="risposta" placeholder="scrivere la risposta alla domanda...">{{annotation}}</textarea>
+                </div>
+            </div>
+            <div class="Bottom">
+                <a href="#" class="btnSave btn btn-primary">Memorizza</a>
+                <a href="#" class="btnAbort btn btn-link">Annulla</a>
+            </div>
+        </div>
+    </div>
+</script>
+
+
+
+<script type="text/html" id="searchResults">
+    {{#groups}}
+        <div style="display:flex;flex-direction:row;width:100%">
+            <div style="min-width:200px;max-width:300px;">
+                <h6>{{description}}</h6>
+            </div>
+            <div style="width:100%;margin-left:8px;margin-bottom:32px;border:none" id="groupsPanel" class="accordion">
+                {{#documents}}
+                <div class="accordion-item" style="padding:8px;">
+                    <div class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#FAQ_{{id}}" >
+                        {{description}}
+                    @if (Model.IsFAQAdmin)
+                    {
+                        <a href="#" did="{{id}}" style="position:absolute;right:88px;" class="btnEdit btn-xs btn btn-link" title="Modifica"><i class="fa fa-pencil"></i></a>
+                        <a href="#" did="{{id}}" style="position:absolute;right:48px;"  class="btnDelete btn-xs btn btn-link" title="Cancella"><i class="fa fa-trash-o"></i></a>
+                    }
+                        </div>
+                        <div id="FAQ_{{id}}" class="collapseOne accordion-collapse collapse"  data-bs-parent="#groupsPanel">
+                        <div style="padding:8px;">
+                            {{&annotation}}
+                        </div>
+                    </div>
+                </div>
+                {{/documents}}
+            </div>
+        </div>
+    {{/groups}}
+
+</script>
+
+
+<script type="text/html" id="groups">
+    {{#groups}}
+    <div style="min-width:300px;padding:8px;margin:8px;">
+        <h6>{{description}}</h6>
+        {{#documents}}
+        <div>
+            <a href="#" style="margin-left:4px;color:#666;text-decoration:none" onclick="return Open('{{tableId}}', {{id}})" >{{description}}</a>
+        </div>
+        {{/documents}}
+        <div>
+            <a href="#"  style="margin-left:4px;color:#666;text-decoration:none" onclick="return Open('{{id}}', 0)" >Vedi Tutte</a>
+        </div>
+    </div>
+    {{/groups}}
+</script>
+
+<script>
+
+    $(document).ready(() => {
+        // carica i gruppi
+        // mostra i gruppi (se in querystring non è indicata una faq specifica
+        $(".groups").removeClass("hidden");
+
+        fetch("/internalapi/FAQ")
+            .then(r => r.json())
+            .then((data) => {
+                var template = $("#groups").html();
+                var html = Mustache.render(template, { groups: data });
+                $(".groupList").empty().append(html);
+                $(".btnAdd").off("click").on("click", () => {
+                    ShowDialog({ tableId: "", description: "", annotation: "" });
+                });
+            })
+
+    });
+
+    function Open(groupId, documentId) {
+        fetch("/internalapi/FAQ/" + groupId)
+            .then(r => r.json())
+            .then((grp) => {
+                var template = $("#searchResults").html();
+                var html = Mustache.render(template, { groups: grp, selected : documentId });
+                $(".groupList").empty().append(html);
+
+                $(".btnEdit").off("click").on("click", (e) => {
+                    var id = e.currentTarget.getAttribute("did");
+                    ShowDialog(grp.documents.filter(d => d.id == id)[0]);
+                });
+                $(".btnDelete").off("click").on("click", (e) => {
+                    if (!confirm("Eliminare questa FAQ ?")) return false;
+                    var id = e.currentTarget.getAttribute("did");
+                    fetch("/internalapi/Document/Delete/" + id)
+                        .then(r => r.json())
+                        .then((data) => {
+                            Open(groupId);
+                        })
+                });
+                $(".btnAdd").off("click").on("click", () => {
+                    ShowDialog({ tableId: groupId, description: "", annotation: "" });
+                });
+            })
+    }
+
+    function ShowDialog(model) {
+
+            var template = $("#Document").html();
+            var html = Mustache.render(template, model);
+            $(".document").empty().html(html);
+        $("#argomento")[0].setAttribute ("type", "select");
+        InizializzaTextEditor("#risposta", "", null, "100%");
+        $(".btnSave").off("click").on("click", () => {
+                //TODO: salvare il documento
+                var id = $("#did").val();
+                var arg = $("#argomento").val();
+                var A = $("#domanda").val();
+                var Q = $("#risposta").val();
+                var body = JSON.stringify({
+                    description: A,
+                    documentTypeId: "FAQ",
+                    authorize: "2user,2FAQAdmin",
+                    status: 1,
+                    fieldList: [{ fieldName: "argomento", value: arg }],
+                    content: {
+                        fileName: "risposta.html",
+                        fileData: Q,
+                        dataIsInBase64: false
+                    }
+                })
+
+                var VerificationCode = "";
+                var RequestVerificationCode = document.getElementsByName("__RequestVerificationToken");
+                if (RequestVerificationCode.length > 0) {
+                    VerificationCode = RequestVerificationCode[0].value;
+
+                    $.ajax({
+                        url: id == 0 ? "/internalapi/document" : "/internalapi/document/" + id,
+                        type: id == 0 ? "POST" : "PUT",
+                        headers: {
+                            RequestVerificationToken: VerificationCode,
+                            'Content-Type': 'application/json',
+                            Accept: 'application/json',
+                        },
+                        data: body
+                    })
+                        .done(function (doc) {
+                            $(".document").empty();
+                            Open(arg, doc.id);
+                        });
+                };
+            });
+            $(".btnAbort").off("click").on("click", () => {
+                $(".document").empty();
+            });
+    }
+</script>

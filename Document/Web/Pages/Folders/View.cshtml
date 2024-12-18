@@ -1,0 +1,105 @@
+﻿@page
+@using OpenDMS.Domain.Constants;
+@model FolderViewModel
+@{
+    ViewData["Title"] = "Dashboard " + Model.GroupName;
+    Layout = "_FolderLayout";
+    Layout = "ThreePanelLayout";
+}
+
+@section Header {
+    <i id="FilterIcon" class="DocumentIcon @Model.Icon"></i>
+    <h1>
+        <small class="DocumentType">
+            @Model.GroupType
+        </small>
+        <span id="FilterTitle" class="Description">@Model.GroupName</span>
+    </h1>
+    <div class="right-header">
+        @if (Model.CanEditDashboard)
+        {
+            <a href="/?id=@Model.FolderId" class="btn btn-link"><i class="fa fa-folder"></i> Dashboard</a>
+        }
+        @if (Model.CanEditView)
+        {
+            <a href="/?id=@Model.ViewId" class="btn btn-link"><i class="fa fa-list"></i> Vista</a>
+        }
+    </div>
+}
+
+@section Filters
+{
+    @if (Model.AddButton.Count > 0)
+    {
+        <div class="Content">
+            <a href="#" class="btn btn-primary btn-xs dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fa fa-plus"></i>
+                <span>Aggiungi...</span>
+                <i class="fa fa-caret-down"></i>
+            </a>
+            <ul class="dropdown-menu">
+                @foreach (var b in Model.AddButton)
+                {
+                    <li>
+                        <a class="dropdown-item" title="@(b.Description)" onclick="return OpenModal('/@(!string.IsNullOrEmpty(b.CreationFormKey) ? "NewForm" : "NewDocument")?DocumentType=@b.Id&ContentType=@b.ContentType')" href="#">
+                            <i class="@(b.Icon)"></i> @(b.Name)...
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+    <ul class="nav nav-list">
+
+        @foreach (var f in Model.FilterList)
+        {
+            <li>
+                <a href="#" onclick="toggleFilter(this)">
+                    <i class="fa fa-caret-down hidden"></i>
+                    <i class="fa fa-caret-up"></i>
+                    <strong>@f.Title</strong>
+                </a>
+                <ul class="nav nav-list">
+                    @foreach (var l in f.Items)
+                    {
+                        <li>
+                            <a href="#" onclick="return RenderView(@l.Id)">
+                                <i class="@l.Icon"></i>
+                                @l.Title
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </li>
+        }
+    </ul>
+}
+
+<div class="Background">
+
+    @await  Component.InvokeAsync("QueryExplorer", Model.ViewId)
+</div>
+
+<script>
+    $(document).ready(() => {
+        $(".View@(Model.FolderId)").addClass("active");
+    });
+
+    function RenderView(id) { 
+        window.location.href = "/Folders/View?id=@(Model.FolderId)&viewId=" + id;
+    }
+
+    window.addEventListener("message", (event) => {
+        if (event.data.op == "newdocument" && event.data.type == "@Model.FolderId") {
+            window.location.reload();
+        } else
+        if (event.data.op == "delete") {
+            window.location.reload(true);
+        } else
+                if (event.data.op == "close") {
+                    $(window.Modal).find("#PopupWindow").attr("src", "");
+                    $(window.Modal).addClass("hidden");
+                }
+
+    })
+</script>

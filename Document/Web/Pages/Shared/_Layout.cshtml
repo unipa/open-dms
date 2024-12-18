@@ -1,0 +1,616 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="ISO-8859-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget: resizes-visual" />
+    <meta name="theme-color" content="var(--primary-bg-01)" />
+    <meta name="msapplication-navbutton-color" content="var(--primary-bg-01)" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="var(--primary-bg-01)" />
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <title>@ViewData["Title"]</title>
+    @* <link href="~/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" /> *@
+    <link href="~/lib/bootstrap-italia/css/bootstrap-italia.min.css" rel="stylesheet" />
+    <link href="~/css/site.css" asp-append-version="true" rel="stylesheet" />
+    <link href="~/lib/fontawesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/components/data-entry/input/lookup.css" rel="stylesheet" />
+
+    <script src="~/js/jquery/jquery.min.js"></script>
+    <script src="~/js/jquery/jquery-ui.min.js"></script>
+    <script src="~/js/jquery/jquery.tooltipster.js"></script>
+    <script src="~/js/jquery/jquery.mousewheel.min.js"></script>
+    <script src="~/js/jquery/jquery.tmpl.min.js" type="text/javascript"></script>
+    <script src="~/js/jquery/jquery.json.min.js" type="text/javascript"></script>
+    <script src="~/js/jquery/jquery.maskedinput.min.js" type="text/javascript"></script>
+    <script src="~/js/jquery/jquery.meio.mask.min.js"></script>
+
+    <script src="~/lib/dropzone/dropzone@5.9.3_dist_min_dropzone.min.js"></script>
+    <link href="~/lib/dropzone/dropzone@5.9.3_dist_min_dropzone.min.css" rel="stylesheet" />
+
+    <script src="~/js/knockout/knockout-3.4.2.js"></script>
+    <script src="~/js/knockout/knockout.mapping-2.4.1.js"></script>
+
+    <script src="~/js/mustache.js"></script>
+    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <script src="~/js/tinymce/tinymce.min.js"></script>
+    <script src="~/js/tinymce/langs/it.js"></script>
+    <script src="~/js/tinymce/plugins/advlist/plugin.min.js"></script>
+    <script src="~/js/tinymce/plugins/autolink/plugin.min.js"></script>
+    <script src="~/js/tinymce/plugins/lists/plugin.min.js"></script>
+    <script src="~/js/tinymce/plugins/link/plugin.min.js"></script>
+    <script src="~/js/tinymce/plugins/image/plugin.min.js"></script>
+    <script src="~/js/tinymce/plugins/charmap/plugin.min.js"></script>
+    <script src="~/js/tinymce/plugins/preview/plugin.min.js"></script>
+    <script src="~/js/tinymce/plugins/anchor/plugin.min.js"></script>
+    <script src="~/js/tinymce/plugins/searchreplace/plugin.min.js"></script>
+    <script src="~/js/tinymce/plugins/visualblocks/plugin.min.js"></script>
+    <script src="~/js/tinymce/plugins/fullscreen/plugin.min.js"></script>
+    <script src="~/js/tinymce/plugins/insertdatetime/plugin.min.js"></script>
+    <script src="~/js/tinymce/plugins/media/plugin.min.js"></script>
+    <script src="~/js/tinymce/plugins/table/plugin.min.js"></script>
+    <script src="~/js/tinymce/plugins/code/plugin.min.js"></script>
+
+    <script src="~/js/custom/site.js" charset="ISO-8859-1" asp-append-version="true"></script>
+
+</head>
+<body>
+    @Html.AntiForgeryToken()
+
+    <div class="MainWindow">
+        @RenderBody()
+    </div>
+    <div class="Window hidden">
+        <iframe id="PopupWindow"></iframe>
+    </div>
+
+    <script>
+        function ShowLeftMenu(a) {
+            a.parentNode.parentNode.parentNode.style.display = 'none';
+            a.parentNode.parentNode.parentNode.parentNode.querySelector(".LeftMenu").style.display = 'flex';
+        }
+
+        function FormatDate(d) {
+            var date = new Date(d);
+            var day = date.getDate().toString().padStart(2, '0');
+            var month = (1 + date.getMonth()).toString().padStart(2, '0');
+            return day + "/" + month + "/" + date.getFullYear().toString().padStart(4, '0')
+        }
+
+        function toggleFilter(anchor) {
+            var $a = $(anchor);
+            $a.find("i").toggleClass("hidden");
+            $a.next("ul").toggleClass("hidden");
+        }
+
+        this.window.Modal = undefined;
+
+        function CreateDocument(folderId) {
+            this.window.Modal = $("#PopupWindow").attr("src", "/New?FolderId=" + folderId).parent();
+            this.window.Modal.removeClass("hidden");
+        }
+
+        function OpenModal(url) {
+            $("#PopupWindow").attr("src", "");
+            this.window.Modal = $("#PopupWindow").parent();
+
+            $("#PopupWindow").attr("src", url);
+            this.window.Modal.removeClass("hidden");
+        }
+
+        function CloseWindow(update) {
+            if (window.parent) {
+                // if (window.parent.selectTask) {
+                //     window.parent.selectTask()
+                // } else
+                if (window.parent.Modal) {
+                    window.parent.Modal.find("#PopupWindow").attr("src", "");
+                    window.parent.Modal.addClass("hidden");
+                    window.parent.Modal = undefined;
+                } else
+                {
+                    // verifico se il parent ha la funzione di selezione task
+                    if (window.parent.selectTask) {
+                        window.parent.selectTask()
+                    } 
+                }
+                if (update)
+                    window.parent.postMessage({ op: "refresh", data: "" }, "*");
+            }
+            else {
+                window.close();
+            }
+        }
+
+
+        // function selectTask(update) {
+        //     if (window.parent) {
+        //         window.parent.postMessage({ op: updaye ? "refresh" : "closeTask", data: "" }, "*");
+        //     }
+        //     else
+        //         CloseWindow();
+        // }
+
+
+        function ExpandView(a, id) {
+            if (id) {
+                window.open("/?id=" + id);
+                CloseWindow();
+            } else {
+                $(".tbExpand").addClass("hidden");
+                $(".tbReduce").removeClass("hidden");
+                $(window.parent.Modal).css("width", "100%");
+            }
+
+        }
+        function ReduceView(a, id) {
+            if (id) {
+                window.open("/?id=" + id);
+                CloseWindow();
+            } else {
+                $(".tbExpand").removeClass("hidden");
+                $(".tbReduce").addClass("hidden");
+                $(window.parent.Modal).css("width", "");
+            }
+
+        }
+
+        function AddDigitalSign(documentId) {
+            if (!documentId)
+                documentId = JSON.stringify(Selected);
+            else
+                documentId = documentId;
+            OpenModal("/AddSign?documents=" + documentId);
+        }
+
+        function RemoteSign(documents, signatureField, fromActivity) {
+            if (!fromActivity) fromActivity = 0;
+            OpenModal("/AddRemoteSign?handler=SignWithField&documents=[" + documents + "]&signField=" + signatureField + "&fromActivity=" + fromActivity);
+        }
+
+        function Sign(documents, signatureField, fromActivity) {
+            if (!fromActivity) fromActivity = 0;
+            OpenModal("/AddSign?handler=SignWithField&documents=[" + documents + "]&signField=" + signatureField + "&fromActivity=" + fromActivity);
+        }
+
+        function CheckOut(documentId) {
+            if (documentId)
+                OpenModal("/CheckOut?documentId=" + documentId);
+        }
+
+        function openTask(id, pik) {
+            if (id) {
+                OpenModal("/Tasks/Task?tid=" + id + "&pik=" + (pik ? pik : ""))
+            }
+        }
+
+        function Download(documentId, extension) {
+            var docs = [];
+            if (documentId) docs.push(documentId);
+            else
+                docs = Selected;
+            docs.forEach((e, i) => {
+                fetch("/internalapi/action/Download?documentId=" + e + "&extension=" + extension)
+                    .then(response => {
+                        if (response.status === 200) {
+                            var disposition = response.headers.get('Content-Disposition');
+                            var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                            var matches = filenameRegex.exec(disposition);
+                            if (matches != null && matches[1]) {
+                                filename = matches[1].replace(/['"]/g, '');
+                            }
+                            return response.blob();
+                        } else {
+                            return;
+                        }
+                    })
+                    .then(blob => {
+                        var url = window.URL.createObjectURL(blob);
+                        var a = document.createElement('a');
+                        a.href = url;
+                        a.download = filename;
+                        document.body.appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
+                        a.click();
+                        a.remove();  //afterwards we remove the element again
+                    });
+
+            });
+        }
+
+        function Convert(documentId, extension) {
+            var docs = [];
+            if (documentId) docs.push(documentId);
+            else
+                docs = Selected;
+            docs.forEach((e, i) => {
+                fetch("/internalapi/action/Convert?documentId=" + e + "&extension=" + extension)
+                    .then(response => {
+                        if (response.status === 200) {
+                            return response.json();
+                        } else {
+                            return;
+                        }
+                    })
+                    .then(data => {
+                        window.location.reload();
+                    });
+
+            });
+        }
+
+
+
+        function Copy(documentId) {
+            var clipboardstring = localStorage.getItem("clipboard");
+            var clipboard = [];
+            try {
+                if (clipboardstring) clipboard = JSON.parse(clipboardstring);
+            } catch
+            {
+                localStorage.removeItem("clipboard");
+            }
+            var docs = [];
+            if (documentId)
+                docs.push(documentId);
+            else {
+                docs = Selected;
+            }
+            docs.forEach((e, i) => {
+
+                var i = clipboard.indexOf(e);
+                if (i < 0)
+                    clipboard.push(e);
+            });
+            localStorage.setItem("clipboard", JSON.stringify(clipboard));
+
+            var msg = "";
+            Added = docs.length;
+            if (Added > 1)
+                msg = Added + " documenti aggiunti negli appunti.";
+            else
+                if (Added == 1)
+                    msg = Added + " documento aggiunto negli appunti.";
+                else
+                    msg = "Nessun documento aggiunto negli appunti.";
+            alert(msg);
+        }
+        function Paste(documentId, cut) {
+            var clipboardstring = localStorage.getItem("clipboard");
+            var Added = 0;
+            var selected = JSON.parse(clipboardstring);
+            if (selected) {
+                Added = selected.length;
+                if (confirm("Sei sicuro di voler incollare " + Added + " documenti in questo fascicolo ?")) {
+                    localStorage.removeItem("clipboard");
+                    fetch("/internalapi/action/Paste?documentIds=" + clipboardstring + "&folderId=" + documentId + "&cut=" + cut)
+                        .then(response => { return response.json(); })
+                        .then(data => {
+                            if (Added > 1)
+                                msg = Added + " documenti incollati dagli appunti.";
+                            else
+                                if (Added == 1)
+                                    msg = Added + " documento incollato dagli appunti.";
+                            alert(msg);
+                            window.location.reload();
+                            return;
+                        });
+                }
+            } else {
+                msg = "Nessun documento trovato negli appunti.";
+                alert(msg);
+            }
+        }
+        function Permissions(documentId) {
+            if (!documentId)
+                documentId = JSON.stringify(Selected);
+            else
+                documentId = "[" + documentId + "]";
+            OpenModal("/Permissions?id=" + documentId);
+        }
+        function CreateFolder(documentId, documentType) {
+            // documentId = 0 passa
+            if (documentId == undefined)
+                documentId = 0;
+            OpenModal("/NewDocument?DocumentType=" + (documentType != undefined ? documentType : "") + "&ContentType=2&FolderId=" + documentId);
+        }
+        function AddFolder(documentId) {
+            if (!documentId)
+                documentId = JSON.stringify(Selected);
+            else
+                documentId = "[" + documentId + "]";
+            OpenModal("/AddFolder?id=" + documentId);
+        }
+        function Share(documentId) {
+            if (!documentId)
+                documentId = JSON.stringify(Selected);
+            else
+                documentId = "[" + documentId + "]";
+            OpenModal("/Share?id=" + documentId);
+        }
+        function Send(documentId) {
+            if (documentId == -1)
+                documentId = ""
+            else
+                if (!documentId)
+                    documentId = JSON.stringify(Selected);
+                else
+                    documentId = "[" + documentId + "]";
+            OpenModal("/Mail/SendMail?id=" + documentId);
+        }
+        function Restore(documentId) {
+            if (!documentId)
+                documentId = JSON.stringify(Selected);
+            else
+                documentId = "[" + documentId + "]";
+            fetch("/internalapi/action/Restore?documents=" + documentId)
+                .then(response => { return response.json(); })
+                .then(data => {
+                    window.postMessage({ op: "restore" }, "*");
+                });
+        }
+        function Storicize(documentId) {
+            if (!documentId)
+                documentId = JSON.stringify(Selected);
+            else
+                documentId = "[" + documentId + "]";
+            fetch("/internalapi/action/Storicize?documents=" + documentId)
+                .then(response => { return response.json(); })
+                .then(data => {
+                    window.postMessage({ op: "storicize" }, "*");
+                });
+        }
+        function Activate(documentId) {
+            if (!documentId)
+                documentId = JSON.stringify(Selected);
+            else
+                documentId = "[" + documentId + "]";
+            fetch("/internalapi/action/Activate?documents=" + documentId)
+                .then(response => { return response.json(); })
+                .then(data => {
+                    window.postMessage({ op: "activate" }, "*");
+                });
+        }
+        function MakeDraft(documentId) {
+            if (!documentId)
+                documentId = JSON.stringify(Selected);
+            else
+                documentId = "[" + documentId + "]";
+            fetch("/internalapi/action/Draft?documents=" + documentId)
+                .then(response => { return response.json(); })
+                .then(data => {
+                    window.postMessage({ op: "activate" }, "*");
+                });
+        }
+        function Delete(documentId, justification, recursive) {
+            if (!documentId) {
+                documentId = JSON.stringify(Selected);
+                if (!confirm("Stai per cancellare " + Selected.length + " documenti. Sei sicuro ?")) return false;
+                if (!justification) {
+                    justification = prompt("Per quale motivo stai cancellando questi documenti ?", "Errata archiviazione");
+                    if (!justification) return false;
+                }
+            }
+            else
+                documentId = "[" + documentId + "]";
+            if (!justification)
+                justification = "Cancellazione rapida";
+            fetch("/internalapi/action/Delete?documents=" + documentId + "&justification=" + encodeURIComponent(justification) + "&recursive=" + (recursive ? 1 : 0))
+                .then(response => { return response.json(); })
+                .then(data => {
+                    if (data)
+                        alert(`Non è stato possibile cancellare n.${data} documenti per mancanza di autorizzazioni`);
+                    window.postMessage({ op: "delete" }, "*");
+                });
+        }
+        function RemoveFolder(folderId, documentId) {
+            if (!documentId)
+                documentId = JSON.stringify(Selected);
+            else
+                documentId = "[" + documentId + "]";
+
+            if (confirm("Sei sicuro di voler rimuovere il documento da questo fascicolo ?")) {
+                fetch("/internalapi/action/RemoveFolders?documents=" + documentId + "&folderId=" + folderId)
+                    .then(response => { return response.json(); })
+                    .then(data => {
+                        {
+                            window.postMessage({ op: "removefolder", data: data }, "*");
+                        }
+                    })
+            }
+        }
+        function ShowDocument(id, NewWindow) {
+            if (NewWindow)
+                OpenModal("/?id=" + id + "&ModalView=S", "_blank");
+            else
+                window.location.href = "/?id=" + id;
+        }
+        function ShowPreview(documentId, imageId) {
+            if (!imageId) imageId = "";
+            OpenModal("/?id=" + documentId+"&modalview=S&imageId=" + imageId);
+        }
+
+
+        function AddFile(id, folderId, callback) {
+            var fileInput = $("#addfile");
+            if (fileInput.length == 0) {
+                var VerificationCode = "";
+                var RequestVerificationCode = document.getElementsByName("__RequestVerificationToken");
+                if (RequestVerificationCode.length > 0) {
+                    VerificationCode = RequestVerificationCode[0].value;
+                }
+                fileInput = $("<input type='file' id='addfile' style='display: none' />");
+                window.document.body.appendChild(fileInput[0]);
+                fileInput[0].onchange = () => {
+                    const selectedFiles = [...fileInput[0].files];
+                    selectedFiles.forEach((e, i) => {
+                        const reader = new FileReader();
+                        reader.onerror = (err) => {
+                            alert(err);
+                        };
+                        reader.onload = (data) => {
+                            var filedata = reader.result;
+                            var b64 = filedata.substr(filedata.indexOf(',') + 1);
+                            // const formData = new URLSearchParams();
+                            // formData.append("documentId", id);
+                            // formData.append("folderId", folderId);
+                            // formData.append("filename", e.name);
+                            // formData.append("data", b64);
+                            fetch("/internalapi/action/UploadFile",
+                                {
+                                    method: 'post',
+                                    headers: {
+                                        RequestVerificationToken: VerificationCode,
+                                        'Content-Type': 'application/json',
+                                        Accept: 'application/json',
+                                    },
+                                    body: JSON.stringify({
+                                        documentId: id,
+                                        filename: e.name,
+                                        data: b64,
+                                        folderId: folderId
+                                    })
+                                })
+                                .then(response => {
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    if (data.error)
+                                        alert(data.error);
+                                    else
+                                        if (callback) {
+                                            callback(data);
+                                        }
+                                        else {
+                                            if (data.documentId)
+                                                window.location.href = "/?id=" + data.documentId + "&modalView=S";
+                                            else
+                                                window.location.reload(true);
+                                        }
+                                });
+                        };
+                        reader.readAsDataURL(e);
+                    });
+                }
+            }
+            fileInput.click();
+        }
+
+        function AddAttachment(id) {
+            var fileAInput = $("#addattachment");
+            if (fileAInput.length == 0) {
+                fileAInput = $("<input type='file' id='addattachment' style='display: none' />");
+                window.document.body.appendChild(fileAInput[0]);
+                var VerificationCode = "";
+                var RequestVerificationCode = document.getElementsByName("__RequestVerificationToken");
+                if (RequestVerificationCode.length > 0) {
+                    VerificationCode = RequestVerificationCode[0].value;
+                }
+
+                fileAInput[0].onchange = () => {
+                    const selectedFiles = [...fileAInput[0].files];
+                    selectedFiles.forEach((e, i) => {
+                        const reader = new FileReader();
+                        reader.onload = (data) => {
+                            var filedata = reader.result;
+                            var b64 = filedata.substr(filedata.indexOf(',') + 1);
+                            const formData = new URLSearchParams();
+                            formData.append("documentId", id);
+                            formData.append("filename", e.name);
+                            formData.append("data", b64);
+                            fetch("/internalapi/action/UploadAttachment",
+                                {
+                                    method: 'post',
+                                    headers: {
+                                        RequestVerificationToken: VerificationCode,
+                                        'Content-Type': 'application/json',
+                                        Accept: 'application/json',
+                                    },
+                                    body: JSON.stringify({
+                                        documentId: id,
+                                        filename: e.name,
+                                        data: b64
+                                    })
+                                })
+                                .then(response => {
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    if (data.error)
+                                        alert(data.error);
+                                    else
+                                        if (data.documentId)
+                                            window.location.href = "/?id=" + data.documentId;
+                                        else
+                                            window.location.reload(true);
+                                });
+                        };
+                        reader.readAsDataURL(e);
+                    });
+                }
+            }
+            fileAInput.click();
+        }
+
+
+
+        function TryPort(operation, port, max, documents, signfield, callback, timeout) {
+            if (!timeout) timeout = 500;
+            $(".Progresso").html(parseInt((port - 5000) * 100 / (max - 4999)) + "%");
+            fetch("https://localhost:" + port + "/ping", { signal: AbortSignal.timeout(timeout) })
+                .then(response => {
+                    if (response.status = 200) {
+                        documents += "";
+                        if (documents.indexOf("[") != 0)
+                            documents = "[" + documents + "]";
+                        window.location.href = "https://localhost:" + port + "/" + operation + "?documents=" + documents + "&signField=" + signfield + "&host=" + window.location.origin
+                    }
+                }
+                )
+                .catch(function (error) {
+                    if (port < max)
+                        TryPort(operation, port + 1, max, documents, signfield, callback)
+                    else {
+                        if (callback) callback();
+                    }
+                });
+        }
+
+        function Scan(operation, documents, signField) {
+            $(".PreviewContainer").addClass("hidden");
+            $(".RicercaClient").removeClass("hidden");
+
+            fetch("/internalapi/userSetting/Setting/DigitalSignature.TokenService.Port")
+                .then(r => { return r.text() })
+                .then(data => {
+                    if (!data) data = 5000;
+                    TryPort(operation, data, data, documents, signField, () => {
+                        TryPort(operation, 5000, 7000, documents, signField, () => {
+                            alert("Il client locale non è attivo");
+                        });
+
+                    }, 2000);
+                }
+                )
+
+        }
+
+        function AddTokenPADESSign(documents, signField) {
+            Scan("SignPADES", documents, signField)
+        }
+        function AddTokenSign(documents, signField) {
+            Scan("Sign", documents, signField)
+        }
+
+        function AddFEASign(documents, signField) {
+            Scan("FEA", documents, signField)
+        }
+
+
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+    <script src="/components/data-entry/data-entry.js" type="module"></script>
+
+</body>
+</html>

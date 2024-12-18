@@ -1,0 +1,107 @@
+@page
+@model EditComponentModel
+@{
+    ViewData["Title"] = "Home page";
+    Layout = "";
+}
+<style>
+    h2
+    {
+        font-size:1.4em;
+    }
+    .card
+    {
+        border:none;
+        padding:0;
+        margin: 0;
+        margin-bottom: 24px;
+    }
+    .Row 
+    {
+        min-height:32px;
+        margin:4px 0;
+        display:flex;
+        flex-direction:row;
+        border-bottom: 1px dotted #ddd;
+    }
+    .Row label {
+        display:flex;
+        min-width:30%;
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow:ellipsis;
+    }
+
+    .Row span {
+            display: flex;
+            min-width: max(70%, 100px);
+        max-width: 70%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+        .Row span *
+            {
+            display:flex;
+            flex-grow:1;
+        }
+
+            .Row span input[type=checkbox] {
+                display: inline;
+                flex-grow: 0;
+            }
+
+</style>
+<h1>Modifica Tenant: @Model.tenant.Description (@Model.tenant.Id)</h1>
+<div style="position:relative;display:flex;height:100%;">
+
+    <form method="Post" style="width:100%">
+        @if (!String.IsNullOrEmpty(Model.Error))
+        {
+            <div class="alert alert-danger">@Model.Error</div>
+        }
+
+        <div style="height:100%;flex-grow:1;overflow-y:auto">
+            <h2>Dati Generali</h2>
+            <div class="card">
+                <div class="Row">
+                    <label>Identificativo</label>
+                    <span><input readonly name="Id" value="@Model.tenant.Id" /> </span>
+                </div>
+                <div class="Row">
+                    <label>Descrizione</label>
+                    <span><input name="Description" value="@Model.tenant.Description" /> </span>
+                </div>
+                <div class="Row">
+                    <label>URL</label>
+                    <span><input name="URL" value="@Model.tenant.URL" /> </span>
+                </div>
+                <div class="Row">
+                    <label>Online</label>
+                    <span><input type="checkbox" name="Offline" value="true" @(Model.tenant.Offline?"":"checked") /> </span>
+                </div>
+            </div>
+            <h2>Identity Access Manager</h2>
+            <div class="card">
+                <div class="Row">
+                    <label>Realm</label>
+                    <span><input name="Realm" value="@Model.tenant.Realm" /> </span>
+                </div>
+                <div class="Row">
+                    <label>Client Id</label>
+                    <span><input name="ClientId" value="@Model.tenant.ClientId" /> </span>
+                </div>
+                <div class="Row">
+                    <label>Client Secret</label>
+                    <span><input name="ClientSecret" value="@Model.tenant.ClientSecret" /> </span>
+                </div>
+            </div>
+        </div>
+
+        <div style="flex-grow:inherit;flex-shrink:0">
+            <button type="submit" class="btn btn-success">Crea</button>
+            <a href="/" class="btn btn-light">Annulla</a>
+        </div>
+    </form>
+
+</div>

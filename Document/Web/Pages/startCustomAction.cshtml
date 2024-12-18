@@ -1,0 +1,92 @@
+﻿@page
+@model Web.Pages.startCustomActionModel
+@using OpenDMS.Domain.Entities;
+@using OpenDMS.Domain.Enumerators;
+@{
+}
+<div class="Header">
+    <i class="fa fa-plus"></i>
+    <h1>
+        <small>
+            @(
+                Model.Document.DocumentType.ContentType == ContentType.Template
+                ? "Nuovo Template"
+                : Model.Document.DocumentType.ContentType == ContentType.Folder
+                ? "Nuovo Fascicolo"
+                : Model.Document.DocumentType.ContentType == ContentType.Form
+                ? "Nuovo Modulo Digitale"
+                : Model.Document.DocumentType.ContentType == ContentType.DMN
+                ? "Nuova Matrice Decisionale"
+                : Model.Document.DocumentType.ContentType == ContentType.Workflow
+                ? "Nuova Definizione di Processo"
+                : Model.Document.DocumentType.ContentType == ContentType.Report
+                ? "Nuova Definizione di Report"
+                : "Nuovo Documento"
+                );
+
+        </small>
+        <span>@Model.Document.DocumentType.Name</span>
+    </h1>
+    <div class="right-header">
+        <ul class="nav nav-toolbar">
+            <li class="tbReduce hidden"><a href="#" onclick="return ReduceView(this)"><i class="fa fa-compress"></i></a></li>
+            <li class="tbExpand Desktop"><a href="#" onclick="return ExpandView(this)"><i class="fa fa-expand"></i></a></li>
+            <li>
+                <a href="#" class="btn btn-link" onclick="return CloseWindow()"><i class="fa fa-times"></i></a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+
+<div id="postsave" class="Panel">
+    <div class="InfoPanel">
+        <i class="fa fa-check-sign"></i>
+        <h3>La tua istanza è stata sottomessa</h3>
+        <p>Il Codice Identificativo associato è: <strong>@Model.IdCifrato</strong></p>
+
+        <div style="text-align:center">
+            <img id="QRCodePratica" src="/qrcode?code=@Model.IdCifrato" />
+        </div>
+    </div>
+    <h3>Chiudi la finestra o scegli una delle seguenti opzioni:</h3>
+    <div>
+        <a href="#" class="btn btn-outline-primary"><i class="fa fa-info-circle"></i> Mostra Dettagli</a>
+        <a href="#" id="upload" class="btn btn-outline-primary"><i class="fa fa-cloud-upload"></i> Carica un file...</a>
+        <a href="#" id="fascicola" target="_top" class="btn btn-outline-primary"><i class="fa fa-folder-open"></i> Fascicola...</a>
+        <a href="/tasks" id="nuovotask" target="_top" class="hidden btn btn-outline-primary"><i class="fa fa-tasks"></i> Hai <b>1</b> nuova attività</a>
+    </div>
+</div>
+
+
+<div class="Bottom">
+    <a href="#" class="btn btn-link" onclick="CloseWindow()">Esci</a>
+</div>
+
+
+<script>
+    function checkTask ()
+    {
+        $("#nuovotask").addClass("hidden");
+        var timer = window.setTimeout(() => {
+            /* Verifica se ci sono task utente */
+            fetch("/internalapi/wf/getProcessTasks/@Model.Document.Id")
+                .then(response => { return response.json(); })
+                .then(data => {
+                    /*
+                     * dovrebbe ritornare l'id del processo da monitorare
+                     * In assenza di Id l'azione potrebbe avere inviato un messaggio
+                     * Se la proprietà Error non è vuota, viene mostrato l'errore.
+                     */
+                    if (data.length)
+                    {
+                        $("#nuovotask").removeClass("hidden");
+                        $("#nuovotask").attr("href", "/Tasks/Task?tid=" + data[0].id + "&pik=@Model.Document.Id")
+                    } else
+                    checkTask();
+                })
+        }, 1000)
+    }
+    checkTask();
+
+</script>

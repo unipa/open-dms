@@ -1,0 +1,361 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+body {
+  display: flex;
+}
+
+#container {
+  flex-grow: 1;
+}
+
+#properties-panel-container {
+  background: #f8f8f8;
+  border-left: solid 1px #ccc;
+  width: 300px;
+  min-width: 300px;
+  max-width: 30%;
+}
+
+#xml-button {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+  background-color: black;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  outline: none;
+}
+
+.fullscreen-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.fullscreen-xml-container {
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  max-width: 1000px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 20px;
+  overflow: auto;
+  width: 100%;
+  height: 80%;
+}
+
+.fullscreen-xml-container textarea {
+  width: 100%;
+  height: 400px;
+  resize: none;
+  font-size: 14px;
+  font-family: monospace;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.fullscreen-xml-container button {
+  margin: 10px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  border: none;
+}
+
+.fullscreen-xml-container button:hover {
+  opacity: 0.8;
+}
+
+.fullscreen-xml-container button.save {
+  background-color: green;
+  color: white;
+}
+
+.fullscreen-xml-container button.close {
+  background-color: red;
+  color: white;
+}
+
+#buttons-container {
+  flex-direction: column;
+  position: absolute;
+  top: 145px;
+  right: 350px;
+  z-index: 1;
+}
+
+#buttons-container button {
+  font-size: 24px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #fff;
+  color: #000;
+  margin-bottom: 10px;
+  margin-right: 10px;
+}
+
+#buttons-container button:hover {
+  background-color: #f1f1f1;
+  cursor: pointer;
+}
+
+.loader {
+  border: 16px solid #f3f3f3;
+  border-top: 16px solid #3498db;
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* .djs-palette.two-column.open{
+    height: 485px;
+    overflow: auto;
+    width: 130px
+} */
+
+.djs-palette.open {
+  overflow-x: hidden;
+  overflow-y: hidden;
+  border-top: none;
+  z-index: 99;
+}
+
+.djs-palette {
+  width: calc(100vw - 700px);
+  position: absolute !important;
+  top: 0px !important; /* Sposta la palette in alto */
+  left: auto !important; /* Allinea la palette al bordo sinistro */
+  right: 0 !important; /* Allinea la palette al bordo destro */
+  display: flex !important; /* Imposta il display a flex per un layout orizzontale */
+  flex-direction: row !important; /* Posiziona gli elementi della palette in una riga */
+  justify-content: start !important; /* Allinea gli elementi all'inizio della palette */
+  align-items: center !important; /* Centra gli elementi verticalmente */
+  flex-wrap: wrap !important; /* Permetti agli elementi di passare alla riga successiva se non ci sta spazio */
+  background: #fff !important; /* Imposta un colore di sfondo se desiderato */
+  border-bottom: 1px solid #ccc !important; /* Aggiungi un bordo in basso per separare dalla canvas */
+  padding: 5px !important; /* Aggiungi un po' di spazio interno attorno agli elementi */
+}
+
+.custom-box {
+  background-color: rgba(0, 0, 0, 0) !important;
+  height: 51px;
+}
+
+.left {
+  display: none;
+}
+
+/* Stilizzazione delle singole voci della palette */
+.djs-palette-entries {
+  height: 40px !important; /* Altezza della voce della palette */
+  margin: 0 4px !important; /* Margine tra le voci della palette */
+  /*background-color: #eee !important; /* Colore di sfondo per le voci della palette */
+  /*border: 1px solid #ddd !important; /* Bordo per le voci della palette */
+  border-radius: 4px !important; /* Bordi arrotondati per le voci della palette */
+  display: flex !important; /* Usa flexbox per centrare l'icona all'interno della voce */
+  /*justify-content: center !important; /* Centra orizzontalmente il contenuto della voce della palette */
+  align-items: center !important; /* Centra verticalmente il contenuto della voce della palette */
+}
+
+.djs-palette-entries .group {
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+/* Modifica lo stile al passaggio del mouse sopra le voci della palette */
+.djs-palette .entries:hover {
+  background-color: #dcdcdc !important; /* Cambia il colore di sfondo quando si passa sopra */
+  cursor: pointer !important; /* Cambia il cursore in una mano per indicare che la voce è cliccabile */
+}
+
+/* @media (max-width: 1750px) {
+  .djs-palette  {
+    width: 129vh !important;
+}
+} */
+
+#hint {
+  z-index: 99;
+  border: 1px solid lightgray;
+  width: 400px !important;
+  height: 51px !important;
+  position: absolute !important;
+  top: 66px !important; /* Sposta la palette in alto */
+  left: 0 !important; /* Allinea la palette al bordo sinistro */
+  right: auto !important; /* Allinea la palette al bordo destro */
+  display: flex !important; /* Imposta il display a flex per un layout orizzontale */
+  flex-direction: row !important; /* Posiziona gli elementi della palette in una riga */
+  justify-content: center !important; /* Allinea gli elementi all'inizio della palette */
+  align-items: center !important; /* Centra gli elementi verticalmente */
+  flex-wrap: nowrap !important; /* Permetti agli elementi di passare alla riga successiva se non ci sta spazio */
+  background: #fff !important; /* Imposta un colore di sfondo se desiderato */
+  border-bottom: 1px solid #ccc !important; /* Aggiungi un bordo in basso per separare dalla canvas */
+  padding: 5px !important; /* Aggiungi un po' di spazio interno attorno agli elementi */
+}
+
+#apibuttons {
+  left: 110px;
+  position: absolute;
+  top: 20px;
+  border: #ccc;
+}
+
+.scroll-button {
+  cursor: pointer;
+  padding: 10px;
+  user-select: none;
+  position: absolute;
+  background-color: #eee;
+  width: 40px;
+  left: 0;
+  height: 50px;
+  font-size: 29px;
+  text-align: center;
+  border: 1px solid lightgray;
+  z-index: 100;
+}
+
+.right {
+  right: 0;
+  left: auto;
+  display: none;
+}
+
+@media (max-width: 1430px) {
+  .right {
+    display: block;
+  }
+}
+
+.djs-popup.color-picker .entry {
+  margin: 0;
+  border: 2px solid;
+  margin: 5px !important;
+  height: 20px;
+  width: 20px;
+}
+#container
+  > div.bjs-container
+  > div
+  > div.djs-popup-parent.djs-scrollable
+  > div
+  > div
+  > div
+  > div
+  > ul
+  > li:nth-child(1) {
+  background-color: white;
+}
+
+li[data-id="blue-color"],
+li[data-id="blue-color"]:hover {
+  background-color: rgb(187, 222, 251) !important;
+  border: 2px solid rgb(13, 67, 114) !important;
+}
+
+li[data-id="orange-color"],
+li[data-id="orange-color"]:hover {
+  background-color: rgb(255, 224, 178) !important;
+  border: 2px solid rgb(107, 60, 0) !important;
+}
+
+li[data-id="green-color"],
+li[data-id="green-color"]:hover {
+  background-color: rgb(200, 230, 201) !important;
+  border: 2px solid rgb(32, 80, 34) !important;
+}
+
+li[data-id="red-color"],
+li[data-id="red-color"]:hover {
+  background-color: rgb(255, 205, 210) !important;
+  border: 2px solid rgb(131, 19, 17) !important;
+}
+
+li[data-id="purple-color"],
+li[data-id="purple-color"]:hover {
+  background-color: rgb(225, 190, 231) !important;
+  border: 2px solid rgb(91, 23, 109) !important;
+}
+
+.djs-minimap {
+  top: 141px !important;
+  right: 52px !important;
+}
+
+.djs-container {
+  background-image: url("../img/image.png");
+}
+
+#errorList {
+  letter-spacing: 1px;
+}
+
+#warningList {
+  letter-spacing: 1px;
+}
+
+.perhover:hover {
+  background-color: #dbd8d8;
+}
+
+body.swal2-height-auto {
+  height: inherit !important;
+}
+
+.fullscreen-toggle {
+  position: relative;
+  float: right;
+  cursor: pointer;
+  border: none;
+  cursor: pointer;
+  margin-right: 10px;
+  margin-top: 6px;
+}

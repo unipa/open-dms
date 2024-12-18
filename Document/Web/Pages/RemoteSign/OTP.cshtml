@@ -1,0 +1,170 @@
+﻿@page
+@inject IConfiguration Configuration
+@model Web.Pages.RemoteSign.OTPModel
+@{
+    var uid = User.Identity.Name;
+}
+<script src="~/js/pdf/pdfactions.js"></script>
+
+<div class="Header">
+    <i class="fa fa-pencil"></i>
+    <h1>
+        <small class="DocumentType">
+            @((!String.IsNullOrEmpty(Model.Provider)) ? "Servizio di Firma Remota " + Model.Provider : "Firma Digitale Remota")
+
+        </small>
+        <span class="Description">
+            Firma Remota
+        </span>
+    </h1>
+    <div class="right-header">
+        <a href="#" class="btn btn-link" onclick="return AbortAndClose()"><i class="fa fa-times"></i></a>
+    </div>
+</div>
+
+
+<div class="MainPanel">
+    <div id="Message_Target"></div>
+
+    <div id="content" class="Panel">
+        <h1>Nr. @(Model.Files.Count) documenti in attesa di firma</h1>
+        <div class="MainPanel">
+            <h3 style="margin-top: 5px;">
+                Documenti inviati al servizio di firma
+            </h3>
+            <div class="Panel" style="border:2px solid var(--primary-bg-b1);border-radius:6px;padding:10px;margin-bottom:10px">
+                <table>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>Documento</th>
+                            <th>Utente</th>
+                            <th style="text-align:right">Stato</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var f in Model.Files)
+                        {
+                            <tr data-rowid='@f.Id'>
+                                <td></td>
+                                <td><i class="fa @(f.Excluded ? "fa-times" : "fa fa-check")" style="color:@(f.Excluded ? "crimson" : "lime")"></i> </td>
+                                <td>
+                                    <b>@f.Name</b><br />
+                                    @f.DocType @f.Nr del @f.Date
+                                </td>
+                                <td>@f.Owner</td>
+                                <td style="text-align:right" class="status">@f.Motivation</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @if (!String.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger">
+                    <strong>Si è verificato un errore</strong>
+                    <p>@Html.Raw(Model.ErrorMessage)</p>
+                </div>
+                <div class="Bottom" style="gap:8px;">
+                    <a href="#" class="btn btn-primary" onclick="window.location.reload()">Riprova</a>
+                    <a href="/Customize/Firme" target="_blank" class="btn btn-outline-primary">Configura la Firma Digitale</a>
+                    <a href="#" class="btn btn-link" onclick="return AbortAndClose()">Esci</a>
+                </div>
+            }
+            else
+            {
+                <form asp-page-handler="Confirm" method="post">
+                    <h3>Verificare sullo Smartphone la ricezione del Codice OTP</h3>
+                    <input type="hidden" id="SignRoom" name="SignRoom" value="@Model.SignRoom" />
+                    <div class="row">
+                        <div class="col-sm-2 mb-4">
+                            <label class="active" for="pin">PIN</label>
+                            <input name="pin" type="password" id="pin" required>
+                        </div>
+                        <div class="col-sm-2 mb-4">
+                            <label class="active" for="otp">Codice OTP</label>
+                            <input name="otp" type="text" id="otp" required>
+                        </div>
+                        <div class="col-sm-8 mb-4">
+                            <label class="active" for="otp" style="width:100%">&nbsp;</label>
+                            <label id="counter" style="display:none;padding-top:4px;"></label>
+                            @if (Model.WaitingForOTP)
+                            {
+                                <script type="text/javascript">
+                                    ShowBtnOTP();
+                                </script>
+                            }
+                            <button type="button" class="btn btn-xs btn-secondary" id="btnInviaOTP" onclick="SendOTP()" style="width:auto;">Invia un nuovo Codice OTP</button>
+
+                        </div>
+                    </div>
+                    <div class="Bottom" style="gap:8px;">
+                        <button class="btn btn-primary" type="submit">Avvia Firma</button>
+                        <a href="#" class="btn btn-link" onclick="return AbortAndClose()">Esci</a>
+                    </div>
+                </form>
+            }
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    var path_base = "@Configuration["PATH_BASE"]";
+
+    function ShowBtnOTP() {
+        var counter = 30;
+
+        var _timer = setInterval(function () {
+            if (counter > 0) {
+                document.getElementById("btnInviaOTP").style = "display:none";
+                document.getElementById("counter").style = "display:block;width:auto;";
+                document.getElementById("counter").innerHTML = 'Attendere ' + counter + 'secondi per richiedere un nuovo codice OTP.';
+            } else {
+                document.getElementById("btnInviaOTP").style = "display:block;width:auto;";
+                document.getElementById("counter").style = "display:none";
+                clearInterval(_timer);
+            }
+            counter--;
+        }, 1000);
+
+    }
+
+
+
+    function SendOTP(silent) {
+        if (silent || confirm('Inviare un nuovo OTP ?')) {
+            $.ajax({
+                url: '/RemoteSignHandler/SendOTP/@Model.SignRoom/@uid',
+                type: 'POST',
+            }).done(function () {
+                ShowBtnOTP();
+            }).fail(function (err) {
+                ShowMessage('alert', err.responseText, 'Message_Target', null);
+            })
+        };
+    }
+
+    function AbortAndClose() {
+        $.ajax({
+            url: '/RemoteSignHandler/AbortSignatureSession/@Model.SignRoom/@uid',
+            type: 'POST',
+        }).done(function () {
+            CloseWindow();
+        }).fail(function (err) {
+            CloseWindow();
+        })
+    };
+
+    $(document).ready(() => {
+    @if (Model.SignRoomInfo.Status == DTOs.SignRoomStatus.FileUploaded)
+    {
+        @("SendOTP(true);")
+        ;
+    }
+        });
+
+
+</script>

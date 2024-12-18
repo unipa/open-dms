@@ -1,0 +1,9 @@
+﻿@page
+@model DesktopService.Pages.SignInModel
+@{
+}
+
+
+<script>
+    window.location.href="@(Model.Host)/ClientAuthentication?appName=DSS&port=@(Model.Port)&fallbackURL=@(Model.ReturnURL)";
+</script>

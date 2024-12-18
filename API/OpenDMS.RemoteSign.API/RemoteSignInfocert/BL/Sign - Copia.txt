@@ -1,0 +1,318 @@
+﻿using FirmeRemoteLib.Interfaces;
+using RemoteSignInfocert.Controllers;
+using RemoteSignInfocert.Interfaces;
+using RemoteSignInfocert.Models;
+using RemoteSignInfocert.Utils;
+using System.IO.Compression;
+using System.ServiceModel.Channels;
+
+namespace RemoteSign.BL
+{
+    public class Sign
+    {
+        private readonly IRemoteSign _remoteSign;
+        private readonly ILogger<Sign> _logger;
+        private readonly ILogger<SignController> _logger2;
+        private const string SIGN_ROOMS = "SignRooms";
+        private string _signRoomBasePath = "";
+        private readonly ISignRoomDAO _signRoomDao;
+        private readonly SignController _signController;
+        private readonly IWebHostEnvironment _hostEnv;
+        private readonly IConfiguration _config;
+
+
+        public Sign(ISignRoomDAO signRoomDao, ILogger<SignController> logger2, SignController signController, IRemoteSign remoteSign, ILogger<Sign> logger, IWebHostEnvironment hostEnv, IConfiguration config)
+        {
+            _hostEnv = hostEnv;
+            _signRoomBasePath = Path.Combine(_hostEnv.ContentRootPath, SIGN_ROOMS);
+            if (!Directory.Exists(_signRoomBasePath))
+                Directory.CreateDirectory(_signRoomBasePath);
+            _logger2 = logger2;
+            _signRoomDao = signRoomDao;
+            _signController = signController;
+            _remoteSign = remoteSign;
+            _logger = logger;
+            _config = config;
+        }
+
+        /*        public void SignFile(string SignRoom, string pin, string otp, UserModel ut, string signRoomPath, string UserName)
+                {
+                    try
+                    {
+                        var sr = _signRoomDao.GetSignRoom(SignRoom);
+
+                        var elencoFP = FileManagerUtils.GetAllFileParameter(signRoomPath);
+                        var elencoF2Sign = FileManagerUtils.GetAllFileToSign(signRoomPath);
+
+                        foreach (var fl in elencoF2Sign)
+                            _remoteSign.EnqueueDocument(Path.GetFileName(fl), System.IO.File.ReadAllBytes(fl));
+
+                        (byte[] Result, string FileName) fileFirmati = new();
+
+                        switch (sr.SignType)
+                        {
+                            case SignTypes.Cades:
+                                fileFirmati = _remoteSign.MultiSignCades(ut.Alias, pin, otp).Result;
+                                break;
+                            case SignTypes.Pades:
+                                var fileParameter = elencoFP.FirstOrDefault(p => p.TempFileName == Path.GetFileName(elencoF2Sign.First()));
+                                if (fileParameter == null || fileParameter.CampoFirma == null)
+                                    throw new Exception("Parametri di campo firma non passati.");
+
+                                fileFirmati = _remoteSign.MultiSignPades(ut.Alias, pin, otp, fileParameter.CampoFirma).Result;
+
+                                break;
+                            case SignTypes.Xades:
+                                throw new NotImplementedException("Tipo di firma non disponibile.");
+                            default:
+                                throw new Exception("Tipo di firma non pervenuto.");
+                        }
+
+                        _signRoomDao.UpdateSignRoomStatus(SignRoom, SignRoomStatus.Signed); //aggiorno lo status firma ottenuta
+
+                        List<(byte[] Data, string FileName)> elenco = new List<(byte[] Data, string FileName)>();
+                        if (ZipFileUtilities.IsZipFile(fileFirmati.Result))
+                            elenco = ExtractFilesFromZip(fileFirmati.Result);
+                        else
+                            elenco.Add((fileFirmati.Result, fileFirmati.FileName));
+
+                        bool withError = false;
+                        foreach (var f in elenco)
+                        {
+                            try
+                            {
+                                var fp = elencoFP.FirstOrDefault(p => p.IsSame(f.FileName));
+                                if (fp != null)
+                                {
+                                    fp.UserName = sr.UserName;
+                                    fp.signType = sr.SignType;
+                                    fp.Data = f.Data;
+
+                                    int res = UploadSingleFile(fp, sr.ReturnURL);
+                                    if (res > 0)
+                                        _logger.LogError("Upload del file effettuato correttamente. Id: " + res);
+                                }
+
+                            }
+                            catch (Exception ex)
+                            {
+                                withError = true;
+                                _logger.LogError(ex.Message);
+                            }
+                        }
+                        //_signRoomDao.ConfirmDelivery(SignRoom, esito.Replace("\"", ""));
+                        _signRoomDao.UpdateSignRoomStatus(SignRoom, SignRoomStatus.Completed, "Processo di firma terminato " + (withError ? "con alcuni errori. Verificare i log" : "") + ".");
+                        _signController.ClearSignRoom(SignRoom, "Processo di firma terminato.");
+
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError("Sign -> SignFile: " + ex.Message);
+                        if (_signRoomDao.GetSignRoom(SignRoom).Status == SignRoomStatus.Signing) //caso di firma fallita 
+                        {
+                            var Message = ex.Message;
+
+                            var index = Message.IndexOf("ERROR-SIGNATURE -");
+
+                            Message = Message.Substring(index + 17);
+
+                            _signRoomDao.UpdateSignRoomStatus(SignRoom, SignRoomStatus.ReadyToSign, "Firma fallita. Errore: " + Message); //lo rimetto a ReadyToSign per fargli ritentare la firma
+                        }
+                        else
+                        {
+
+                            _signRoomDao.UpdateSignRoomStatus(SignRoom, SignRoomStatus.Aborted, "Processo di firma fallito. Errore: " + ex.Message);
+                            _signController.ClearSignRoom(SignRoom, "Processo di firma fallito. Errore: " + ex.Message);
+                        }
+
+                    }
+                }
+        */
+
+        public void SignFile(string SignRoom, string pin, string otp, UserModel ut, string signRoomPath, string UserName)
+        {
+            try
+            {
+                var sr = _signRoomDao.GetSignRoom(SignRoom);
+
+                var elencoFP = FileManagerUtils.GetAllFileParameter(signRoomPath);
+                var elencoF2Sign = FileManagerUtils.GetAllFileToSign(signRoomPath);
+
+                foreach (var fl in elencoF2Sign)
+                    _remoteSign.EnqueueDocument(Path.GetFileName(fl), System.IO.File.ReadAllBytes(fl));
+
+                ////Applico la firma PADES in caso di file PDF, altrimenti CADES
+                //var fileFirmati = (CanUsePades(extensions)) ? _remoteSign.MultiSignPades(ut.Alias, pin, otp, new FirmeRemoteLib.Models.FirmaPades() { Pagina = 1, EndX = 0, EndY = 0, StartX = 0, StartY = 0 }).Result : _remoteSign.MultiSignCades(ut.Alias, pin, otp).Result;
+
+                (byte[] Result, string FileName) fileFirmati = new();
+
+                switch (sr.SignType)
+                {
+                    case SignTypes.Cades:
+                        fileFirmati = _remoteSign.MultiSignCades(ut.Alias, pin, otp).Result;
+                        break;
+                    case SignTypes.Pades:
+                        var fileParameter = elencoFP.FirstOrDefault(p => p.OriginalFileName == Path.GetFileName(elencoF2Sign.First()));
+                        if (fileParameter == null || fileParameter.CampoFirma == null)
+                            throw new Exception("Parametri di campo firma non passati.");
+
+                        fileFirmati = _remoteSign.MultiSignPades(ut.Alias, pin, otp, fileParameter.CampoFirma).Result;
+
+                        break;
+                    case SignTypes.Xades:
+                        throw new NotImplementedException("Tipo di firma non disponibile.");
+                    default:
+                        throw new Exception("Tipo di firma non pervenuto.");
+                }
+
+                _signRoomDao.UpdateSignRoomStatus(SignRoom, SignRoomStatus.Signed); //aggiorno lo status firma ottenuta
+
+                //salvataggio del file firmato
+                fileFirmati.FileName = fileFirmati.FileName.Replace("\"", "");
+                //int DotIndex = fileFirmati.FileName.IndexOf('.');
+                //int Lenght = fileFirmati.FileName.Length - DotIndex;
+                //var ext = (DotIndex >= 0) ? fileFirmati.FileName.Substring(DotIndex, Lenght) : string.Empty;
+                var ext = GetFirstExtension(fileFirmati.FileName.Split('_').Last())
+                    ;
+
+                var FileName = Path.Combine(_signRoomBasePath, SignRoom, SignRoom + ext);
+
+                System.IO.File.WriteAllBytes(FileName, fileFirmati.Result); // salvo il file dentro la cartella della signroom
+
+                string retUrl = _config["ReturnUrl"] ?? "";
+                if (!retUrl.Contains("/RemoteSignHandler/ReceiveAckSignedFile"))
+                { 
+                    if (!retUrl.EndsWith("/"))
+                        retUrl += "/";
+                    retUrl += "RemoteSignHandler/ReceiveAckSignedFile";
+                }
+                //"/RemoteSignHandler/ReceiveAckSignedFile",
+                //"AbortUrl": "https://localhost:7001/RemoteSignHandler/AbortSignatureSession"
+
+
+                string url = retUrl + "/" + SignRoom + "/" + UserName;
+
+                using (HttpClient httpClient = new HttpClient())
+                {
+                    HttpResponseMessage response = httpClient.GetAsync(url).Result;
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string esito = response.Content.ReadAsStringAsync().Result;
+                        _signRoomDao.ConfirmDelivery(SignRoom, esito);
+                        _signRoomDao.UpdateSignRoomStatus(SignRoom, SignRoomStatus.Completed);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Index -> SignFile: " + ex.Message);
+                if (_signRoomDao.GetSignRoom(SignRoom).Status == SignRoomStatus.Signing) //caso di firma fallita 
+                {
+                    var Message = ex.Message;
+
+                    //var index = Message.IndexOf("ERROR-SIGNATURE -");
+                    //Message = Message.Substring(index + 17);
+
+                    _signRoomDao.UpdateSignRoomStatus(SignRoom, SignRoomStatus.ReadyToSign, "Firma fallita. Errore: " + Message); //lo rimetto a ReadyToSign per fargli ritentare la firma
+                }
+                else
+                    _signController.ClearSignRoom(SignRoom, "Processo di firma fallito. Errore: " + ex.Message);
+            }
+        }
+
+        //private int UploadSingleFile(FileParameter fp, String ReturnURL)
+        //{
+        //    int result = -1;
+        //    var handler = new HttpClientHandler();
+        //    handler.ClientCertificateOptions = ClientCertificateOption.Manual;
+        //    handler.ServerCertificateCustomValidationCallback =
+        //        (httpRequestMessage, cert, cetChain, policyErrors) =>
+        //        {
+        //            return true;
+        //        };
+
+        //    using (HttpClient httpClient = new HttpClient(handler))
+        //    {
+
+        //        using (var request_ = new System.Net.Http.HttpRequestMessage())
+        //        {
+
+        //            var json_ = Newtonsoft.Json.JsonConvert.SerializeObject(fp);
+        //            var content_ = new System.Net.Http.StringContent(json_);
+        //            content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
+        //            request_.Content = content_;
+        //            request_.Method = new System.Net.Http.HttpMethod("POST");
+        //            request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
+
+        //            UriBuilder uribuilder = new UriBuilder(ReturnURL);
+        //            request_.RequestUri = uribuilder.Uri;
+
+        //            HttpResponseMessage response = httpClient.SendAsync(request_).Result;
+        //            if (response.IsSuccessStatusCode)
+        //            {
+        //                string esito = response.Content.ReadAsStringAsync().Result;
+        //                int.TryParse(esito, out result);
+        //            }
+        //            else
+        //            {
+        //                throw new Exception(response.ReasonPhrase);
+        //            }
+        //        }
+        //    }
+
+        //    return result;
+        //}
+
+        private string GetFirstExtension(string fileName)
+        {
+            if (string.IsNullOrWhiteSpace(fileName))
+            {
+                throw new ArgumentException("Il nome del file non può essere vuoto o nullo.", nameof(fileName));
+            }
+
+            // Dividi il nome del file in base al carattere '.'
+            string[] parts = fileName.Split('.');
+
+            // Se ci sono almeno due parti (nome del file e almeno un'estensione)
+            if (parts.Length >= 2)
+            {
+                // Prendi la seconda parte come estensione
+                string firstExtension = "." + parts[1];
+                return firstExtension;
+            }
+            else
+                throw new Exception("Non ci sono estensioni in questo fileName.");
+        }
+
+        private List<(byte[] Data, string FileName)> ExtractFilesFromZip(byte[] zipData)
+        {
+            List<(byte[] Data, string FileName)> extractedFiles = new List<(byte[] Data, string FileName)>();
+
+            string tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            Directory.CreateDirectory(tempFolder);
+
+            var zipDestination = Path.Combine(tempFolder, Guid.NewGuid().ToString() + ".zip");
+
+            System.IO.File.WriteAllBytes(zipDestination, zipData);
+
+            using (var inputStream = new MemoryStream(zipData))
+            using (var archive = new ZipArchive(inputStream, ZipArchiveMode.Read))
+            {
+                foreach (var entry in archive.Entries)
+                {
+                    using (var entryStream = entry.Open())
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        entryStream.CopyTo(memoryStream);
+                        extractedFiles.Add((memoryStream.ToArray(), entry.Name));
+                    }
+                }
+            }
+
+            return extractedFiles;
+        }
+
+
+    }
+}

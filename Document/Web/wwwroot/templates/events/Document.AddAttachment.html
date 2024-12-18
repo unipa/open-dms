@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <div>
+        <script type="text/html" id="allegati">
+            <table border="0" cellpadding="4" cellspacing="0" width="100%">
+                <tr id="allegati_container{index}">
+                    <td style="width:100%">
+                        <span class="input name" name="allegati.{index}.fileName"></span>
+                    </td>
+                    <td style="min-width:60px">
+                        <span class="input size" name="allegati.{index}.fileSize"></span>
+                    </td>
+                    <td style="min-width: 120px;">
+                        <input type="file" required id="allegati{index}" accept="*.*" attachment="allegato{index}" container-id="allegati_container{index}" />
+                        <input type="hidden" id="allegati{index}_id" name="allegati.{index}.documentId" zallegato{index}="id" />
+                        <input type="hidden" id="allegati{index}_hash" name="allegati.{index}.fileHash" />
+                        <a href="#" style="width:100%" id="allegati{index}_addButton" class="btn btn-xs btn-secondary">Carica file...</a>
+                        <a href="#" style="width:100%" id="allegati{index}_removeButton" class="hidden btn btn-xs btn-danger" onclick="return confirm('Rimuovere il file allegato?')">Rimuovi...</a>
+                    </td>
+                    <td style="min-width:56px"><a href="#" class="hidden removeRow btn btn-link btn-xs" title="Cancella la riga"><i class="fa fa-minus"></i></a></td>
+                </tr>
+                <!--<tr>
+                <td colspan=2 class="file hidden" style="font-size: 0.8em;font-weight: 700;">
+                    <span class="name" name="allegati.{index}.fileName"></span>
+                </td>
+            </tr>-->
+            </table>
+        </script>
+
+        <h3>Carica uno o più files</h3>
+        <div id="elenco_allegati" template="allegati" index="0" min="1" max="50" source="allegati">
+        </div>
+        <div class="Content">
+            <a href="#" addrow="elenco_allegati" class="btn btn-outline-primary btn-xs"><span class="fa fa-plus"></span> Aggiungi un nuovo documento</a>
+        </div>
+        <br>
+    </div>
+</body>
+</html>

@@ -1,0 +1,238 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..\Librerie\DPM</DockerfileContext>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="wwwroot\images\previews - Copia\**" />
+    <Content Remove="wwwroot\images\previews - Copia\**" />
+    <EmbeddedResource Remove="wwwroot\images\previews - Copia\**" />
+    <None Remove="wwwroot\images\previews - Copia\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="wwwroot\images\avatars\noavatar0.png" />
+    <Content Remove="wwwroot\images\avatars\noavatar1.png" />
+    <Content Remove="wwwroot\images\avatars\noavatar2.png" />
+    <Content Remove="wwwroot\images\avatars\noavatar3.png" />
+    <Content Remove="wwwroot\images\avatars\noavatar4.png" />
+    <Content Remove="wwwroot\images\avatars\noavatar5.png" />
+    <Content Remove="wwwroot\images\avatars\noavatar6.png" />
+    <Content Remove="wwwroot\images\no-process.jpg" />
+    <Content Remove="wwwroot\images\no-tasks.jpg" />
+    <Content Remove="wwwroot\images\POFESR2014-2020.png" />
+    <Content Remove="wwwroot\images\previews\AudioFile.png" />
+    <Content Remove="wwwroot\images\previews\BimFile.png" />
+    <Content Remove="wwwroot\images\previews\BPMNFile.png" />
+    <Content Remove="wwwroot\images\previews\DMNFile.png" />
+    <Content Remove="wwwroot\images\previews\FolderFile.png" />
+    <Content Remove="wwwroot\images\previews\FolderPersonal.png" />
+    <Content Remove="wwwroot\images\previews\FolderShared.png" />
+    <Content Remove="wwwroot\images\previews\FolderSpecial.png" />
+    <Content Remove="wwwroot\images\previews\FolderVirtual.png" />
+    <Content Remove="wwwroot\images\previews\FormDocument.png" />
+    <Content Remove="wwwroot\images\previews\FORMFile.png" />
+    <Content Remove="wwwroot\images\previews\GeneratingPreview.png" />
+    <Content Remove="wwwroot\images\previews\InboxFile - Copia.png" />
+    <Content Remove="wwwroot\images\previews\InboxFile.png" />
+    <Content Remove="wwwroot\images\previews\InternalFile.png" />
+    <Content Remove="wwwroot\images\previews\loading.gif" />
+    <Content Remove="wwwroot\images\previews\Loading.png" />
+    <Content Remove="wwwroot\images\previews\MailFile.png" />
+    <Content Remove="wwwroot\images\previews\NoImage.png" />
+    <Content Remove="wwwroot\images\previews\NoPreview.png" />
+    <Content Remove="wwwroot\images\previews\OutboxFile - Copia.png" />
+    <Content Remove="wwwroot\images\previews\OutboxFile.png" />
+    <Content Remove="wwwroot\images\previews\PdfSign.png" />
+    <Content Remove="wwwroot\images\previews\Protected.png" />
+    <Content Remove="wwwroot\images\previews\ReportFile.png" />
+    <Content Remove="wwwroot\images\previews\TemplateFile.png" />
+    <Content Remove="wwwroot\images\previews\VideoFile.png" />
+    <Content Remove="wwwroot\images\previews\xOutboxFile.png" />
+    <Content Remove="wwwroot\images\previews\zipfile.png" />
+    <Content Remove="wwwroot\images\task_empty.svg" />
+    <Content Remove="wwwroot\images\UEIcon.png" />
+    <Content Remove="wwwroot\images\__no-tasks.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\images\avatars\noavatar0.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\avatars\noavatar1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\avatars\noavatar2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\avatars\noavatar3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\avatars\noavatar4.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\avatars\noavatar5.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\avatars\noavatar6.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\no-process.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\no-tasks.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\POFESR2014-2020.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\previews\AudioFile.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\previews\BimFile.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\previews\BPMNFile.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\previews\DMNFile.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\previews\FolderFile.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\previews\FolderPersonal.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\previews\FolderShared.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\previews\FolderSpecial.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\previews\FolderVirtual.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\previews\FormDocument.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\previews\FORMFile.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\previews\GeneratingPreview.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\previews\InboxFile - Copia.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\previews\InboxFile.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\previews\InternalFile.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\previews\loading.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\previews\Loading.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\previews\MailFile.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\previews\NoImage.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\previews\NoPreview.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\previews\OutboxFile - Copia.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\previews\OutboxFile.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\previews\PdfSign.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\previews\Protected.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\previews\ReportFile.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\previews\TemplateFile.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\previews\VideoFile.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\previews\xOutboxFile.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\previews\zipfile.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\task_empty.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\UEIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.5" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.4" />
+    <!--  <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+  </ItemGroup>
+
+  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.4">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>-->
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.4" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Core\OpenDMS.Core.Lucene\OpenDMS.Core.LuceneIndexer.csproj" />
+    <ProjectReference Include="..\..\..\Core\OpenDMS.Core\OpenDMS.Core.csproj" />
+    <ProjectReference Include="..\..\..\Core\OpenDMS.Domain\OpenDMS.Domain.csproj" />
+    <!--<ProjectReference Include="..\..\..\Core\OpenDMS.Infrastructure.Database\OpenDMS.Infrastructure.Database.csproj" />-->
+    <ProjectReference Include="..\..\..\Core\OpenDMS.Infrastructure.Services\OpenDMS.Infrastructure.Services.csproj" />
+    <ProjectReference Include="..\..\..\Core\OpenDMS.Infrastructure.VirtualFileSystem\OpenDMS.Infrastructure.VirtualFileSystem.csproj" />
+    <ProjectReference Include="..\..\..\Core\OpenDMS.Startup\OpenDMS.Startup.csproj" />
+    
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="appsettings.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="appsettings.Production.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

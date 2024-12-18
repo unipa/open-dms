@@ -1,0 +1,22 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Servizio di firma";
+}
+
+<div class="MainWindow">
+
+    <div class="Panel">
+        <div class="InfoPanel">
+            <img class="logo" />
+            <h1>OpenDMS
+            </h1>
+            <small>In ascolto su: @string.Join(", " , Model.Addresses)</small>
+            <small>Profilo Utnete: @Model.UserName</small><br /><br />
+            <a hreF="/TestSign" class="btn btn-secondary">Test Dispositivo di Firma</a>
+        </div>
+    </div>
+    <div class="Bottom">
+        <a class="btn btn-link" href="#" onclick="CloseWindow()">Esci</a>
+    </div>
+</div>

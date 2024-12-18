@@ -1,0 +1,220 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>4384c01c-16a8-4dd4-9820-27df43c57395</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="BL\Sign - Copia.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="BL\Sign - Copia.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\bootstrap-italia\assets\upload-drag-drop-icon.svg" />
+    <None Include="wwwroot\bootstrap-italia\bootstrap-italia-comuni.js" />
+    <None Include="wwwroot\bootstrap-italia\bootstrap-italia.esm.js" />
+    <None Include="wwwroot\bootstrap-italia\bootstrap-italia.esm.js.map" />
+    <None Include="wwwroot\bootstrap-italia\css\bootstrap-italia.min.css.map" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Lora\lora-v20-latin-ext_latin-700.svg" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Lora\lora-v20-latin-ext_latin-700.woff2" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Lora\lora-v20-latin-ext_latin-700italic.svg" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Lora\lora-v20-latin-ext_latin-700italic.woff2" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Lora\lora-v20-latin-ext_latin-italic.svg" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Lora\lora-v20-latin-ext_latin-italic.woff2" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Lora\lora-v20-latin-ext_latin-regular.svg" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Lora\lora-v20-latin-ext_latin-regular.woff2" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Roboto_Mono\roboto-mono-v13-latin-ext_latin-700.svg" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Roboto_Mono\roboto-mono-v13-latin-ext_latin-700.woff2" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Roboto_Mono\roboto-mono-v13-latin-ext_latin-700italic.svg" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Roboto_Mono\roboto-mono-v13-latin-ext_latin-700italic.woff2" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Roboto_Mono\roboto-mono-v13-latin-ext_latin-italic.svg" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Roboto_Mono\roboto-mono-v13-latin-ext_latin-italic.woff2" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Roboto_Mono\roboto-mono-v13-latin-ext_latin-regular.svg" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Roboto_Mono\roboto-mono-v13-latin-ext_latin-regular.woff2" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Titillium_Web\titillium-web-v10-latin-ext_latin-300.svg" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Titillium_Web\titillium-web-v10-latin-ext_latin-300.woff2" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Titillium_Web\titillium-web-v10-latin-ext_latin-300italic.svg" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Titillium_Web\titillium-web-v10-latin-ext_latin-300italic.woff2" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Titillium_Web\titillium-web-v10-latin-ext_latin-600.svg" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Titillium_Web\titillium-web-v10-latin-ext_latin-600.woff2" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Titillium_Web\titillium-web-v10-latin-ext_latin-600italic.svg" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Titillium_Web\titillium-web-v10-latin-ext_latin-600italic.woff2" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Titillium_Web\titillium-web-v10-latin-ext_latin-700.svg" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Titillium_Web\titillium-web-v10-latin-ext_latin-700.woff2" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Titillium_Web\titillium-web-v10-latin-ext_latin-700italic.svg" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Titillium_Web\titillium-web-v10-latin-ext_latin-700italic.woff2" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Titillium_Web\titillium-web-v10-latin-ext_latin-italic.svg" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Titillium_Web\titillium-web-v10-latin-ext_latin-italic.woff2" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Titillium_Web\titillium-web-v10-latin-ext_latin-regular.svg" />
+    <None Include="wwwroot\bootstrap-italia\fonts\Titillium_Web\titillium-web-v10-latin-ext_latin-regular.woff2" />
+    <None Include="wwwroot\bootstrap-italia\js\bootstrap-italia.bundle.min.js" />
+    <None Include="wwwroot\bootstrap-italia\js\bootstrap-italia.min.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\accordion.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\accordion.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\alert.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\alert.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\backToTop.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\backToTop.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\button.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\button.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\carousel-bi.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\carousel-bi.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\carousel.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\carousel.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\collapse.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\collapse.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\cookiebar.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\cookiebar.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\dimmer.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\dimmer.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\dropdown.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\dropdown.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\fonts-loader.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\fonts-loader.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\form-validate.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\form-validate.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\forward.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\forward.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\header-sticky.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\header-sticky.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\history-back.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\history-back.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\init.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\init.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\input-label.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\input-label.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\input-number.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\input-number.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\input-password.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\input-password.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\input-search-autocomplete.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\input-search-autocomplete.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\input.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\input.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\list.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\list.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\masonry.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\masonry.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\modal.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\modal.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\navbar-collapsible.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\navbar-collapsible.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\navscroll.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\navscroll.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\notification.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\notification.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\offcanvas.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\offcanvas.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\popover.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\popover.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\progress-donut.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\progress-donut.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\scrollspy.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\scrollspy.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\select-autocomplete.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\select-autocomplete.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\sticky.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\sticky.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\tab.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\tab.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\toast.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\toast.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\tooltip.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\tooltip.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\track-focus.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\track-focus.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\transfer.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\transfer.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\upload-dragdrop.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\upload-dragdrop.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\util\device.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\util\device.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\util\dom.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\util\dom.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\util\observer.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\util\observer.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\util\on-document-scroll.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\util\on-document-scroll.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\util\pageScroll.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\util\pageScroll.js.map" />
+    <None Include="wwwroot\bootstrap-italia\plugins\util\tween.js" />
+    <None Include="wwwroot\bootstrap-italia\plugins\util\tween.js.map" />
+    <None Include="wwwroot\bootstrap-italia\svg\sprites.svg" />
+    <None Include="wwwroot\bootstrap-italia\version.js" />
+    <None Include="wwwroot\bootstrap-italia\version.js.map" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.8.5" />
+    <PackageReference Include="Hangfire.MemoryStorage" Version="1.8.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="7.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Serilog" Version="3.1.1" />
+    <PackageReference Include="Serilog.AspNetCore" Version="7.0.0" />
+    <PackageReference Include="Serilog.Extensions.Hosting" Version="7.0.0" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="7.0.0" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="7.0.1" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.5.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.5.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Core\OpenDMS.Startup\OpenDMS.Startup.csproj" />
+    <ProjectReference Include="..\FirmeRemoteLib\FirmeRemoteLib.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="appsettings.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Pages\EditUser.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Pages\Error.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Pages\Index.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Pages\Shared\_Layout.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Pages\Shared\_ValidationScriptsPartial.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Pages\_ViewImports.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Pages\_ViewStart.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

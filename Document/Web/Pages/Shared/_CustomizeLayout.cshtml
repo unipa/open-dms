@@ -1,0 +1,43 @@
+﻿@{
+    ViewData["Title"] = "Impostazioni Utente";
+    Layout = "_MenuLayout";
+    string uid = User.Identity.Name;
+}
+
+<script src="~/adminjs/admin.js"></script>
+
+<div class="Page">
+    <div class="LeftMenu">
+        <div class="MainPanel InsidePanel">
+            <div class="Header">
+                @await Component.InvokeAsync("CompanyLogo")
+                <span style="padding:16px 12px" class="Desktop fa fa-times" onclick="$('.ListPanel').removeClass('hiddenOnMobile');$('.LeftMenu').removeClass('active');"></span>
+            </div>
+            @await Component.InvokeAsync("CustomizeLeftPanel", new { UserId = uid})
+        </div>
+    </div>
+    <div class="ListPanel MainPanel">
+        @RenderBody()
+    </div>
+    @if (IsSectionDefined("Detail"))
+    {
+        @await RenderSectionAsync("Detail", required: false)
+    }
+    else
+    {
+        <div class="DetailPanel EmptyPanel hiddenOnMobile">
+            <div class="Header">
+                <h1>
+                    <small>&nbsp;</small>
+                    <span>&nbsp;</span>
+                </h1>
+            </div>
+        </div>
+    }
+
+</div>
+<script>
+    $(document).ready(() => {
+        $(".user").addClass("active");
+    });
+</script>

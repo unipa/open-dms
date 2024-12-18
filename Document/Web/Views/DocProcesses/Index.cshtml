@@ -1,0 +1,325 @@
+﻿@model DocProcessesViewModel;
+@using Microsoft.Extensions.Configuration
+@using OpenDMS.Domain.Constants;
+@using OpenDMS.Domain.Enumerators;
+@using Web.Model.Admin;
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@inject IConfiguration Configuration
+@{
+    ViewData["Title"] = "Processi su Documenti";
+    Layout = "_AdminLayout";
+}
+
+
+<script>
+
+    $(document).ready(function () {
+        $(function () {
+
+            $(".mnuAdminProcessiSuDocumenti").addClass("active");
+
+            Carica("@Model.TypeId");
+
+            if (`@Model.ErrorMessage` !== '') ShowMessage('alert', `@Html.Raw(Model.ErrorMessage)`, 'Message_Target', '/Admin/DocProcesses/Index');
+            if (`@Model.SuccessMessage` !== '') ShowMessage('success', '@Html.Raw(Model.SuccessMessage)', 'Message_Target', null);
+
+            //codice per far svanire i messaggi di successo
+            FadeOutSuccessMessagge(10000);
+
+
+            //trigger per la modifica
+            $(".InputProcessId").on("change", function () {
+                let ProcessId = $(this).val();
+                let DocumentTypeId = $(this).attr("DocumentTypeId");
+                let EventName = $(this).attr("EventName");
+                let Query = "@Model.TypeId";
+
+                if (ProcessId === "new") { //in caso di creazione nuovo processo
+                    CreaProcessoModal({ DocumentTypeId: DocumentTypeId, EventName: EventName, Query: Query }, false)
+                }
+                else {
+                    window.location = `/Admin/DocProcesses/Modifica?TypeId=${DocumentTypeId}&EventName=${EventName}&ProcessKey=${ProcessId}&Query=${Query}`;
+                }
+            })
+
+            //trigger l'aggiunzione in caso di Crea Processo
+            $("#FormAggiungi").on("submit", (e) => {
+                let ProcessId = $("#ProcessId.Aggiungi").val();
+
+                if (ProcessId === "new") { //in caso di creazione nuovo processo
+                    e.preventDefault(); //disattivo il normale funzionamento del form
+                    let DocumentTypeId = "@Model.TypeId";
+                    let EventName = $("#EventName.Aggiungi").val();
+                    let Query = "@Model.TypeId";
+                    CreaProcessoModal({ DocumentTypeId: DocumentTypeId, EventName: EventName, Query: Query }, true)
+                }
+                // else continua con il normale funzionamento del form
+            });
+
+        });
+    })
+
+    function CreaProcessoModal(data, IsAggiunta) {
+
+        var Modal_Template = "CreaProcessoModal_Template";
+        var Modal_Content = "CreaProcessoModal_Content";
+        var Modal_Id = "CreaProcessoModal";
+        var Modal_Form = "CreaProcessoForm";
+        var Modal_Form_Button = "CreaProcessoFormButton";
+
+        //elaboro il template mustache dentro la modale ancora nascosta
+        const template = document.getElementById(Modal_Template).innerHTML;
+
+        const rendered = Mustache.render(template, { data: data });
+        document.getElementById(Modal_Content).innerHTML = rendered;
+
+        //mostro la modale
+        var CreaProcessoModal = new bootstrap.Modal(document.getElementById(Modal_Id));
+        CreaProcessoModal.show()
+
+        //parte di submit del form------------------------------------------------------------
+        var form = document.getElementById(Modal_Form);
+        var button = document.getElementById(Modal_Form_Button);
+        button.onclick = async (e) => {
+
+            ShowRequiredPopupJS(Modal_Form); //faccio comparire i popup manualmente in caso di campi non validi
+
+            if (document.forms[Modal_Form].reportValidity()) {
+
+                let EventName = $("#" + Modal_Form + " #EventName").val();
+                let DocumentTypeId = $("#" + Modal_Form + " #DocumentTypeId").val();
+                let Name = $("#" + Modal_Form + " #Name").val();
+                let Query = $("#" + Modal_Form + " #Query").val();
+
+                let action = (IsAggiunta) ? "CreaProcessoAggiungi" : "CreaProcessoModifica";
+
+                if (IsAggiunta)
+                    window.location = `/Admin/DocProcesses/${action}?Name=${Name}&EventName=${EventName}&DocumentTypeId=${DocumentTypeId}&Query=${Query}`;
+                else
+                    window.location = `/Admin/DocProcesses/${action}?Name=${Name}&EventName=${EventName}&DocumentTypeId=${DocumentTypeId}&Query=${Query}`;
+            }
+        };
+    }
+
+    function ModificaWorkflow(processId) {
+        window.open("/?uid=" + processId, "_blank");
+    }
+
+    function ConfermaEliminaModal(data) {
+        Confirm(`Stai per cancellare questa regola?`, "Message_Target", function () {
+            window.location = `/Admin/DocProcesses/Elimina?TypeId=${data.TypeId}&EventName=${data.EventName}&Query=${data.Query}`;
+        }, null);
+    }
+
+            //function ConfermaEliminaModal(data) {
+
+            //    var Modal_Template = "ConfermaEliminaModal_Template";
+            //    var Modal_Content = "ConfermaEliminaModal_Content";
+            //    var Modal_Id = "ConfermaEliminaModal";
+            //    var Modal_Form = "ConfermaEliminaForm";
+            //    var Modal_Form_Button = "ConfermaEliminaFormButton";
+
+            //    //elaboro il template mustache dentro la modale ancora nascosta
+            //    const template = document.getElementById(Modal_Template).innerHTML;
+
+            //    const rendered = Mustache.render(template, { data: data });
+            //    document.getElementById(Modal_Content).innerHTML = rendered;
+
+            //    //mostro la modale
+            //    var ConfermaEliminaModal = new bootstrap.Modal(document.getElementById(Modal_Id));
+            //    ConfermaEliminaModal.show()
+
+            //    //parte di submit del form------------------------------------------------------------
+            //    var form = document.getElementById(Modal_Form);
+            //    var button = document.getElementById(Modal_Form_Button);
+            //    button.onclick = async (e) => {
+            //        window.location = `/Admin/DocProcesses/Elimina?TypeId=${data.TypeId}&EventName=${data.EventName}&Query=${data.Query}`;
+            //    };
+            //}
+
+</script>
+
+@section HeaderTitle
+    {
+    Processi per tipologie documentali
+}
+
+<div class="Page">
+    <div class="MainPanel ListMenu InsidePanel">
+        <ul class="nav nav-list">
+
+            <li codice="ALL" class="">
+                <a class="" href="/Admin/DocProcesses/Index">
+                    <span class="">
+                        <i class="fa fa-folder"></i>
+                        <span class="">
+                            Tutte le tipologie
+                        </span>
+                    </span>
+                </a>
+            </li>
+
+            @foreach (var mb in Model.Types)
+            {
+                <li codice="@mb.Id" class="list-item">
+                    <a class="" href="/Admin/DocProcesses/Index?TypeId=@mb.Id">
+                        <span class="">
+                            <i class="fa fa-folder"></i>
+                            <span class="">
+                                @mb.Name
+                            </span>
+                        </span>
+                    </a>
+                </li>
+            }
+
+        </ul>
+    </div>
+    <div class="Panel">
+        <div id="Message_Target"></div>
+
+        <div class="header">
+            <h2>
+                <i class="fa fa-cogs"></i><span>@Model.TypeName</span>
+                <a href="/Admin/DocProcesses/Index?TypeId=@Model.TypeId" class="btn btn-link">
+                    <i class="fa fa-lg fa-refresh"></i>
+                </a>
+            </h2>
+        </div>
+
+        <div class="row-fluid">
+            @if (Model.TypeId.Equals("ALL"))
+            {
+                <small> Seleziona una tipologia per creare una nuova regola Evento-Processo. </small>
+            }
+        </div>
+
+        <div class="Panel border rounded border-primary border-2 my-2  table-overflow-y bg-white">
+            <table class="table table-responsive table-condensed table-hover row-fluid">
+                <thead>
+                    <tr>
+                        @if (Model.TypeId.Equals("ALL"))
+                        {
+                            <th style="width:20%">TIPOLOGIA</th>
+                        }
+                        <th style="width:40%">AL VERIFICARSI DELL'EVENTO</th>
+                        <th nowrap style="min-width:130px">AVVIARE IL PROCESSO</th>
+                        <th nowrap style="width:48px"></th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @if (!Model.TypeId.Equals("ALL"))
+                    {
+                        <form id="FormAggiungi" asp-controller="DocProcesses" asp-action="Aggiungi">
+                        <tr>
+
+                            <td>
+                                <input type="hidden" class="nuovo" value="@Model.TypeId" name="DocumentTypeId" id="DocumentTypeId" />
+                                <select style="width:100%" asp-items="@Model.EventList" name="EventName" class="Aggiungi" required id="EventName">
+                                </select>
+                            </td>
+                            <td>
+                                <select style="width:100%;padding-top:0px;" asp-items="@Model.ProcessList" name="ProcessKey" class="Aggiungi" required id="ProcessId" EventName="" DocumentTypeId="@Model.TypeId">
+                                </select>
+                            </td>
+                            <td>
+                                <button type="submit" style="width:100%;" class="btn btn-xs btn-primary" id="AggiungiButton"><i class="fa fa-plus"></i></button>
+                            </td>
+                        </tr>
+                        </form>
+                    }
+                    @{
+                        if (Model.DocumentTypeWorkflow.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="@((Model.TypeId.Equals("ALL")) ? "4" : "3")" class="rigaricerca">
+                                    Non sono presenti associazioni
+                                </td>
+                            </tr>
+                        }
+                        for (int i = 0; i < Model.DocumentTypeWorkflow.Count; i++)
+                        {
+                            //richiama la view in Shared/EditorTemplates/{nome del viewmodel}.cshtml(in questo caso: "DocProcess.cshtml")
+                            @Html.EditorFor(model => model.DocumentTypeWorkflow[i],null,null,new { TypeId = Model.TypeId })
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <!-- Crea Processo Modal -->
+    <div class="modal " tabindex="-1" role="dialog" id="CreaProcessoModal" aria-labelledby="modal4Title">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+
+            <script id="CreaProcessoModal_Template" type="x-tmpl-mustache">
+
+                    <div class="modal-header">
+                        <div class="modal-title">
+                            <h2 class="h5">Crea un nuovo processo</h2>
+                        </div>
+                        <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Chiudi finestra modale">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                    <form id="CreaProcessoForm" action="@Configuration["PATH_BASE"]/DocProcesses/CreaProcesso" method="post">
+                        <div class="modal-body">
+                                <input type="hidden" name="DocumentTypeId" id="DocumentTypeId" value="{{data.DocumentTypeId}}">
+                                <input type="hidden" name="EventName" id="EventName" value="{{data.EventName}}">
+                                <input type="hidden" name="Query" id="Query" value="{{data.Query}}">
+                                <div class="row">
+                                    <div class="form-group col-12">
+                                    <label class="active" for="ProcessName">Nome nuovo processo</label>
+                                    <input required type="text" required class="form-control" name="Name" id="Name"/>
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-row-reverse">
+                                    <button class="btn btn-primary btn-sm ms-2" type="button" id="CreaProcessoFormButton">Conferma</button>
+                                    <button class="btn btn-outline-primary btn-sm" type="button" data-bs-dismiss="modal">Annulla</button>
+                                </div>
+                        </div>
+                <div class="modal-footer">
+                </div>
+                    </form>
+
+            </script>
+
+            <div class="modal-content" id="CreaProcessoModal_Content">
+            </div>
+        </div>
+    </div>
+
+    <!-- Conferma Elimina Modal -->
+    <div class="modal " tabindex="-1" role="dialog" id="ConfermaEliminaModal" aria-labelledby="modal4Title">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+
+            <script id="ConfermaEliminaModal_Template" type="x-tmpl-mustache">
+
+
+                    <div class="modal-header">
+                      <h2 class="modal-title h5 " id="modalCenterTitle">Cancellare la regola Evento-Processo selezionato?</h2>
+                      <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Chiudi finestra modale">
+                          <i class="fa fa-times"></i>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p></p>
+                    </div>
+                    <div class="modal-footer">
+                      <button class="btn btn-primary btn-sm" type="button" id="ConfermaEliminaFormButton">Conferma</button>
+                <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-dismiss="modal">Annulla</button>
+                    </div>
+
+
+
+            </script>
+
+            <div class="modal-content" id="ConfermaEliminaModal_Content">
+            </div>
+        </div>
+    </div>
+
+</div>
+

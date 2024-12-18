@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "OpenDMS.MailSpooler.Core": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:57916;http://localhost:57917"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "OpenDMS.Startup": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:57902;http://localhost:57903"
+    }
+  }
+}

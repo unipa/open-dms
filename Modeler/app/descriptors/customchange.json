@@ -1,0 +1,44 @@
+[
+  {
+    "name": "CUSTOM_TASK",
+    "items": [
+      {
+          "label": "grtrgt",
+          "actionName": "replace-with-custom-task",
+          "className": "bpmn-icon-task",
+          "target": {
+              "type": "elmi:UserMessageTask"
+          }
+      },
+      {
+          "label": "trggtr",
+          "actionName": "replace-with-special-task",
+          "className": "bpmn-icon-task",
+          "target": {
+              "type": "elmi:RequestForApprovalTask"
+          }
+      }
+    ]
+  },
+  {
+    "name": "PERSONAL_TASK",
+    "items": [
+      {
+          "label": "tgrtg",
+          "actionName": "replace-with-custom-task",
+          "className": "bpmn-icon-task",
+          "target": {
+              "type": "elmi:UserMessageTask"
+          }
+      },
+      {
+          "label": "egegtrg",
+          "actionName": "replace-with-special-task",
+          "className": "bpmn-icon-task",
+          "target": {
+              "type": "elmi:RequestForApprovalTask"
+          }
+      }
+    ]
+  }
+]

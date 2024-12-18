@@ -1,0 +1,118 @@
+﻿@using Microsoft.Extensions.Configuration;
+@using Web.Model.Admin;
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper *, AuthoringTagHelpers
+@inject IConfiguration Configuration;
+@model BancaDatiViewModel
+@{
+    ViewData["Title"] = "Modifica Sistema Informativo";
+    Layout = "_AdminLayout";
+}
+
+
+<script>
+
+    $(document).ready(function () {
+
+        $(".mnuAdminBancheDati").addClass("active");
+
+        AttivazionePopover();
+
+        $(function () {
+
+            if (`@Model.ErrorMessage` !== '') ShowMessage('alert', `@Html.Raw(Model.ErrorMessage)`, 'Message_Target', '/Admin/BancheDati/Index');
+            if (`@Model.SuccessMessage` !== '') ShowMessage('success', '@Html.Raw(Model.SuccessMessage)', 'Message_Target', null);
+
+            previewImage()
+
+            $("#imageInput").on("input", function () {
+                previewImage();
+            });
+
+            function previewImage() {
+                const url = $("#imageInput").val();
+
+                if (url !== "") {
+                    $("#previewContainer").show();
+                    $("#imagePreview").attr("src", url);
+                } else {
+                    $("#previewContainer").hide();
+                }
+
+            }
+
+        });
+    })
+
+</script>
+
+@section HeaderTitle
+    {
+    Sistema Informativo
+}
+
+<div class="backgroundMenu rowfluid">
+    <form id="form_banche_dati" enctype="multipart/form-data" asp-controller="Company" asp-action="Memorizza" class="Panel">
+        <div class="header mt-4">
+            <h2>
+                Sistema Informativo
+                <button class="pull-right btn btn-primary">Memorizza</button>
+
+            </h2>
+            <small>
+                #Id:
+                @Model.Codice
+            </small>
+        </div>
+        <div class="MainPanel">
+            <div id="Message_Target"></div>
+            <input name="Id" value="@Model.Id" type="hidden">
+
+            @*Descrizione e Logo*@
+            <div class="row mt-4">
+
+                <div class="col-6 mt-4 mb-4">
+                    <label class="active" for="Description">Descrizione</label>
+                    <input name="Description" type="text" value="@Model.Description" id="Description">
+                    <span class="text-danger" asp-validation-for="Description"></span>
+                </div>
+                <div class="col-md-3  mt-4 mb-4">
+                    <label class="active" for="AOO">Codice AOO</label>
+                    <input name="AOO" type="text" value="@Model.AOO" id="AOO">
+                    <span class="text-danger" asp-validation-for="AOO"></span>
+                </div>
+                <div class="col-md-3 mt-4 mb-4">
+                    <label class="active" for="Theme">Identificativo Esterno</label>
+                    <input name="ERP" type="text" value="@Model.ERP" id="ERP">
+                    <span class="text-danger" asp-validation-for="ERP"></span>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-12 mb-4">
+                    <label class="active" for="imageInput">Logo <small>URL del logo aziendale (png,jpg) </small> </label>
+                    <input name="Logo" type="text" value="@Model.Logo" id="imageInput">
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div id="previewContainer" class="col-12 px-0 pb-2 pt-0" style="display:none;">
+                    <button type="button" class="btn btn-info btn-xs fade show" data-container="body" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-placement="right" data-html="true" data-bs-content="URL del logo aziendale (png,jpg)">
+                        ?
+                    </button>
+                    <img class="CompanyLogo" id="imagePreview" alt="Preview Image" src="" style="border-width:0px;height:45px;">
+                </div>
+            </div>
+
+            <div class="row mt-4">
+
+                <div class="col-md-6 mb-4">
+                    <label class="active" for="OffLine"><input name="OffLine" type="checkbox" value="@Model.OffLine" id="OffLine"> OffLine</label>
+                    <span class="text-danger" asp-validation-for="OffLine"></span>
+                </div>
+
+            </div>
+        </div>
+    </form>
+</div>
+
+

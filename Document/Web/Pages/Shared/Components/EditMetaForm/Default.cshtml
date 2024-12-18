@@ -1,0 +1,384 @@
+﻿@using Microsoft.Extensions.Configuration
+@using OpenDMS.Core.DTOs;
+@using OpenDMS.Domain.Entities;
+@using OpenDMS.Domain.Enumerators;
+@model DocumentInfo
+
+
+
+<div class="EditMeta Panel">
+
+    <div class="accordion" style="margin:10px 0">
+        <div class="accordion-item">
+            <div class="accordion-button" data-bs-toggle="collapse" data-bs-target=".metadati">
+                <i class="fa fa-tags" style="color:#26b;width:20px;margin-left:-4px"></i> <strong> Metadati</strong>
+            </div>
+            <div class="metadati  collapseOne accordion-collapse collapse show">
+                @if (!String.IsNullOrEmpty(@Model.DocumentType?.DescriptionLabel))
+                {
+                    <div>
+                        <label for="Description"><strong>@Model.DocumentType?.DescriptionLabel</strong></label>
+                        <input type="textbox"
+                               rows="3"
+                               maxlength="4000"
+                               name="Description"
+                               id="Description"
+                               tableId="$$p"
+                               tag="false"
+                               visible="true"
+                               value="@Model.Description"
+                        @Html.Raw(Model.DocumentType.DescriptionLabel.StartsWith("*") || Model.DocumentType.FieldCount == 0 ? "required" : "") />
+                    </div>
+                }
+                <div style="display:flex;flex-direction:row;justify-content:space-between;gap:10px;">
+                    @if (!String.IsNullOrEmpty(Model.DocumentType?.DocumentNumberLabel))
+                    {
+                        <div style="flex-grow:1" style="min-width:160px">
+                            <label for="DocumentNumber"><strong>@Model.DocumentType?.DocumentNumberLabel</strong></label>
+                            <input @(!String.IsNullOrEmpty(Model.DocumentType?.DocumentNumberDataType) ? "required" : "")
+                                   id="DocumentNumber"
+                                   name="DocumentNumber"
+                                   customProperties="@Html.Raw(Model.DocumentNumberFieldType.CustomProperties)"
+                                   type="@(Model.DocumentNumberFieldType?.ControlType ?? "textbox")"
+                                   tableId="@(Model.DocumentNumberFieldType?.Id ?? "")"
+                                   tag="@(Model.DocumentNumberFieldType?.Tag ?? false)"
+                                   visible="true"
+                                   value="@Model.DocumentNumber">
+                        </div>
+                    }
+                    @if (!String.IsNullOrEmpty(@Model.DocumentType?.DocumentDateLabel))
+                    {
+                        <div style="min-width:160px">
+                            <label for="DocumentDate"><strong>@Model.DocumentType?.DocumentDateLabel</strong></label>
+                            <input type="date" required id="DocumentDate" name="DocumentDate" value="@Model.DocumentDate?.ToString("yyyy-MM-dd")">
+                        </div>
+                    }
+                    @if (Model.DocumentType?.ExpirationStrategy != ExpirationStrategy.None)
+                    {
+                        <div style="min-width:160px">
+                            <label for="ExpirationDate"><strong>Data Scadenza</strong></label>
+                            <input type="date" required id="ExpirationDate" name="ExpirationDate" value="@Model.ExpirationDate?.ToString("yyyy-MM-dd")">
+                        </div>
+                    }
+                    else
+                    {
+                        <input type="hidden" id="ExpirationDate" name="ExpirationDate" value="@Model.ExpirationDate?.ToString("yyyy-MM-dd")">
+                    }
+                    <div>
+                        <label for="Icon"><strong>Icona</strong></label>
+                        <a class="lookup-control dropdown-toggle" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <input type="hidden" id="Icon" name="Icon" onchange="UpdateIcon()" value="@Model.Icon" />
+                            <i type="text" id="IconSpan" name="IconSpan" style="padding-top:12px;width:40px;text-align:center"></i>
+                            <span class="fa fa-caret-down" style="height:37px;padding-top:10px;width:18px;text-decoration:none"></span>
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="max-height:128px;overflow-y:auto;margin-top:0;min-width:64px;max-width:64px">
+                            <ul class="nav nav-list">
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-image"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-file-pdf-o"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-file-excel-o"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-file-word-o"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-paperclip"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-inbox"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-send"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-rocket"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-print"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-hdd-o"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-retweet"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-sitemap"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-table"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-code"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-search"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-envelope"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-envelope-o"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-plane"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-book"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-truck"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-ambulance"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-user"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-automobile"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-code-fork"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-database"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-cog"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-cogs"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-eye"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-eye-slash"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-edit"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-money"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-stethoscope"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-folder"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-folder-o"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-dashboard"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-question-circle"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-exclamation-circle"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-warning"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-ban"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-check"></a> </li>
+                                <li> <a href="#" onclick="SetIcon(event.target)" class="fa fa-bug"></a> </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="IconColor"><strong>Colore</strong></label>
+                        <input type="color" name="IconColor" id="IconColor" style="width: 40px;height: 39px;" value="@Model.IconColor" />
+                    </div>
+                </div>
+                @if (Model.DocumentType?.Fields != null && Model.DocumentType?.Fields.Where(mt => mt.Mandatory == true && !mt.Deleted && !String.IsNullOrEmpty(mt.Title) ).Count() > 0)
+                {
+                    <h3>Informazioni Obbligatorie</h3>
+                    <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                        @foreach (var mt in Model.DocumentType?.Fields.Where(mt => mt.Mandatory == true && !mt.Deleted && !String.IsNullOrEmpty(mt.Title) && !string.IsNullOrEmpty(mt.FieldName)))
+                        {
+                            <div style="min-width:@(!String.IsNullOrEmpty(mt.Width) ? mt.Width : !String.IsNullOrEmpty(mt.FieldType?.ColumnWidth) ? mt.FieldType?.ColumnWidth : "48%");max-width:@(!String.IsNullOrEmpty(mt.Width) ? mt.Width : !String.IsNullOrEmpty(mt.FieldType?.ColumnWidth) ? mt.FieldType?.ColumnWidth : "48%")">
+                                <label for="meta_@mt.FieldName"><strong>@(mt.Title)</strong></label>
+                                <input required
+                                       FieldIndex="@mt.FieldIndex"
+                                       FieldGUID="@mt.FieldName"
+                                       FieldType="@mt.FieldTypeId"
+                                       id="meta_@(mt.FieldName.Replace(" ", "_"))"
+                                       name="meta_@mt.FieldName"
+                                       customProperties="@Html.Raw(mt.FieldType?.CustomProperties)"
+                                       type="@(mt.FieldType?.ControlType ?? "text")"
+                                       tableId="@(mt.FieldTypeId ?? "")"
+                                       tag="@(mt.Tag)"
+                                       maxlength="4096"
+                                       visible="true"
+                                       width="100%"
+                                       value="@(Model.FieldList.FirstOrDefault(x => @mt.FieldName == x.FieldIdentifier)?.Value ?? mt.DefaultValue)">
+                            </div>
+
+                        }
+                    </div>
+                }
+                @if (Model.DocumentType?.Fields != null && Model.DocumentType?.Fields.Where(mt => mt.Mandatory == false && !String.IsNullOrEmpty(mt.Title) && !mt.Deleted).Count() > 0)
+                {
+                    <h3>Informazioni Facoltative</h3>
+                    <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                        @foreach (var mt in Model.DocumentType.Fields.Where(mt => mt.Mandatory == false && !mt.Deleted && !String.IsNullOrEmpty(mt.Title) && !string.IsNullOrEmpty(mt.FieldName)))
+                        {
+                            <div style="min-width:@(!String.IsNullOrEmpty(mt.Width) ? mt.Width : !String.IsNullOrEmpty(mt.FieldType?.ColumnWidth) ? mt.FieldType?.ColumnWidth : "48%");min-width:@(!String.IsNullOrEmpty(mt.Width) ? mt.Width : !String.IsNullOrEmpty(mt.FieldType?.ColumnWidth) ? mt.FieldType?.ColumnWidth : "48%")">
+                                <label for="meta_@mt.FieldName"><strong>@mt.Title</strong></label>
+                                <input FieldIndex="@mt.FieldIndex"
+                                       FieldGUID="@mt.FieldName"
+                                       FieldType="@mt.FieldTypeId"
+                                       id="meta_@(mt.FieldName.Replace(" ", "_"))"
+                                       name="meta_@mt.FieldName"
+                                       customProperties="@Html.Raw(mt.FieldType?.CustomProperties)"
+                                       type="@(mt.FieldType?.ControlType ?? "text")"
+                                       tableId="@(mt.FieldTypeId ?? "")"
+                                       tag="@(mt.Tag)"
+                                       visible="true"
+                                       maxlength="4096"
+                                       width="100%"
+                                       value="@(Model.FieldList.FirstOrDefault(x => @mt.FieldName == x.FieldIdentifier)?.Value ?? mt.DefaultValue)">
+                            </div>
+                        }
+                    </div>
+                }
+                @if (Model.FieldList != null && Model.FieldList.Where(f => f.Customized && !String.IsNullOrEmpty(f.Title)).Count() > 0)
+                {
+                    <h3>Informazioni Personalizzate</h3>
+                    @foreach (var mt in Model.FieldList.Where(mt => mt.Customized && !String.IsNullOrEmpty(mt.Title)))
+                    {
+                        <div style="min-width:@(!String.IsNullOrEmpty(mt.FieldType?.ColumnWidth) ? mt.FieldType?.ColumnWidth : "48%");max-width:@(!String.IsNullOrEmpty(mt.FieldType?.ColumnWidth) ? mt.FieldType?.ColumnWidth : "48%")">
+                            <label for="meta_@mt.FieldIdentifier"><strong>@mt.Title</strong></label>
+                            <input FieldIndex="@mt.FieldIndex"
+                                   FieldGUID="@mt.FieldIdentifier"
+                                   FieldType="@mt.FieldTypeId"
+                                   id="meta_@(mt.FieldIdentifier.Replace(" ", "_"))"
+                                   name="meta_@mt.FieldIdentifier"
+                                   customProperties="@Html.Raw(mt.FieldType?.CustomProperties)"
+                                   type="@(mt.FieldType?.ControlType ?? "text")"
+                                   tableId="@(mt.FieldTypeId ?? "")"
+                                   tag="@(mt.Tag)"
+                                   maxlength="4096"
+                                   visible="true"
+                                   width="@(mt.FieldType?.ColumnWidth)"
+                                   value="@(mt.Value)">
+                        </div>
+                    }
+                }
+
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <div class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target=".responsabili">
+                <i class="fa fa-user-circle-o" style="color:#aab;width:20px;margin-left:-4px"></i> <strong> Referenti</strong>
+            </div>
+            <div class="responsabili collapseOne accordion-collapse collapsed collapse">
+                <div style="margin:20px 0;">
+                    <label><strong>Referenti Principali</strong></label>
+                    <input id="referentList"
+                           name="referentList"
+                           type="lookup"
+                           placeholder="utenti / ruoli / gruppi..."
+                           tableId="$ug"
+                           tag="true"
+                           visible="true"
+                           value="@(string.Join(",",Model.ReferentList.Select(r=>r.Id).ToArray()))">
+                    <label><strong>Referenti in C.C.</strong></label>
+                    <input id="ReferentListCC"
+                           name="ReferentListCC"
+                           tag="true"
+                           type="lookup"
+                           placeholder="utenti / ruoli / gruppi..."
+                           tableId="$ug"
+                           visible="true"
+                           value="@(string.Join(",",Model.ReferentListCC.Select(r=>r.Id).ToArray()))">
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <div class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target=".avanzate">
+                <i class="fa fa-sliders" style="color:#aab;width:20px;margin-left:-4px"></i> <strong> Impostazioni Avanzate</strong>
+            </div>
+            <div class="avanzate collapseOne accordion-collapse collapsed collapse">
+                <div style="margin:20px 0;">
+
+                    <label for="ExternalId"><strong>Codice Identificativo Univoco</strong></label>
+                    <input type="textbox"
+                           maxlength="256"
+                           name="ExternalId"
+                           id="ExternalId"
+                           tableId="$$t"
+                           tag="false"
+                           visible="true"
+                           value="@Model.ExternalId" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+
+    function CollectFields() {
+
+        var FieldGuidArray = $(".EditMeta [FieldIndex]");
+        var fields = [];
+        FieldGuidArray.each((i, FieldIdentifier) => {
+
+            var $F = $(FieldIdentifier);
+            var FieldIndex = $F.attr("FieldIndex");
+            var FieldTypeId = $F.attr("FieldType");
+            var FieldGUID = $F.attr("FieldName");
+            var FieldValue = $F.val();
+            fields.push({
+                FieldIndex: FieldIndex,
+                FieldIdentifier: FieldGUID,
+                FieldTypeId: FieldTypeId,
+                Value: FieldValue
+            })
+
+        })
+        return fields;
+    }
+
+    var IgnoreUniqueId = false;
+
+    function SaveEditDocument() {
+        //raccolgo i dati degli input , secondo la struttura CreateOrUpdateDocument
+        var bodyObj = getFormValues("htmlform");
+        //raccolgo i metadati, secondo la struttura  AddOrUpdateDocumentField
+        bodyObj['fieldList'] = CollectFields();
+        //aggiungo dati aggiuntivi
+        bodyObj["status"] = @((int)Model.DocumentStatus);
+        bodyObj["contentType"] = @((int)Model.ContentType);
+            bodyObj["documentTypeId"] = "@(Model.DocumentType?.Id)";
+        bodyObj["folderId"] = @(Model.FolderId);
+        if (!bodyObj["documentDate"]) bodyObj["documentDate"] = null;
+        if (!bodyObj["expirationDate"]) bodyObj["expirationDate"] = null;
+        if (bodyObj["iconColor"] == "#000000") bodyObj["iconColor"] = null;
+        bodyObj["failIfExists"] = !IgnoreUniqueId;
+
+        var VerificationCode = "";
+        var RequestVerificationCode = document.getElementsByName("__RequestVerificationToken");
+        if (RequestVerificationCode.length > 0) {
+            VerificationCode = RequestVerificationCode[0].value;
+            var body = JSON.stringify(bodyObj);
+            ShowRequiredPopupJS("htmlform");//faccio comparire i popup manualmente in caso di campi non validi
+            if (document.forms["htmlform"].reportValidity()) { //controllo la validità dei campi
+                $.ajax({
+                    url: "/internalapi/document/@Model.Id",
+                    type: "PUT",
+                    headers: {
+                        RequestVerificationToken: VerificationCode,
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                    },
+                    data: body
+                })
+                    .done(function (doc) {
+                        if (doc.id < 0) {
+                            if (!IgnoreUniqueId) {
+                                if (confirm(doc.description + "\n\nVuoi forzare l'archiviazione creando un duplicato ?")) {
+                                    if (confirm("Sei sicuro di voler archiviare questo documento con le stesse informazioni di un altro ?")) {
+                                        IgnoreUniqueId = true;
+                                        SaveEditDocument();
+                                    }
+                                }
+                            }
+                            else {
+                                ShowMessage("alert", doc.description, 'Message_Target', "/?Type=" + "@Model.DocumentType?.Id");
+                            }
+                            return false;
+                        }
+                        IgnoreUniqueId = false;
+                        window.location.reload();
+                    })
+                    .fail(function (err) {
+                        try {
+                            var e = JSON.parse(err.responseText);
+                            ShowMessage("alert", e.title + "\n\n" + e.errors.document[0], 'Message_Target', "/?Type=" + "@Model.DocumentType?.Id");
+                        }
+                        catch {
+                            ShowMessage("alert", err.responseText, 'Message_Target', "/?Type=" + "@Model.DocumentType?.Id");
+                        }
+
+                    })
+            }
+        }
+        return false;
+    }
+
+
+    function SetIcon(target) {
+        var icon = $("#Icon");
+        icon.val(target.className);
+        UpdateIcon();
+    }
+
+    function UpdateIcon() {
+        var icon = $("#Icon").val();
+        var iconSpan = $("#IconSpan")[0];
+        iconSpan.className = icon;
+    }
+
+
+    function ExpirationStrategy(Strategy) {
+        switch (Strategy) {
+            case '@ExpirationStrategy.CreationDate.ToString()': //la data di scadenza viene calcola come Data di oggi + Giorni scadenza
+                $('#ExpirationDate').attr("readonly", true);
+                $('#ExpirationDate').val('@(Model.CreationDate.AddDays((double)(Model.DocumentType?.ExpirationDays ?? 0)).ToString("yyyy-MM-dd"))');
+                break;
+            case '@ExpirationStrategy.DocumentDate.ToString()': //la data di scadenza viene calcola come Data Documento + Giorni scadenza
+                $('#ExpirationDate').attr("readonly", true);
+                $('#documentDateLabel').on('change', function () {
+                    $('#ExpirationDate').val('@(Model.DocumentDate?.AddDays((double)(Model.DocumentType?.ExpirationDays ?? 0)).ToString("yyyy-MM-dd"))');
+                })
+                break;
+            case '@ExpirationStrategy.ProtocolDate.ToString()':  //la data di scadenza viene calcola come Data Competenza(protocollo) + Giorni scadenza
+                $('#ExpirationDate').attr("readonly", true);
+                $('#ProtocolDate').on('change', function () {
+                    $('#ExpirationDate').val('@(Model.Protocol?.Date.AddDays((double)(Model.DocumentType?.ExpirationDays ?? 0)).ToString("yyyy-MM-dd"))');
+                })
+                break;
+
+        }
+
+    }
+
+</script>

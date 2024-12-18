@@ -1,0 +1,25 @@
+﻿@using Web.DTOs;
+@model ReportData
+
+@if (Model.Definition != null)
+{
+    <div class="SubHeader">
+        <h2>  
+            <i class="@Model.Definition.Icon"></i>@Model.Definition.Title
+            <small>@Model.Definition.Description</small>
+        </h2>
+    </div>
+
+    @foreach (var M in Model.Data)
+    {
+        <div class="QueryBox">
+            @await Component.InvokeAsync("FileExplorer", M)
+        </div>
+    }
+    @if (Model.Definition.DetailPanel)
+    {
+@*         <div class="DetailPanel">
+        </div> 
+ *@
+    }
+}

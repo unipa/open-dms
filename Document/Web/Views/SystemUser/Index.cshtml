@@ -1,0 +1,111 @@
+﻿@using Microsoft.Extensions.Configuration
+@using OpenDMS.Domain.Entities;
+@using Web.DTOs;
+@model UserDetails_DTO;
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "Profilo Utente";
+    Layout = "_AdminSystemUserLayout";
+    }
+<script>
+
+    $(document).ready(function () {
+        //SelezionaMenu("fa-table");
+
+        $(function () {
+
+            if (`@Model.ErrorMessage` !== '') ShowMessage('alert', `@Html.Raw(Model.ErrorMessage)`, 'Message_Target', 'BancheDati');
+            if (`@Model.SuccessMessage` !== '') ShowMessage('success', '@Html.Raw(Model.SuccessMessage)', 'Message_Target', null);
+
+            //Per aggiungere e togliere la classe Active agli elementi della lista laterale
+            Carica("liCustomize-ProfiloUtente");
+
+            //codice per far svanire i messaggi di successo
+            //FadeOutSuccessMessagge(3000);
+
+        });
+    })
+</script>
+
+
+
+
+<div class="ListPanel">
+
+    <div id="Message_Target"></div>
+    <div class="container">
+
+    <h3>
+        <i class="fa fa-user"></i>
+        <span>Profilo Utente di Sistema</span>
+        <a href="/Admin/SystemUser/EditUser" class="pull-right btn btn-primary">
+            <i class="fa fa-pencil"></i> Modifica...
+        </a>
+    </h3>
+    </div>
+    <div class="Panel">
+
+
+        <div class="Row">
+            <label>Nome Utente</label>
+            <span>
+                @Model.FullName
+            </span>
+        </div>
+        <br />
+        <h3>Notifiche</h3>
+        <div class="Row">
+            <label>Modalità</label>
+            <span>
+                @Model.Notification
+            </span>
+        </div>
+            <div class="Row">
+                <label>Recapito</label>
+                <span>
+                    @Model.NotificationMailAddress
+                </span>
+            </div>
+
+            <br />
+            <h3>Dati Anagrafici</h3>
+
+
+            <div class="Row">
+                <label>Cognome</label>
+                <span>
+                    @Model.SurName
+                </span>
+            </div>
+            <div class="Row">
+                <label>Nome</label>
+                <span>
+                    @Model.FirstName
+                </span>
+            </div>
+            <div class="Row">
+                <label>Documento</label>
+                <span>
+                    @Model.IdentityDocument
+                </span>
+            </div>
+            <div class="Row">
+                <label>Nr.Documento</label>
+                <span>
+                    @Model.IdentityDocumentId
+                </span>
+            </div>
+            <div class="Row">
+                <label>Nazione</label>
+                <span>
+                    @Model.Country
+                </span>
+            </div>
+
+    </div>
+
+</div>
+
+<div class="MainPanel">
+</div>
+

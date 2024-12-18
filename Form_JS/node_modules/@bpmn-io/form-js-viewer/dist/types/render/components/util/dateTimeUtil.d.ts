@@ -1,0 +1,12 @@
+export function focusRelevantFlatpickerDay(flatpickrInstance: any): void;
+export function formatTime(use24h: any, minutes: any): string;
+export function parseInputTime(stringTime: any): number;
+export function serializeTime(minutes: any, offset: any, timeSerializingFormat: any): string;
+export function parseIsoTime(isoTimeString: any): number;
+export function serializeDate(date: any): string;
+export function isDateTimeInputInformationSufficient(value: any): boolean;
+export function isDateInputInformationMatching(value: any): boolean;
+export function serializeDateTime(date: any, time: any, timeSerializingFormat: any): string;
+export function formatTimezoneOffset(minutes: any): string;
+export function isInvalidDateString(value: any): boolean;
+export const ENTER_KEYDOWN_EVENT: KeyboardEvent;

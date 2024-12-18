@@ -1,0 +1,93 @@
+﻿<!-- RICORDARE!!! :
+    IN QUESTA PAGINA VENGONO GESTITI DEGLI INPUT DI METADATI.
+
+    -Nel caso di campi prioritari aggiungere all'input la classe 'defaultProperties'.
+    -Nel caso di campi custom aggiungere all'input la classe 'customProperties'.
+
+-->
+
+<div class="row mt-4">
+    <div class="col-md-6 mb-4">
+        <label class="active" for="defaultValue">Valore Predefinito</label>
+        <input type="text" class="defaultProperties" id="defaultValue">
+    </div>
+    <!--<div class="form-group col-md-6 mb-4">
+        <label class="active" for="classe">Classe CSS</label>
+        <input type="text" max="25" class="customProperties" id="Classe">
+    </div>-->
+</div>
+
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <input type="checkbox" class="defaultProperties" id="tag">
+        <label for="tag">Tag <small>Accetta valori multipli</small></label>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3 mb-4">
+
+        <h3>Controlli</h3>
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <label for="MinValue">Valore Minimo </label>
+                <input type="number" class="customProperties" id="MinValue">
+            </div>
+            <div class="col-md-6 mb-4">
+                <label for="MaxValue">Valore Massimo </label>
+                <input type="number" class="customProperties" id="MaxValue" value="999999999">
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-9 mb-4">
+        <h3>Formattazione</h3>
+
+        <div class="row">
+            <div class="col-md-2 mb-4">
+                <label for="Prefix">Prefisso</label>
+                <input type="text" class="customProperties" id="Prefix" value="">
+            </div>
+
+            <div class="col-md-3 mb-4">
+                <label for="FormatMask">Formattazione</label>
+                <input type="text" class="customProperties" id="FormatMask" value="#.###">
+            </div>
+            <div class="col-md-2 mb-4">
+                <label for="Length">Caratteri</label>
+                <input type="number" class="customProperties" id="Length" value="5">
+            </div>
+            <div class="col-md-1 mb-4">
+                <label for="Filler">Filler</label>
+                <select class="customProperties" id="Filler" style="width:100%">
+                    <option value=" "> </option>
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="#">#</option>
+                    <option value="_">_</option>
+                    <option value="-">-</option>
+                </select>
+            </div>
+            <div class="col-md-2 mb-4">
+                <label for="DecimalDigit">Decimali</label>
+                <input type="number" class="customProperties" id="DecimalDigit" value="2">
+            </div>
+            <div class="col-md-2 mb-4">
+                <label for="Suffix">Suffisso</label>
+                <input type="text" class="customProperties" id="Suffix" value="">
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+

@@ -1,0 +1,102 @@
+/*CSS PER LA TOOLBAR*/
+.toolbar {
+  background-color: #eee;
+  position: fixed;
+  display: block;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 10%;
+  padding: 1%;
+}
+
+.toolbar button {
+  background-size: 25px 25px;
+  width: 25px;
+  height: 25px;
+  background-position: center;
+  transition: transform 0.2s ease-in-out;
+}
+
+.toolbar button:hover {
+  transform: scale(1.2);
+}
+
+/*Stili per i bottoni presenti sulla toolbar*/
+
+#zoom-in-button {
+  background-image: url("../img/ZoomIn.png");
+}
+
+#zoom-out-button {
+  background-image: url("../img/ZoomOut.png");
+}
+
+#zoom100H-button {
+  background-image: url("../img/zoom100H.png");
+}
+
+#zoom100W-button {
+  background-image: url("../img/zoom100W.png");
+}
+
+#first-page-button {
+  background-image: url("../img/First.png");
+}
+
+#prev-page-button {
+  background-image: url("../img/Left.png");
+}
+
+#next-page-button {
+  background-image: url("../img/Right.png");
+}
+
+#last-page-button {
+  background-image: url("../img/Last.png");
+}
+
+#load-more-button {
+  background-color: #cacaca;
+  color: black;
+}
+
+#load-more-button:hover {
+  transform: scale(1.06);
+}
+
+/*Stili per immagini caricate nella versione estesa*/
+.LoadedImages {
+  border: solid #d2d2d2 2px;
+  margin-top: 2%;
+  margin-bottom: 2%;
+  max-width: 98%;
+  min-width: 18%;
+}
+
+.ObscuredImages {
+  filter: blur(4px);
+}
+
+.SelectedImage {
+  border: solid #19aa8d 2px;
+}
+
+.Zoom100W {
+  width: 100%;
+  height: auto;
+  object-fit: contain; /* per mantenere le proporzioni dell'immagine */
+}
+
+.Zoom100H {
+  height: 85vh;
+  width: auto;
+  object-fit: contain; /* per mantenere le proporzioni dell'immagine */
+}
+.no-image-service {
+  display: flex;
+  justify-content: center;
+  border: 1px solid;
+  padding: 5px 10px;
+  height: 100px;
+}

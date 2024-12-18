@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "OpenDMS.Tasklist.API.Tests": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:54825;http://localhost:54826"
+    }
+  }
+}

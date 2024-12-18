@@ -1,0 +1,19 @@
+# Utilizza l'immagine ufficiale di Node.js come base
+FROM node:16
+
+# Crea la directory dell'applicazione
+WORKDIR /app
+
+# Copia il package.json e package-lock.json nella cartella /app
+COPY Modeler/package*.json ./
+
+# Copia la cartella node_modules personalizzata nella directory di lavoro
+COPY Modeler/node_modules/ ./node_modules/
+
+COPY Modeler .
+
+USER root
+RUN chmod 777 . -R 
+
+# Avvia l'applicazione
+CMD ["npm", "run", "start"]

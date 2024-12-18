@@ -1,0 +1,152 @@
+﻿@using Microsoft.Extensions.Configuration
+@using OpenDMS.Domain.Entities;
+@using Web.DTOs;
+@model UserDetails_DTO;
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "Impostazioni Utente";
+    Layout = "_CustomizeLayout";
+}
+
+<script>
+
+    $(document).ready(function () {
+        $(function () {
+
+            if (`@Model.ErrorMessage` !== '') ShowMessage('alert', `@Html.Raw(Model.ErrorMessage)`, 'Message_Target', 'BancheDati');
+            if (`@Model.SuccessMessage` !== '') ShowMessage('success', '@Html.Raw(Model.SuccessMessage)', 'Message_Target', null);
+
+            //Per aggiungere e togliere la classe Active agli elementi della lista laterale
+            Carica("liCustomize-ProfiloUtente");
+
+        });
+    })
+</script>
+
+
+
+
+<div class="MainPanel">
+    <div class="Header">
+        <span style="padding:16px 12px" class="Desktop fa fa-bars" onclick="$('.ListPanel').addClass('hiddenOnMobile');$('.LeftMenu').addClass('active');"></span>
+        <i class="fa fa-user-circle"></i>
+        <h1>
+            <small>Profilo Utente</small>
+            <span>Informazioni</span>
+        </h1>
+
+        <div class="right-header">
+            <ul class="nav nav-toolbar">
+                <li>
+                    <a href="/Customize/EditUser">
+                        <i class="fa fa-pencil"></i> Modifica...
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+
+    <div id="Message_Target"></div>
+
+    <div class="MainPanel">
+        <ul class="nav nav-list disabled">
+            <li class="header">
+                <h6>Identità</h6>
+            </li>
+            <li>
+                <div class="Row">
+                    <label>Account:</label>
+                    <span>@User.Identity.Name</span>
+                </div>
+                <div class="Row">
+                    <label>Nome:</label>
+                    <span>@Model.FullName</span>
+                </div>
+                <div class="Row">
+                    <label>Posta Elettronica:</label>
+                    <span>@(User.Claims.FirstOrDefault(c => c.Type == "email")?.Value ?? "Nessuna")</span>
+                </div>
+                <div class="Row">
+                    <label>Identity Manager:</label>
+                    <span></span>
+                </div>
+            </li>
+            <li class="header">
+                <h6>Dati Anagrafici</h6>
+            </li>
+            <li>
+                <div class="Row">
+                    <label>Cognome</label>
+                    <span>
+                        @Model.SurName
+                    </span>
+                </div>
+                <div class="Row">
+                    <label>Nome</label>
+                    <span>
+                        @Model.FirstName
+                    </span>
+                </div>
+                <div class="Row">
+                    <label>Data di Nascita</label>
+                    <span>
+                        @Model.BirthDate
+                    </span>
+                </div>
+                <div class="Row">
+                    <label>Codice Fiscale</label>
+                    <span>
+                        @Model.FiscalCode
+                    </span>
+                </div>
+                <div class="Row">
+                    <label>Nazione</label>
+                    <span>
+                        @Model.Country
+                    </span>
+                </div>
+            </li>
+            <li class="header">
+                <h6>Notifiche</h6>
+            </li>
+
+            <li>
+                <div class="Row">
+                    <label>Modalità</label>
+                    <span>
+                        @Model.Notification
+                    </span>
+                </div>
+                @if (Model.NotificationType == "MAIL")
+                {
+                    <div class="Row">
+                        <label>Recapito</label>
+                        <span>
+                            @Model.NotificationMailAddress
+                        </span>
+                    </div>
+                }
+            </li>
+
+            @if (Model.Settings.Count > 0)
+            {
+                <li class="header">
+                    <h6>Altre Informazioni</h6>
+                </li>
+
+                @foreach (var M in Model.Settings)
+                {
+                    <li>
+                        <div class="Row">
+                            <label>@M.Key</label>
+                            <span>@M.Value"</span>
+                        </div>
+                    </li>
+                }
+            }
+        </ul>
+
+    </div>
+
+</div>

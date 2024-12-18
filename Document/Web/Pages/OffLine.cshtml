@@ -1,0 +1,32 @@
+﻿@page
+@model OfflineModel
+@{
+    ViewData["Title"] = "OffLine";
+    Layout = "";
+}
+<style>
+    .btn 
+    {
+        border: 2px outset rgba(100, 100, 100, 0.5);
+        border-radius: 5px;
+        padding: 8px 24px;
+        background: rgba(128, 128, 128, .1);
+        text-decoration: none;
+        font-weight: 700;
+        color: #222;
+    }
+
+
+</style>
+<div style="text-align:center; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">
+    <img src="~/images/under_maintanance.webp" />
+    <h1 style="font-size:3em;margin-top:-1em">Sito In Manutenzione</h1>
+    <p style="font-size:1.5em; color: #666;margin-top:-1.5em">
+        Stiamo effettuando degli aggiornamenti
+    </p>
+    <p>
+        La piattaforma tornerà operativa alle ore
+    </p>
+    <h1 style="margin-top:-.1em;">@Model.Timeout</h1>
+    <a class="btn" href="/" >Riprova</a>
+</div>

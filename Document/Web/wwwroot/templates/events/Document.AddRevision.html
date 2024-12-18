@@ -1,0 +1,32 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <div>
+        <input type="hidden" name="ExitCode" id="ExitCode" value="0" />
+        <a href="#" onclick="Edit()" class="btn btn-outline-primary">Modifica il documento</a>
+        <br />
+        <label>
+            Oppure annulla l'istanza motivandone le ragioni
+        </label>
+        <div class="MainPanel">
+            <textarea required id="Justification" name="Justification" rows="3"></textarea>
+        </div>
+    </div>
+    <script>
+        var doc = 0;
+        function Start(data) {
+            InizializzaTextEditor("#Justification", "", null, "200px");
+            if (data) doc = data.DocumentId;
+        }
+
+        function Edit() {
+            window.OpenModal("/EditForm?documentId=" + doc);
+        }
+
+    </script>
+</body>
+</html>

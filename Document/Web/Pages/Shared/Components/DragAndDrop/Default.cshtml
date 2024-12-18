@@ -1,0 +1,160 @@
+﻿@using Microsoft.Extensions.Configuration
+@using OpenDMS.Domain.Entities;
+@using OpenDMS.Domain.Enumerators;
+@using Web.Model;
+@inject IConfiguration Configuration;
+@model DragAndDropViewModel
+@{
+}
+
+<style>
+    .dropzone {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        z-index: 10;
+        position: relative;
+        border: none;
+        padding: 20px;
+        display: flex;
+        justify-content: space-evenly;
+        align-items: flex-start;
+        text-align: center;
+        font-size: 18px;
+        background: transparent;
+        flex-direction:row;
+        overflow: hidden;
+        border: 4px dashed #6ad;
+    }
+    .dropzone *
+    {
+        pointer-events: none;
+
+    }
+    .img {
+        width: 100%;
+    }
+
+    .dz-preview {
+        display: none;
+    }
+
+</style>
+
+<script>
+
+
+    $(document).ready(function () {
+
+        if ("@Model.ErrorMessage" !== '') ShowMessage('alert', '@Model.ErrorMessage', 'Message_Target', 'Index');
+
+        Dropzone.options.myForm = {
+            paramName: "file",
+            disablePreviews: true,
+            init: function () {
+                var ProgressBarContainer = document.querySelector(".progress-bar-wrapper");
+                var progressBar = ProgressBarContainer.querySelector(".progress-bar");
+                var progressBarText = document.querySelector("#progress-text");
+
+                this.on("addedfile", function (file) {
+                    ProgressBarContainer.style.display = "block";
+                    
+                });
+
+                this.on("success", function (file, response) {
+                    ShowMessage("success", "Caricamento completato!", 'Message_Target', 'Index');
+                    $("#loading-text").fadeOut(10);
+                    $("#success-text").fadeIn(500);
+                    ProgressBarContainer.style.display = "none";
+                    this.disable();
+                    //redirect della modale corrente alla preview del documento
+                    window.location = "/?id=@Model.DocId&modalView=@Model.ModalView";
+                });
+
+                this.on("uploadprogress", function (file, progress, bytesSent) {
+                    
+                    progressBar.style.width = progress + "%";
+                    $("#progress-text").html(Math.round(progress) + "%");
+                });
+
+                this.on("error", function (file, errorMessage, xhr) {
+                    console.error("Errore durante il caricamento del file:", errorMessage);
+                    ShowMessage('alert', errorMessage, 'Message_Target', 'Index');
+                    ProgressBarContainer.style.display = "none";
+                });
+
+            },
+        };
+
+    })
+
+</script>
+
+<div id="image" style="position:relative;" class="img upload-dragdrop">
+    <form id="myForm" action="internalapi/Content/uploadcontent/@Model.DocId" method="POST" class="dropzone">
+        <div class="dz-message" data-dz-message></div>
+        <img src="/bootstrap-italia/assets/upload-drag-drop-icon.svg" style="
+            height: 128px;
+            width: 128px;
+            margin: auto;
+            border-radius: 99%;
+            " />
+        <div class="upload-dragdrop-text" style="text-align: right; flex-grow:1">
+            <div id="loading-text">
+                <h5>Trascina qui un file</h5>
+                <label for="upload7">oppure <b>clicca col mouse</b> per sceglierlo dal tuo dispositivo</label>
+                <br />
+            </div>
+            <div id="success-text" style="display:none;">
+                <h5>File Caricato.</h5>
+            </div>
+            <div class="progress-bar-wrapper ps-4" style="display:none;">
+                <div class="progress-bar-label"><p id="progress-text">0%</p></div>
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+            <p class="upload-dragdrop-weight">
+                <svg class="icon icon-xs" aria-hidden="true">
+                    <use href="/bootstrap-italia/svg/sprites.svg#it-file"></use>
+                </svg>
+            </p>
+        </div>
+
+    </form>
+ @*   <div style="height: 100%;width:100%;position: absolute;top: 0;left: 0;">
+        <div style="height: 100%;width:100%;position: relative;">
+            <img src="/bootstrap-italia/assets/upload-drag-drop-icon.svg" style="
+            height: 100%;
+            width: auto;
+            position: absolute;
+            z-index: -1;
+            left: 0;
+            margin: auto;
+            border-radius: 99%;
+            " />
+
+        </div>
+        <div class="upload-dragdrop-text p-3" style="text-align: -webkit-right; position: absolute;top: 0;right: 0;">
+            <p class="upload-dragdrop-weight">
+                <svg class="icon icon-xs" aria-hidden="true">
+                    <use href="/bootstrap-italia/svg/sprites.svg#it-file"></use>
+                </svg>
+            </p>
+            <div id="loading-text">
+                <h5>Trascina il file per caricarlo</h5>
+                <p> oppure <label for="upload7">selezionalo dal dispositivo</label></p>
+            </div>
+            <div id="success-text" style="display:none;">
+                <h5>File Caricato.</h5>
+            </div>
+            <div class="progress-bar-wrapper ps-4" style="display:none;">
+                <div class="progress-bar-label"><p id="progress-text">0%</p></div>
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+*@
+</div>

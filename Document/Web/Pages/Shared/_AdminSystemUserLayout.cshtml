@@ -1,0 +1,39 @@
+﻿@{
+    ViewData["Title"] = "Impostazioni Utente di Sistema";
+    Layout = "_AdminLayout";
+}
+
+<script src="~/adminjs/admin.js"></script>
+<div class="Page">
+    <div class="LeftMenu">
+        <div class="InsidePanel">
+            <div class="nav-icon d-flex justify-content-center">
+                <img class="avatar size-xxl" src="/internalapi/identity/avatar/0$system$" />
+            </div>
+            <ul class="nav nav-list">
+                <li codice="liCustomize-ProfiloUtente">
+                    <a href="/Admin/SystemUser/Index"><i class="fa fa-info-circle"></i> Profilo Utente</a>
+                </li>
+                <li codice="liCustomize-Avatar">
+                    <a href="/Admin/SystemUser/Avatar"><i class="fa fa-user"></i> Immagine</a>
+                </li>
+                <li codice="liCustomize-UserEmail">
+                    <a href="/Admin/SystemUser/Email"><i class="fa fa-envelope"></i> Mail</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="Page">
+        @RenderBody()
+    </div>
+</div>
+<script>
+    $(document).ready(() => {
+        $(".mnuAdminUserProfile").addClass("active");
+    });
+</script>
+
+                    @section HeaderTitle
+                    {
+                        Utente di Sistema
+                    }

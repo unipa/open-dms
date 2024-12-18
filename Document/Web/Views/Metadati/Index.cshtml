@@ -1,0 +1,166 @@
+﻿@using Microsoft.Extensions.Configuration;
+@using Web.Model.Admin;
+@inject IConfiguration Configuration;
+@model MetadatiViewModel;
+@{
+    ViewData["Title"] = "Metadati";
+    Layout = "_AdminLayout";
+}
+
+<script src="~/adminjs/Metadati/EditType.js"></script>
+
+<script>
+    var PopupWindow = undefined;
+
+    $(document).ready(() => {
+        $(".mnuAdminMetadati").addClass("active");
+    });
+
+</script>
+
+@section HeaderTitle
+{
+    Metadati
+}
+
+<div id="Message_Target"></div>
+<div class="Page">
+    <div class="ListMenu InsidePanel">
+        <div class="Content">
+            <input type="text" onkeyup="FilterTypes(this)" placeholder="Filtra...">
+        </div>
+
+        <div class="Panel">
+            <div class="List">
+            </div>
+        </div>
+
+    </div>
+
+    <div class="Panel" data-bind="with: Current">
+        <div class="Row" data-bind="visible: id()">
+            <h2 class="col-9">
+                <span data-bind="text: name"></span>
+                <small data-bind="text: id"></small>
+            </h2>
+            <div class="col-3">
+                <div class="pull-right">
+                    <button type="button" class="btn btn-link" data-bind="click: $root.Remove, visible: $root.SelectedtypesValue()">
+                        <i class="fs-3 fa fa-xl fa-trash-o"></i>
+                    </button>
+                    <button class="btn btn-primary" data-bind="click: $root.Save, visible: $root.SelectedtypesValue">Memorizza</button>
+                </div>
+            </div>
+        </div>
+        <div class="Row" data-bind="visible: !id()">
+            <h2 class="col-8">
+                Nuovo Metadato
+            </h2>
+
+            <div class="col-4" mb-4>
+
+                <button class="btn btn-primary  pull-right" data-bind="click: $root.Create, visible: !$root.SelectedtypesValue()">Crea nuovo</button>
+            </div>
+
+        </div>
+
+        <div class="MainPanel">
+
+            <div class="row mt-4">
+                <div class="col-4 mb-4">
+                    <label class="active" for="newId">Id</label>
+                    <input type="text" required data-bind="value: $root.newId, disabled: $root.newId, uniqueName: true" id='newId' />
+                </div>
+
+                <div class="col-5 mb-4">
+                    <label class="active" for="Nome">Nome</label>
+                    <input type="text" required data-bind="value: name, uniqueName: true" id='Nome' />
+                </div>
+                <div class="col-3 mb-4">
+                    <label class="active" for="Tipo">Tipologia</label>
+                    <select style="width:100%" data-bind="options: $root.DataTypes, optionsText: 'name', optionsValue: 'id', value: dataType, enable: !id(), event: { change: $root.ResetFormTipologia } " id='Tipo'></select>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="mb-4">
+                    <label class="active">Note</label>
+                    <textarea id="Note" maxlength="250" data-bind="value: description, uniqueName: true" rows="2"></textarea>
+                </div>
+            </div>
+
+@*             <h4 class="contenutoPanel pb-2">Contenuto</h4>
+ *@
+            <div id="FormCustomProperties">
+            </div>
+
+            <h4>Avanzate</h4>
+
+            <div class="row mt-4">
+                <div>
+                    <label for="pubblico">
+                        <input type="checkbox" data-bind="checked: searchable" id='pubblico' />
+                        Ricercabile
+                        <span class="btn btn-xs fade show" data-container="body" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-placement="right" data-html="true" data-bs-content="viene mostrato nei filtri di ricerca">
+                            ?
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="row">
+                <div>
+                    <label for="Encrypted">
+                        <input type="checkbox" data-bind="checked: encrypted" id='Encrypted' />
+                        Cifrato
+                        <span class="btn btn-xs fade show" data-container="body" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-placement="right" data-html="true" data-bs-content="Utilizzare per proteggere dati personali o riservati">
+                            ?
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+
+
+        </div>
+
+    </div>
+</div>
+
+<script language="javascript" type="text/javascript">
+
+    var model;
+
+    $("#liCurrentDB").addClass("active");
+    $("#liadmin-metadata").addClass("active");
+
+    function FilterTypes(me) {
+        var v = $(me).val().toLowerCase();
+        var l = $(".List a");
+        $(l).each(function (i, e) {
+            var ok = $(e).find("span, sub").text().toLowerCase().indexOf(v) >= 0 || i == 0;
+            if (!ok)
+                $(e).parent().css("display", "none");
+            else
+                $(e).parent().css("display", "");
+
+        });
+
+    }
+    function Refresh() {
+        model.Refresh();
+    }
+    $(document).ready(function () {
+
+        //$('#spylist').scrollspy();
+        model = new viewModel("#view");
+        ko.applyBindings(model, $("#view")[0]);
+    });
+</script>
+<script type="text/html" id="StringStyle">
+    <div>
+    </div>
+</script>
+
+
+

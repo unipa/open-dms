@@ -1,0 +1,16 @@
+﻿@{
+    Layout = "_Layout";
+
+}
+<main role="main">
+
+    <div class="MainMenu">
+
+        @await  Component.InvokeAsync("MainMenuPanel")
+
+    </div>
+    <div class="MainWindow">
+        @RenderBody()
+    </div>
+</main>
+

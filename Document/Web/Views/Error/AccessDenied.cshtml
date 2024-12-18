@@ -1,0 +1,19 @@
+﻿@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@{
+    ViewData["Title"] = "Accesso negato";
+    Layout = "_MenuLayout";
+}
+<div class="Header">
+    @await  Component.InvokeAsync("CompanyLogo")
+</div>
+
+<div class="InfoPanel">
+    <i class="fa fa-ban"></i>
+    <h1>Accesso negato</h1>
+    <h4>Non disponi di autorizzazioni sufficienti per l'accesso alla risorsa richiesta</h4>
+    <button type="button" class="mt-5 btn btn-secondary" href="#" onclick="return history.back()">
+        Torna indietro
+    </button>
+</div>
+

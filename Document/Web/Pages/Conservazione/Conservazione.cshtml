@@ -1,0 +1,87 @@
+﻿@page
+@model Web.Pages.ConservazioneModel
+@{
+    ViewData["Title"] = "Pagina di Conservazione";
+    Layout = "_ConservazioneLayout";
+}
+
+<div class="MainWindow">
+    <div class="Header">
+        <i class="fa fa-certificate"></i>
+        <h1>
+            <small>
+                Conservazione
+            </small>
+            <span id="HeaderTitle">Completare la conservazione</span>
+        </h1>
+        <div class="right-header">
+            <a href="#" onclick="return CloseWindow()"><i class="fa fa-times"></i></a>
+        </div>
+    </div>
+
+
+        <div id="ContentPanel" class="MainPanel FullHeight" style="height: 529px; position: relative;">
+
+            <div id="Table" style="position: relative; height: 529px;" class="FullHeight">
+
+                <div style="position: relative; height: 529px;" class="FullHeight">
+                                           
+
+                    <table id="Grid" class="table table-hover">
+                        <thead>
+                            <tr id="Riga_${ID}">
+                                <th nowrap="" style="max-width:80px">P.d.A.</th>
+                                <th nowrap="" style="text-align:right;max-width:50px;min-width:50px">Anno</th>
+                                <th nowrap="" style="width:100%">Tipologia</th>
+                                <th nowrap="" style="text-align:right;max-width:60px;min-width:60px">Gruppo</th>
+                                <th nowrap="" style="max-width:100px">Documenti</th>
+                                <th nowrap="" style="max-width:150px;min-width:150px">Produttore</th>
+                                <th nowrap="" style="text-align:right;max-width:160px;min-width:160px">Data Acquisizione</th>
+                                <th nowrap="" style="max-width:240px;min-width:240px"></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="TableBody"></tbody>
+                    </table>
+                </div>
+                <div style="position:absolute;right:8px;top:6px;display:none">
+                    <a href="#" id="firma" class="btn btn-warning" onclick="Genera_Impronte_Sincro()" style="display: none;"><i class="fa fa-pencil"></i> Firma tutto</a>
+                </div>
+            </div>
+
+
+
+        </div>
+
+</div>
+
+<script>
+    $(document).ready(() => {
+        $(".mnuConservazione").addClass("active");
+        
+                $.ajax({
+                    url: '@Model.EndPointConservazione', 
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {                        
+                    var table = $('#Grid tbody');
+                        $.each(data, function (index, item) {
+                            var row = $('<tr>');
+                            row.append($('<td>').text(item.pdA));
+                            row.append($('<td>').text(item.anno));
+                            row.append($('<td>').text(item.tipologia));
+                            row.append($('<td>').text(item.gruppo));
+                            row.append($('<td>').text(item.documenti));
+                            row.append($('<td>').text(item.produttore));
+                            row.append($('<td>').text(item.dataAcquisizione));
+                            table.append(row);
+                        });
+                    },
+                    error: function () {
+                        alert('Si è verificato un errore durante il recupero dei dati.');
+                    }
+                });
+            });
+    
+
+</script>

@@ -1,0 +1,450 @@
+﻿@using OpenDMS.Core.DTOs;
+@using OpenDMS.Domain.Enumerators;
+@model SearchResult
+
+<script src="/components/ImageViewer/dist/image-viewer.js" type="module"></script>
+<script src="/js/explorer/Columns.js"></script>
+
+@*
+<script src="/js/explorer/Renderer.js"></script>
+<script src="/js/explorer/Templates.js"></script>
+
+*@
+ @if (!String.IsNullOrEmpty(Model.Title))
+{
+        <div class="Content">
+            <h5>@Model.Title</h5>
+        </div>
+}
+@*
+<div class="FILE MainPanel"></div>
+*@
+
+<script>
+
+    var request = @Html.Raw(Json.Serialize(ViewData["SearchRequest"]));
+    @*
+
+    FileExplorer (".FILE", request, @ViewData["FolderId"], '@ViewData["Auths"]');
+    *@
+</script>
+
+
+<div class="nav-toolbar-container MainToolbar">
+    <ul class="nav nav-toolbar FilesToolbar hidden">
+        <li id="tbDownload">
+            <a href="#" role="button" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-download"></i> Scarica <span class="fa fa-caret-down"></span></a>
+            <ul class="dropdown-menu">
+                <li class="btnDownload"><a title="Scarica i documenti selezionati nel formato originale" onclick="return Download(false,'')" href="#"><i class="fa fa-download"></i> Documento in formato originale</a></li>
+                <li class="btnPDF"><a title="Scarica i documenti selezionati in formato PDF" onclick="return Download(false,'.pdf')" href="#"><i class="fa fa-file-pdf-o"></i> Anteprima PDF</a></li>
+            </ul>
+        </li>
+
+        @if ((bool)ViewData["CanHandleDocuments"] == true)
+        {
+
+                <li id="tbShare">
+                    <a href="#" role="button" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Condivide i documenti selezionati con altri utenti/ruoli/strutture creando una attività"><i class="fa fa-share-alt"></i> Condividi<span class="fa fa-caret-down"></span></a>
+                    <ul class="dropdown-menu">
+                        <li id="tbShare"><a title="Condivide i documenti selezionati con altri utenti/ruoli/strutture creando una attività" href="#" onclick="return Share()"><i class="fa fa-bell"></i> Invia messaggio interno...</a></li>
+
+                        <li class="separator"></li>
+                        <li id="tbFolder"><a title="Inserisce i documenti selezionati in uno o più fascicoli" href="#" onclick="return AddFolder()"><i class="fa fa-folder"></i> Inserisci in fascicoli...</a></li>
+                    </ul>
+                </li>
+        }
+        <li id="tbCopy"><a title="Copia i documenti selezionati negli appunti della piattaforma" href="#" onclick="return Copy()"><i class="fa fa-files-o"></i> Copia</a></li>
+        @if ((bool)ViewData["CanSign"] == true)
+        {
+                    <li id="tbSign"><a title="Avvia un processo di firma digitale sui documenti selezionati" href="#" onclick="return AddDigitalSign()"><i class="fa fa-pencil"></i> Firma</a></li>
+        }
+        @if (((bool)ViewData["CanHandleDocuments"] == true && (int)ViewData["FolderId"] > 0) || (bool)ViewData["CanDelete"] == true)
+        {
+                <li>
+                    <a href="#" role="button" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-trash-o"></i> Rimuovi<span class="fa fa-caret-down"></span></a>
+                    <ul class="dropdown-menu">
+                    @if ((bool)ViewData["CanHandleDocuments"] == true && (int)ViewData["FolderId"] > 0)
+                    {
+                                <li id="tbUnFolder"><a title="Rimuove i documenti selezionati dal fascicolo senza eliminarli" href="#" onclick="return RemoveFolder(@((int)ViewData["FolderId"]))"><i class="fa fa-folder-open-o"></i> Rimuovi dal fascicolo...</a></li>
+                    }
+                    @if ((bool)ViewData["CanDelete"] == true)
+                    {
+                                <li id="tbDelete"><a href="#" title="Cancella i documenti selezionati" onclick="return Delete()"><i class="fa fa-trash-o"></i> Elimina...</a></li>
+                    }
+                    </ul>
+                </li>
+        }
+    </ul>
+    <ul class="nav nav-toolbar">
+        @if (Model.Page.Rows.Count > 0)
+        {
+                <li id="tbListView">
+                    <a href="#" onclick="return Export(request)" title="Esporta i dati in formato CSV"><i class="fa fa-file-excel-o"></i> Esporta Dati</a>
+                </li>
+        }
+    </ul>
+    <ul class="nav nav-toolbar">
+        @if (Model.Page.Rows.Count > 0)
+        {
+                <li id="tbCustomize"><a href="#" class="dropdown-item" onclick="return ShowCustomize()" title="Personalizza le colonne"><i class="fa fa-wrench"></i></a></li>
+                <li class="separator"></li>
+                <li id="tbListView"><a href="#" class="@(Model.View.ViewStyle == OpenDMS.Domain.Enumerators.ViewStyle.List ? "checked" : "")" onclick="return changeView('@(Model.View.ViewId)', 0)" title="mostra i documenti come lista"><i class="fa fa-list"></i></a></li>
+                <li id="tbGridView"><a href="#" class="@(Model.View.ViewStyle == OpenDMS.Domain.Enumerators.ViewStyle.List ? "" : "checked")" onclick="return changeView('@(Model.View.ViewId)', 1)" title="mostra i documenti come griglia"><i class="fa fa-th"></i></a></li>
+                <li class="separator"></li>
+        }
+        <li id="tbRefresh"><a href="#" title="Aggiorna i risultati" onclick="return Refresh()" title="Aggiorna l'elenco dei documenti"><i class="fa fa-refresh"></i></a></li>
+    </ul>
+
+</div>
+
+<div class="MainPanel Background">
+    @if (Model != null)
+    {
+        var columns = Model.View.Columns.Where(c => c.Settings.Visible).ToList();
+        @if (Model.Page.Rows.Count > 0)
+        {
+            @if (Model.View.ViewStyle == OpenDMS.Domain.Enumerators.ViewStyle.List)
+            {
+                            <div class="MainPanel Files">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                @if (!Model.HideSelection)
+                                {
+                                                    <th style="min-width:36px;text-align:center"><input type="checkbox" class="checkbox" onclick="return SelectAll()" /></th>
+                                }
+                                else
+                                {
+                                                    <th></th>
+                                }
+                                @for (int i = 0; i < columns.Count; i++)
+                                {
+                                    var Col = columns[i];
+                                                    <th col-id="@Col.Id" style='min-width:@(Col.Settings.Width.Replace("100%","392px"));@(Col.Settings.Width.Contains("%") ? "": "nowrap");max-width:@(Col.Settings.Width.Replace("100%","640px"));@((Col.DataType==OpenDMS.Domain.Enumerators.ColumnDataType.Date || Col.DataType==OpenDMS.Domain.Enumerators.ColumnDataType.Number) ? "text-align:right" : "")'>
+                                        @if (Col.IsSortable)
+                                        {
+                                                                <a href="#" onclick="return SortColumn('@(Model.View.ViewId)', '@Col.Id')">
+                                                                    <span>@Html.Raw(Col.Settings.Title)</span>
+                                                                    <span class="@(Col.Settings.SortType == SortingType.Ascending ? "fa fa-sort-up" : Col.Settings.SortType == SortingType.Descending ? "fa fa-sort-down" : "")"></span>
+                                                                </a>
+
+                                        }
+                                        else
+                                        {
+                                                                <span>@Html.Raw(Col.Settings.Title)</span>
+                                        }
+                                                        <a class="ShowOnHover" href="#" lass="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+                                                        <ul class="dropdown-menu">
+                                            @if (Col.DataType != ColumnDataType.Image || Col.DataType != ColumnDataType.Icon || Col.DataType != ColumnDataType.Action)
+                                            {
+                                                                    <li>
+                                                                        <a>
+                                                                            <i class="fa fa-keyboard-o"></i>
+                                                                            <span style="display:inline-block">Rinomina</span>
+                                                                            <input type="text" id="name" value="@Col.Settings.Title" placeholder="@Col.Description" onchange="RenameColumn('@Model.View.ViewId',this.parentNode.parentNode.parentNode.parentNode.getAttribute('col-id'),this)" style="margin-left:24px;margin-right:-38px;width:180px;min-height:24px !important;padding:0 !important" />
+                                                                        </a>
+                                                                    </li>
+                                                                    <li>
+                                                                        <a>
+                                                                            <i class="fa fa-arrows-h"></i>
+                                                                            <span style="display:inline-block;width:100%">Larghezzza</span>
+                                                                            <input onchange="return ResizeColumn('@(Model.View.ViewId)', this.parentNode.parentNode.parentNode.parentNode.getAttribute('col-id'), this)" type="range" min="24" max="392" step="16" id="width" style="position:absolute;right:16px;;width:120px;" value="@(Col.Settings.Width.Replace("100%","392").Replace("px",""))" />
+                                                                        </a>
+                                                                    </li>
+                                            }
+
+                                                            <li class="dropdown-divider"></li>
+                                                                    <li>
+                                                                        <a href="#" class="prev @(i>0 ? "" : "hidden")" onclick="return MoveColumnLeft('@(Model.View.ViewId)', this.parentNode.parentNode.parentNode.getAttribute('col-id'),$(this.parentNode.parentNode.parentNode).prev()[0].getAttribute('col-id'))"><i class="fa fa-arrow-left"></i> Sposta a sinistra</a>
+                                                                    </li>
+                                                                    <li>
+                                                    <a href="#" class="next @(i < columns.Count - 1 ? "" : "hidden")" onclick="return MoveColumnRight('@(Model.View.ViewId)', this.parentNode.parentNode.parentNode.getAttribute('col-id'),$(this.parentNode.parentNode.parentNode).next()[0].getAttribute('col-id'))"><i class="fa fa-arrow-right"></i> Sposta a destra</a>
+                                                                    </li>
+                                                            <li class="dropdown-divider"></li>
+                                            @if (Col.AggregateTypes != null && Col.AggregateTypes.Count > 0)
+                                            {
+                                                                    <li class="nav-header header">
+                                                                        Riepilogo
+                                                                    </li>
+                                                                    <li>
+                                                                        <a href="#" onclick="return AggregateColumn('@(Model.View.ViewId)', this.parentNode.parentNode.parentNode.getAttribute('col-id'), 0)"><i class="fa fa-calculator"></i> Nessuno</a>
+                                                                    </li>
+                                                @foreach (var A in Col.AggregateTypes)
+                                                {
+                                                                            <li>
+                                                                                <a href="#" onclick="return AggregateColumn('@(Model.View.ViewId)', this.parentNode.parentNode.parentNode.getAttribute('col-id'), @((int)A))"><i class="fa fa-calculator"></i> @FileExplorerViewComponent.Translate(A)</a>
+                                                                            </li>
+
+                                                }
+                                                                    <li class="dropdown-divider"></li>
+                                            }
+                                                            <li>
+                                                                <a href="#" onclick="ShowCustomize()"><i class="fa fa-wrench"></i> Mostra altre colonne...</a>
+                                                            </li>
+                                                            <li>
+                                                                <a href="#" onclick="return HideColumn('@(Model.View.ViewId)', this.parentNode.parentNode.parentNode.getAttribute('col-id'))"><i class="fa fa-trash-o"></i> Nascondi</a>
+                                                            </li>
+                                                        </ul>
+
+                                                    </th>
+                                }
+                                        </tr>
+                                    </thead>
+                        @foreach (var R in Model.Page.Rows)
+                        {
+                                            <tr  rowid=@R.Keys[0] onclick="return ShowDocument(@R.Keys[0],@(R.Keys[1]!="2" ?  "true" : "false"))" class="Status@(R.RowState)">
+                                @if (!Model.HideSelection)
+                                {
+                                    @if (R.Selectable)
+                                    {
+                                        <td onclick="return SelectRow(@R.Keys[0])" style="text-align:center">
+                                            <input type="checkbox" class="checkbox" />
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+                                }
+                                else
+                                {
+                                        <td></td>
+                                }
+                                @{
+                                    int i = 0;
+                                    bool first = true;
+                                }
+                                @foreach (var C in R.Columns)
+                                {
+                                    var Col = columns[i];
+                                    int index = 0;
+                                    var tindex = index;
+                                    if (Col.DataType != OpenDMS.Domain.Enumerators.ColumnDataType.Text && Col.DataType != OpenDMS.Domain.Enumerators.ColumnDataType.Number && Col.DataType != OpenDMS.Domain.Enumerators.ColumnDataType.Date)
+                                    {
+                                        if (!int.TryParse(C.Value, out index))
+                                        {
+                                            index = 0;
+                                        }
+                                        if (index >= (Col.LookupValues?.Count ?? 0))
+                                            index = (Col.LookupValues?.Count ?? 1)-1;
+                                        if (tindex >= (Col.Tooltips?.Count ?? 0))
+                                            tindex =( Col.Tooltips?.Count ?? 1)-1;
+                                    }
+
+                                    <td col-id="@Col.Id" style='@(((Col.DataType==OpenDMS.Domain.Enumerators.ColumnDataType.Number || Col.DataType==OpenDMS.Domain.Enumerators.ColumnDataType.Date) ? "text-align:right;" : "")+(first ? "font-weight:700;" : "") )'>
+                                        <span class='content @(Col.Settings.AggregateType != AggregateType.None ? "aggregate" : "")'>
+
+                                            @Html.Raw(
+                                                     Col.DataType == OpenDMS.Domain.Enumerators.ColumnDataType.Icon
+                                                         ? "<span title='" + C.Value + "'>" + Col.LookupValues[index] + "</span>"
+                                                         : Col.DataType == OpenDMS.Domain.Enumerators.ColumnDataType.Action
+                                                                 ? "<a href='#' onclick='" + C.Value + "' title='" + Col.Tooltips[tindex] + "'><i class='fa " + Col.LookupValues[index] + "'></i></a>"
+                                                                 : Col.DataType == OpenDMS.Domain.Enumerators.ColumnDataType.Date
+                                                                     ? (C.Description.IndexOf(' ') >= 0 ? C.Description.Replace(" ", " <small style='font-size:0.9em;color:#89a'>") + "</small>" : C.Description)
+                                                                  : (Col.DataType == OpenDMS.Domain.Enumerators.ColumnDataType.Avatar && !String.IsNullOrEmpty(C.Value))
+                                                                     ? "<img class='smallavatar' src='/internalapi/identity/avatar/0" + C.Value + "'> " + C.Description
+                                                                     : C.Description
+                                                     )
+                                                            </span>
+                                                        </td>
+                                    i++;
+                                    if (first && (!String.IsNullOrEmpty(Col.Settings.Width) && Col.DataType == OpenDMS.Domain.Enumerators.ColumnDataType.Text))
+                                    {
+                                        first = false;
+                                    }
+                                }
+                                            </tr>
+                        }
+                        @if (columns.Any(c => c.Settings.AggregateType != AggregateType.None))
+                        {
+                                        <tfoot>
+                                            <tr>
+                                                <td></td>
+                                    @for (int i = 0; i < columns.Count; i++)
+                                    {
+                                        var Col = columns[i];
+                                                        <td col-id="@Col.Id" style="text-align:right">
+
+                                            @if (Col.Settings.AggregateType != AggregateType.None)
+                                            {
+                                                                    <sub>@(FileExplorerViewComponent.Translate(Col.Settings.AggregateType))</sub>
+                                                                    <span class="aggregate">@Model.Totals[i].Description</span>
+                                            }
+                                                        </td>
+                                    }
+                                            </tr>
+                                        </tfoot>
+                        }
+                                </table>
+                            </div>
+            }
+            else
+            {
+                            <div class="MainPanel Background">
+                                <div class="PreviewContainer">
+                        @{
+                            foreach (var R in Model.Page.Rows)
+                            {
+                                var i1 = columns.FindIndex(c => c.Id == DocumentColumn.Description);
+                                var i2 = columns.FindIndex(c => c.Id == DocumentColumn.DocumentType);
+                                var i3 = columns.FindIndex(c => c.Id == DocumentColumn.ProtocolNumber);
+                                var i4 = columns.FindIndex(c => c.Id == DocumentColumn.ContentType);
+                                var title = i1 >= 0 ? R.Columns[i1].Description : "";
+                                var doctype = i2 >= 0 ? R.Columns[i2].Description : "";
+                                var protocol = i3 >= 0 ? R.Columns[i3].Description : "";
+                                var icon = i4 >= 0 ? R.Columns[i4].Description : "";
+
+                                                                <div class="PreviewRow" onclick="return ShowDocument(@R.Keys[0],@(R.Keys[1]=="1" ?  "true" : "false"))">
+                                                                    <div class="PreviewImage">
+                                                                        <image-viewer id="image-viewer" type="compatto" documentId="@R.Keys[0]" imageId=0 pages="1">
+                                                                        </image-viewer>
+                                                                        <div style="position:absolute;bottom:0px;right:12px;font-size:2rem;line-height:normal">@Html.Raw(icon)</div>
+                                                                    </div>
+                                                                    <div class="PreviewName">
+                                        @title
+                                                                        <small>@doctype</small>
+                                                                        <strong>@protocol</strong>
+                                                                    </div>
+                                                                </div>
+                            }
+                        }
+                                </div>
+                            </div>
+            }
+            @if (!Model.HideSelection)
+            {
+                            <div class="Bottom">
+                                <div class="nav-toolbar-container w-100">
+                                    <ul class="nav nav-toolbar">
+                                        <li class="SelectedDocs hidden">
+                                            <b><span class="Selected"></span></b> / <span>@(Model.Count)</span>
+                                            <span>Selezionati </span>
+                                        </li>
+                                        <li class="UnselectedDocs">
+                                            <b><span>@(Model.Count)</span></b>
+                                            <span> documenti trovati </span>
+                                        </li>
+                                    </ul>
+                                    <div></div>
+                                    <ul class="nav nav-toolbar">
+                                        <li>
+                                            <a href="#" @(Model.Page.PageIndex > 0 ? "onclick=Goto(0)" : "disabled") title="Prima Pagina"><i class="fa fa-step-backward"></i></a>
+                                        </li>
+                                        <li>
+                                            <a href="#" @(Model.Page.PageIndex > 0 ? "onclick=Goto(" + (Model.Page.PageIndex - 1).ToString() + ")" : "disabled") title="Pagina Precedente"><i class="fa fa-backward"></i></a>
+                                        </li>
+                                        <li>
+                                            <span>@(Model.Page.PageIndex + 1)</span>
+                                            <span> / </span>
+                                            <span>@Model.Pages</span>
+                                        </li>
+                                        <li>
+                                            <a href="#" @(Model.Page.PageIndex < (Model.Pages - 1) ? "onclick=Goto(" + (Model.Page.PageIndex + 1).ToString() + ")" : "disabled") title="Pagina Successiva"><i class="fa fa-forward"></i></a>
+                                        </li>
+                                        <li>
+                                            <a href="#" @(Model.Pages > 0 ? "onclick=Goto(" + (Model.Pages - 1).ToString() + ")" : "disabled") title="Ultima Pagina"><i class="fa fa-step-forward"></i></a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+            }
+
+        }
+        else
+        {
+                    <div class="InfoPanel">
+                        <i class="fa fa-info-circle"></i>
+                        <h3> Nessun documento trovato</h3>
+                    </div>
+        }
+    }
+</div>
+
+<div class="Window" style="position:fixed;top:0;right:0;display:none;flex-direction:column;z-index:11">
+    <div class="Body MainPanel">
+    <div class="Header">
+        <i class="fa fa-wrench"></i>
+        <h1><small>Personalizzazione</small>
+            <span>Colonne</span>
+        </h1>
+        <div class="right-header">
+            <a href="#" class="btn btn-link" onclick="HideCustomize()"><i class="fa fa-times"></i></a>
+        </div>
+    </div>
+    <div class="Panel">
+        <h3>Colonne</h3>
+        <div class="MainPanel">
+            <table class="table table-hover columns">
+                <thead>
+                <tr>
+                    <th style="background-color:#fff" nowrap>#</th>
+                    <th style="background-color:#fff" nowrap><i class="fa fa-eye"></i></th>
+                    <th style="background-color:#fff;width:100%">Titolo</th>
+                    <th style="background-color:#fff;min-width:200px" nowrap>Larghezza</th>
+                    <th style="background-color:#fff;min-width:38px" nowrap></th>
+                    <th style="background-color:#fff;min-width:38px" nowrap></th>
+                </tr>
+                </thead>
+                <tbody>
+
+                        @foreach (var C in Model.View.Columns)
+                        {
+                            var id = Model.View.Columns.FindIndex(c => c.Id == C.Id);
+                            var CPrev = id > 0 ? Model.View.Columns[id-1] : null;
+                            var CNext= id < Model.View.Columns.Count-1 ? Model.View.Columns[id + 1] : null;
+
+                        <tr cid="@C.Id" row="@id" r="@id" v="@(C.Settings.Visible ? 1 : 0)" w="@(C.Settings.Width)" s="@(C.Settings.SortType)">
+                            <td class="columnId">
+                                    @id
+                            </td>
+
+                            <td>
+                                    <input type="checkbox" @(C.Settings.Visible ? "checked" : "") onchange="HideColumn('@Model.View.ViewId','@C.Id', this.checked)" name="check" />
+                            </td>
+                            <td>
+                                    @if (C.DataType != ColumnDataType.Image && C.DataType != ColumnDataType.Icon && C.DataType != ColumnDataType.Action)
+                                    {
+                                            <input type="text" id="name" value="@C.Settings.Title" placeholder="@C.Description" style="width:100%;padding: 0 8px !Important" onchange="RenameColumn('@Model.View.ViewId','@C.Id',this)" />
+                                    }
+                                    else
+                                    {
+                                                <span class="input">@Html.Raw(C.Settings.Title) @C.Description</span>
+                                    }
+                                </td>
+                            <td>
+                                    @if (C.DataType == OpenDMS.Domain.Enumerators.ColumnDataType.Text)
+                                    {
+                                                <input type="range" min="24" step="16" max="392" style="width:180px;margin-top:12px" onchange="ResizeColumn('@Model.View.ViewId','@C.Id', this)" value="@(C.Settings.Width.Replace("100%","392").Replace("px",""))" />
+                                    }
+                                    </td>
+                                <td>
+                                        <a href="#" style="" class="prev @(CPrev != null ? "" : "hidden")" onclick="MoveColumnLeft('@Model.View.ViewId', $(this.parentNode.parentNode).attr('cid'), $(this.parentNode.parentNode).prev().attr('cid'))" ><i class="fa fa-lg fa-chevron-up"></i></a>
+                                </td>
+                                <td>
+                                    <a href="#" class="next @(CNext != null ? "" : "hidden")" onclick="MoveColumnRight('@Model.View.ViewId',$(this.parentNode.parentNode).attr('cid'), $(this.parentNode.parentNode).next().attr('cid'))"><i class="fa fa-lg fa-chevron-down"></i></a>
+                                </td>
+                            </tr>
+                        }
+            </tbody>
+
+        </table>
+        </div>
+    </div>
+    <div class="Bottom">
+            <a href="#" class="btn" onclick="HideCustomize()">Chiudi</a>
+            @if (User.IsInRole("admin"))
+            {
+                <a href="#" style="margin-left:16px" class="pull-right btn btn-link" onclick="SetDefault('@Model.View.ViewId')"><i class="fa fa-users"></i> Imposta per tutti</a>
+            }
+            <a href="#" style="margin-left:16px" class="pull-right btn btn-link" onclick="ResetColumns('@Model.View.ViewId')"><i class="fa fa-exclamation"></i> Ripristina</a>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    var Selected = [];
+    var pages = [];
+    var viewProperties = @(Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.View)));
+</script>

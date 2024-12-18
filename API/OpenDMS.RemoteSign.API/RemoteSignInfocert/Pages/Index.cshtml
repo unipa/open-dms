@@ -1,0 +1,174 @@
+﻿@page
+@using RemoteSignInfocert.Pages;
+@using System.IO;
+@using RemoteSignInfocert;
+@model IndexModel
+@inject IConfiguration Configuration
+@{
+    ViewData["Title"] = "Pagina di firma";
+
+}
+
+<script type="text/javascript">
+
+    var path_base = "@Configuration["PATH_BASE"]";
+
+    function ShowBtnOTP() {
+        var counter = 30;
+
+        var _timer = setInterval(function () {
+            if (counter > 0) {
+                document.getElementById("btnInviaOTP").style = "display:none";
+                document.getElementById("counter").style = "display:block;width:auto;";
+                document.getElementById("counter").innerHTML = 'Attendere ' + counter + 'secondi per richiedere un nuovo codice OTP.';
+            } else {
+                document.getElementById("btnInviaOTP").style = "display:block;width:auto;";
+                document.getElementById("counter").style = "display:none";
+                clearInterval(_timer);
+            }
+            counter--;
+        }, 1000);
+
+    }
+
+    function deleteFile(signRoom, fileName) {
+        let text;
+        if (confirm("Confermi di voler eliminare un elemento?")) {
+            $.ajax({
+                url: path_base + '/Sign/DeleteSingleFile?SignRoom=' + signRoom + '&FileName=' + fileName,
+                type: 'DELETE',
+                success: function (result) {
+                    location.reload();
+                }
+            });
+        }
+    }
+
+    function callApi(signRoom) {
+        $.ajax({
+            url: path_base + '/Sign/CheckSigned/' + signRoom,
+            type: 'GET',
+            success: function (result) {
+                if (result === true) {
+                    console.log(result);
+                    confirm("Processo di firma completato.")
+                    clearInterval(refreshPage);
+                }
+            }
+        });
+    }
+
+    function SendOTP() {
+        Confirm('Inviare l\'otp?', 'Message_Target', function () {
+            $.ajax({
+                url: path_base + '/Sign/SendOTP/@Model.SignRoom/@Model.UserName',
+                type: 'POST',
+            }).done(function () {
+                ShowBtnOTP();
+            }).fail(function (err) {
+                ShowMessage('alert', err.responseText, 'Message_Target', null);
+            })
+        }, null);
+    }
+
+
+    var refreshPage;
+    function signedCheck(signRoom) {
+        refreshPage = setInterval(callApi(signRoom), 1000);
+    }
+
+    function AbortSignRoom(signRoom) {
+        window.location = path_base + "/Deleted?signRoom=" + signRoom + "&username=@Model.UserName";
+    }
+
+</script>
+
+<form method="post" asp-antiforgery="false" class="Panel">
+    @Html.Hidden("UserName", Model.UserName)
+    @Html.Hidden("Alias", Model.Alias)
+    @Html.Hidden("SignRoom", Model.SignRoom)
+    <div class="mt-3 Panel">
+
+        @if (!String.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="InfoPanel">
+                <i class="fa fa-ban" style="color:crimson"></i>
+                <h1>C'è un problema!</h1>
+                <p>@Html.Raw( Model.ErrorMessage)</p>
+                <a href="#" class="btn btn-primary" onclick="window.location.reload()">Riprova</a>
+            </div>
+        } else
+        {
+            <div class="Panel mt-3">
+                <table class="table table-hover">
+                <thead>
+                <tr class="text-end">
+                    <th class="text-start" style="width:50%">
+                        Documento
+                    </th>
+                    <th style="width:25%;text-align:right">
+                        Tipo File
+                    </th>
+                    <th style="width:25%">
+                        Dimensione (MB)
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                @{
+                    foreach (var fl in Model.ElencoFile)
+                    {
+                        <tr>
+                            <td class="text-start">
+                                @fl.Document
+                            </td>
+                            <td style="text-align:right">
+                                @fl.Type
+                            </td>
+                            <td style="text-align:right">
+                                @fl.Dimension
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+
+        </table>
+            </div>
+            <div class="Bottom" style="flex-direction:column">
+                <div class="mb-4">
+                    <h3>Verificare sullo Smartphone la ricezione del Codice OTP</h3>
+                    <br/>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 mb-4">
+                        <label class="active" for="pin">PIN</label>
+                        <input name="pin" type="password" id="pin">
+                    </div>
+                    <div class="col-md-3 mb-4">
+                        <label class="active" for="otp">Codice OTP</label>
+                        <input name="otp" type="text" id="otp">
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <br/>
+                        <button class="btn btn-primary" type="submit" onclick="signedCheck('@Model.SignRoom')">Avvia Firma</button>
+                        <button class="btn btn-link" id="RemoteSignAnnullButton" type="button" onclick="AbortSignRoom('@Model.SignRoom')">Annulla</button>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label id="counter"></label>
+                    @if (Model.WaitOTP.Value)
+                    {
+                        <script type="text/javascript">
+                            ShowBtnOTP();
+                        </script>
+                    }
+                    <button type="button" class="btn btn-link" id="btnInviaOTP" onclick="SendOTP()" style="width:auto;">Invia un nuovo Codice OTP</button>
+
+
+                </div>
+            </div>
+        }
+
+    </div>
+</form>

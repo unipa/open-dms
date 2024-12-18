@@ -1,0 +1,4 @@
+{
+  "api_get_url": "/internalapi/preview/Get",
+  "api_get_page_url": "/internalapi/preview/GetPage"
+}

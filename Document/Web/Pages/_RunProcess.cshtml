@@ -1,0 +1,164 @@
+﻿@page
+@model Web.Pages.RunProcessModel
+@Html.AntiForgeryToken()
+
+<link rel="stylesheet" href="https://unpkg.com/@@bpmn-io/form-js@1.1.0/dist/assets/form-js.css">
+<style>
+    h2 p {
+        padding: 0;
+        margin: 0;
+    }
+
+    .fjs-powered-by {
+        display: none !important;
+    }
+
+    .fjs-container .cds--grid {
+        padding: 0 !important;
+    }
+
+    .fjs-form-field-label {
+        font-size: 1rem;
+    }
+
+    .fjs-container {
+        border-bottom: 1px dashed #ccc;
+        margin-bottom: 20px;
+    }
+</style>
+
+
+<script src="/js/custom/site.js"></script>
+<script src="/js/bpmn.io/form-viewer.umd.js"></script>
+<script type="module" src="/components/ImageViewer/dist/image-viewer.js"></script>
+@*<script type="module" src="/components/data-entry/data-entry.js"></script>*@
+<script type="module">
+    import { RenderForm, Save, Claim, Release, Reassign, SelectFile, LoadTask, RemoveFile, checkNextProcessTask } from "/js/forms/client.js";
+
+    window.RenderForm = RenderForm;
+    window.Save = Save;
+    window.Claim = Claim;
+    window.Release = Release;
+    window.LoadTask = LoadTask;
+    window.Reassign = Reassign;
+    window.SelectFile = SelectFile;
+    window.RemoveFile = RemoveFile;
+    window.checkNextProcessTask = checkNextProcessTask;
+
+</script>
+<script>
+    function SaveProcess(pid, pik) {
+        var VerificationCode = "";
+        var RequestVerificationCode = document.getElementsByName("__RequestVerificationToken");
+        if (RequestVerificationCode.length > 0) {
+            VerificationCode = RequestVerificationCode[0].value;
+            Save((variables) => {
+                fetch("?pid=" + pid, {
+                    method: "POST",
+                    headers: {
+                        RequestVerificationToken: VerificationCode,
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                    },
+                    body: JSON.stringify(variables)
+                })
+                .then((response) => {
+                    return response.json()
+                })
+                .then((data) => {
+                    pik = data;
+                    if (pik)
+                        window.location.href = "/startCustomAction?ProcessInstanceKey=" + pik;
+                });
+            });
+        }
+        return false;
+    }
+</script>
+
+@if (Model.ProcessInfo != null)
+{
+    <div class="Header">
+        <i class="fa @Model.ProcessInfo.Icon" style="color: @Model.ProcessInfo.IconColor"></i>
+        <h1>
+            <small>Avvio Processo</small>
+            <span>@Model.ProcessInfo.Description</span>
+        </h1>
+        <a href="#" class="btn btn-link" onclick="return CloseWindow()"><i class="fa fa-times"></i></a>
+    </div>
+
+    @if (Model.Exception != null)
+    {
+        <div class="Panel">
+
+            <div class="InfoPanel">
+                <i class="fa fa-bug"></i>
+
+                <h3>Non è stato possibile avviare il processo</h3>
+                <p>Prendi nota dell'errore seguente e comunicalo al responsabile del sistema</p>
+                <code>@Model.Exception.Message</code>
+            </div>
+        </div>
+        <div class="Bottom">
+            <a href="/New" id="BackButton" class="btn btn-link">Indietro</a>
+            <a href="#" class="btn btn-link" onclick="return CloseWindow()">Esci</a>
+        </div>
+    }
+    else
+    @if (Model.formSchema == null)
+    {
+        <div class="Panel">
+            <div class="InfoPanel">
+                <i class="fa fa-cogs"></i>
+                <h3>Il processo è stato avviato</h3>
+                <p>Mantieni aperta questa scheda se vuoi ricevere in tempo reale eventuali feedback o richieste di informazioni che troverai sempre nella sezione <a href="~/tasks">Attività</a>.</p>
+            </div>
+        </div>
+        <div class="Bottom">
+            <a href="#" class="btn btn-link" onclick="return CloseWindow()">Esci</a>
+        </div>
+        <script>
+            $(document).ready(() => {
+                checkNextProcessTask(@Model.pik);
+            });
+        </script>
+    }
+    else
+    {
+        <form id="htmlform" class="MainPanel TaskForm" onsubmit="return SaveProcess(@Model.ProcessInfo.Id,@Model.pik)">
+            <container class="Panel">
+                @if (@Model.formSchema.Schema.Length > 0)
+                {
+                    @Html.Raw(Model.formSchema.Schema)
+                }
+            </container>
+            <div class="Bottom ToRemove">
+                <button type="submit" class="btn btn-primary">Avvia Processo</button>
+                <a href="/New" class="btn btn-link">Indietro</a>
+                <a href="#" class="btn btn-link" onclick="return CloseWindow()">Esci</a>
+            </div>
+        </form>
+
+        <script>
+
+            $(document).ready(() => {
+                let formData = JSON.parse(JSON.stringify(@Json.Serialize(Model.formSchema.Data)));
+                let formSchema = JSON.parse(JSON.stringify(@Json.Serialize(Model.formSchema.Schema)));
+                let form = { 
+                    data : formData,
+                    schema: formSchema,
+                    saveForm: 0
+                }
+                RenderForm(form, $('.TaskForm')[0])
+            });
+        </script>
+    }
+}
+else
+{
+    <div class="InfoPanel">
+        <i class="fa fa-bug"></i>
+        <h1>Errore in lettura processo</h1>
+        <p>Non è stato possibile leggere il processo</p>
+    </div>
+}

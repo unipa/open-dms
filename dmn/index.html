@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>DMN Editor</title>
+    <meta charset="UTF-8" />
+  </head>
+
+  <body>
+    <div class="modeler">
+      <div id="canvas"></div>
+      <div id="properties"></div>
+    </div>
+    <div id="controls" class="panel">
+      <input type="file" id="fileInput" style="display: none" />
+      <button class="panel" style="margin-left: 5px; z-index: 10; cursor: pointer;" id="importButton">Import XML</button>
+      <button class="panel" style="margin-left: 5px; z-index: 10; cursor: pointer;" id="exportButton">Export XML</button>
+    </div>
+    <div style="background-color: transparent;" id="apibuttons" class="panel"></div>  
+    <script src="src/index.js"></script>
+  </body>
+</html>

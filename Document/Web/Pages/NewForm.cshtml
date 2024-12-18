@@ -1,0 +1,280 @@
+﻿@page
+@model NewFormModel
+@using OpenDMS.Domain.Entities;
+@using OpenDMS.Domain.Enumerators;
+@{
+    ViewData["Title"] = Model.Document.Id > 0 ? "Modifica Documento" : "Nuovo Documento";
+}
+
+<script src="/js/custom/site.js" charset="ISO-8859-1"></script>
+<script src="/js/bpmn.io/form-viewer.umd.js"></script>
+<script type="module" src="/components/ImageViewer/dist/image-viewer.js"></script>
+
+<script type="module" charset="ISO-8859-1">
+    import { RenderForm, Save, GetFormPreview, UpdateModel } from "/js/forms/client.js";
+    window.RenderForm = RenderForm;
+    window.Save = Save;
+    window.GetFormPreview = GetFormPreview;
+    window.UpdateModel = UpdateModel;
+
+</script>
+
+
+<script>
+    var ProcessId = 0;
+    var IgnoreUniqueId = false;
+    var FileContent = undefined;
+    var FileContentIsBase64 = false;
+    var FileContentName = "@(Model.Form.Name)";
+    var IsDraft = false;
+    var NextAction = "";
+
+    var ContentType = @((int)Model.Document.ContentType);
+    var DocumentType = "@(Model.Document.DocumentType?.Id)";
+    var InitialStatus = @((int)Model.Document.DocumentType?.InitialStatus);
+
+    function CreateForm (button){
+
+    }
+
+
+    function CheckDocument(Model) {
+        var fields = Model.Document;
+        var data = Model.Data || {};
+        if (!InitialStatus) InitialStatus = 1;
+        if (!fields["contentType"]) fields["contentType"] = ContentType;
+        if (!fields["documentTypeId"]) fields["documentTypeId"] = DocumentType;
+        if (!fields["folderId"]) fields["folderId"] = @(Model.Document.FolderId);
+        if (!fields["status"]) fields["status"] = InitialStatus;
+        if (!fields["ignoreUniqueId"] && IgnoreUniqueId) fields["ignoreUniqueId"] = IgnoreUniqueId;
+
+        if (!fields["documentDate"]) fields["documentDate"] = new Date();
+        if (!fields["expirationDate"]) fields["expirationDate"] = null;
+        if (fields["iconColor"] == "#000000") fields["iconColor"] = null;
+
+        if (!FileContentName)
+            FileContentName = "@(Model.Document.DocumentType.Name)";
+
+        if (!FileContent) { 
+            FileContent = GetFormPreview();
+            FileContentName = FileContentName + (Model.Form.formType == "FORMJS" ? ".formjs" : ".formhtml")
+            FileContent = FileContent + "<!-- FORM-DATA-BEGIN " + JSON.stringify(data) + " FORM-DATA-END -->";
+        }
+
+        fields["content"] = {
+            FileData: FileContent,
+            DataIsInBase64: FileContentIsBase64,
+            FileName: FileContentName
+        }
+
+        return fields;
+    }
+
+
+    function SetIcon(target) {
+        var icon = $("#Icon");
+        icon.val(target.className);
+        UpdateIcon();
+    }
+    function UpdateIcon() {
+        var icon = $("#Icon").val();
+        var iconSpan = $("#IconSpan")[0];
+        iconSpan.className = icon;
+    }
+
+    function SavePostAction(docid) {
+        var IsFolder = ContentType == @((int)ContentType.Folder) ? 1 : 0;
+
+        if (NextAction) {
+            var separator = "?";
+            var index = NextAction.indexOf("?");
+            if (index >= 0)
+                separator = "&"
+            window.location = NextAction + separator + 'ModalView=S&Id=' + docid;
+        }
+        else {
+            if (IsFolder)
+                window.top.location = '/?Id=' + docid;
+            else
+                window.location = '/PostSave?Id=' + docid;
+        }
+    }
+
+    function InternalSaveForm(body,abort, onPostSave) {
+        var VerificationCode = "";
+        var RequestVerificationCode = document.getElementsByName("__RequestVerificationToken");
+        if (RequestVerificationCode.length > 0) {
+            VerificationCode = RequestVerificationCode[0].value;
+
+            $.ajax({
+                url: "/internalapi/document@(Model.Document.Id == 0 ? "" : "/" + Model.Document.Id)",
+                type: '@(Model.Document.Id == 0 ? "POST" : "PUT")',
+                headers: {
+                    RequestVerificationToken: VerificationCode,
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                },
+                data: body
+            })
+                .done(function (doc) {
+                    if (!doc || doc.id == 0 || doc.id == undefined) {
+                        if (!doc.description) doc.description = "Errore in salvataggio documento. Verificare i dati inseriti";
+                        ShowMessage("alert", doc.description, 'Message_Target', "/?Type=" + "@Model.Document.DocumentType?.Id");
+                        if (abort) abort();
+                        return false;
+                    }
+                    if (doc.id < 0) {
+                        if (!IgnoreUniqueId) {
+                            if (confirm(doc.description + "\n\nVuoi forzare l'archiviazione creando un duplicato ?")) {
+                                if (confirm("Sei sicuro di voler archiviare questo documento con le stesse informazioni di un altro ?")) {
+                                    IgnoreUniqueId = true;
+                                    InternalSaveForm(body, abort, onPostSave);
+                                }
+                            }
+                        }
+                        else { 
+                            ShowMessage("alert", doc.description, 'Message_Target', "/?Type=" + "@Model.Document.DocumentType?.Id");
+                            if (abort) abort();
+                        }
+                        return false;
+                    }
+                    if (IsDraft) {
+                        window.location = "/?ModalView=S&id="+doc.id
+                    }
+                    else {
+                        let ok = true;
+                        if (onPostSave) {
+                            if (abort) abort();
+                            ok = onPostSave(doc.id);
+                        }
+                        if (ok) {
+                            SavePostAction(doc.id);
+                        }
+                        else {
+                            if (abort) abort();
+                            $("#htmlformbuttons").addClass("hidden");
+                        }
+                    }
+                })
+                .fail(function (err) {
+                    if (abort) abort();
+                    try {
+                        var e = JSON.parse(err.responseText);
+                        ShowMessage("alert", e.title + "\n\n" + e.errors.document[0], 'Message_Target', "/?Type=" + "@Model.Document.DocumentType?.Id");
+                    }
+                    catch {
+                        if (err.responseText)
+                            ShowMessage("alert", err.responseText, 'Message_Target', "/?Type=" + "@Model.Document.DocumentType?.Id");
+                        else
+                            ShowMessage("alert", "Impossibile contattare il server", 'Message_Target', "/?Type=" + "@Model.Document.DocumentType?.Id");
+                    }
+                });
+        }
+        return false;
+    }
+
+    function SaveForm() {
+        Save(
+            (bodyObj, abort) => {
+                var processVariables = bodyObj.Data;
+                processVariables.Attachments = bodyObj.Attachments;
+                var Document = bodyObj.Document;
+                Document.attachments = bodyObj.Attachments;
+                Document.processVariables = processVariables;
+                var body = JSON.stringify(CheckDocument(bodyObj));
+                InternalSaveForm(body, abort, bodyObj.Form.onPostSave);
+            }
+        );
+        return false;
+    }
+
+    function SaveDraft() {
+        if (!confirm("Stai per memorizzare il documento in bozza\nPotrai recuperarlo in qualsiasi momento dal tuo fascicolo \"Bozze\"\n\nVuoi procedere ?")) return;
+        var DraftStatus = @((int)DocumentStatus.Draft);
+        IsDraft = true;
+        Save((bodyObj, abort) => {
+            var Document = bodyObj.Document;
+            Document.attachments = bodyObj.Attachments;
+            // Trucco per conservare i dati correnti
+            var obj = CheckDocument(bodyObj);
+            obj["status"] = DraftStatus;
+            var body = JSON.stringify(obj);
+
+            InternalSaveForm(body, abort);
+        }, IsDraft
+        );
+        return false;
+    }
+
+    $(document).ready(() => {
+        let container = "#Task";
+        let form = JSON.parse(JSON.stringify(@Json.Serialize(Model.Form)))
+        form.template = "#Item";
+        form.renderer = undefined;
+        RenderForm(form, container)
+    });
+
+
+</script>
+
+
+<script type="text/html" id="Item">
+    <form id="htmlform"  class="TaskForm" onsubmit="return SaveForm()">
+        @* {{&html}}  *@
+    </form>
+</script>
+
+
+<div class="MainWindow">
+    <div class="Header">
+        <i class="fa fa-plus"></i>
+        <h1>
+            <small>
+                @(Model.Document.DocumentType.ContentType == ContentType.Template
+                    ? "Template"
+                    : Model.Document.DocumentType.ContentType == ContentType.Folder
+                    ? "Fascicolo"
+                    : Model.Document.DocumentType.ContentType == ContentType.Form
+                    ? "Modulo Digitale"
+                    : Model.Document.DocumentType.ContentType == ContentType.DMN
+                    ? "Matrice Decisionale"
+                    : Model.Document.DocumentType.ContentType == ContentType.Workflow
+                    ? "Definizione di Processo"
+                    : Model.Document.DocumentType.ContentType == ContentType.Report
+                    ? "Definizione di Report"
+                    : "Documento"
+                    )
+            </small>
+            <span>Creazione @Model.Document.DocumentType.Name</span>
+        </h1>
+        <div class="right-header">
+            <ul class="nav nav-toolbar">
+                @* <li class="tbCopy hidden"><a href="#" class="MobileIcon" title="Crea da documento precedente" onclick="return CreateFrom(this)"><i class="fa fa-copy"></i> Copia Da...</a></li> *@
+
+                <li class="tbReduce hidden"><a href="#" onclick="return ReduceView(this)"><i class="fa fa-compress"></i></a></li>
+                <li class="tbExpand Desktop"><a href="#" onclick="return ExpandView(this)"><i class="fa fa-expand"></i></a></li>
+                <li>
+                    <a href="#" class="btn btn-link" onclick="return CloseWindow()"><i class="fa fa-times"></i></a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div id="Message_Target"></div>
+
+    <div class="TaskDescription">@Model.Document.DocumentType.Description</div>
+
+    <div id="Task" class="NewFormPanel Panel">
+    </div>
+
+    <form id="htmlformbuttons" class="Bottom" onsubmit="return SaveForm()">
+        <button type="submit" id="SaveButton" class="btn btn-primary me-2"><i class="fa fa-check"></i> Memorizza</button>
+        <a href="#" id="DraftButton" onclick="return SaveDraft()" class="btn btn-outline-secondary me-2"><i class="fa fa-pencil"></i> Memorizza In Bozza</a>
+        @if (Model.Document.Id <= 0)
+        {
+            <a href="/New?IdCategoria=@Model.Document.DocumentType.CategoryId" id="BackButton" class="btn btn-link me-2">Indietro</a>
+        }
+        <a href="#" class="btn btn-link pull-right" onclick="return CloseWindow()">Esci</a>
+    </form>
+
+</div>
+

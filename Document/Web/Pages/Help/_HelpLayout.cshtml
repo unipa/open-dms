@@ -1,0 +1,53 @@
+﻿@{
+    Layout = "_MenuLayout";
+
+}
+
+<div class="Page">
+
+    <div class="LeftMenu">
+        <div class="Header">
+            @await Component.InvokeAsync("CompanyLogo")
+        </div>
+        <div class="InsidePanel MainPanel">
+            <ul class="nav nav-list">
+                <li class="header">
+                    <h6>Aiuti</h6>
+                </li>
+                <li>
+                    <a href="/Help"><i class="fa fa-question-circle"></i> FAQ</a>
+                </li>
+                <li>
+                    <a href="/Help/Supporto"><i class="fa fa-phone"></i> Supporto Tecnico</a>
+                </li>
+                <li>
+                    <a href="/?uid=$HELP-FOLDER$"><i class="fa fa-life-ring"></i> Manuali</a>
+                </li>
+            </ul>
+
+            <ul class="nav nav-list">
+                <li class="header">
+                    <h6>Aggiornamenti</h6>
+                </li>
+                @RenderSection("Releases", false)
+            </ul>
+        </div>
+    </div>
+    <div class="MailListPanel ListPanel MainPanel">
+        <div class="Header">
+            <h1>
+                <small>
+                    @RenderSection("SubHeader", false)
+                </small>
+                <span>
+                    @RenderSection("Header", false)
+                </span>
+            </h1>
+        </div>
+        <div class="Panel">
+            @RenderBody()
+        </div>
+    </div>
+</div>
+
+

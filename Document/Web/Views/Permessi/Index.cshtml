@@ -1,0 +1,209 @@
+﻿@model PermessiViewModel;
+@using Microsoft.Extensions.Configuration
+@using OpenDMS.Domain.Constants;
+@using OpenDMS.Domain.Enumerators;
+@using Web.Model.Admin;
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@inject IConfiguration Configuration
+@{
+    ViewData["Title"] = "Permessi";
+    Layout = "_AdminLayout";
+}
+
+<script type="module" src="~/components/data-entry/data-entry.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+        $(function () {
+
+            if (`@Model.ErrorMessage` !== '') ShowMessage('alert', `@Html.Raw(Model.ErrorMessage)`, 'Message_Target', '/Admin/Permessi/Index?Id=@Model.Id');
+            if (`@Model.SuccessMessage` !== '') ShowMessage('success', '@Html.Raw(Model.SuccessMessage)', 'Message_Target', null);
+
+
+
+            $(".mnuAdminPermessi").addClass("active");
+            $("div > div.search-box > div.search-bar > input[name=ProfileId]").css("background-color","#fff !important");
+
+            Carica("@Model.Id");
+
+            $('.Authorization').change(function () {
+                // Ottenere l'id del selettore
+                var id = $(this).attr("id");
+                // Invia il form
+                $("#form_" + id).submit();
+            });
+
+            //codice per far svanire i messaggi di successo
+            FadeOutSuccessMessagge(10000);
+
+
+        });
+    })
+
+    function EliminaAcl(Acl) {
+        Confirm("Stai per cancellare questa Acl: " + Acl, "Message_Target", function () {
+            window.location = "/Admin/Permessi/Elimina?ACLId=@Model.Id";
+        }, null);
+    }
+
+    function EliminaAutorizzazione(href, ProfileId, Permesso) {
+        Confirm("Stai per cancellare questa Autorizzazione: " + ProfileId + " - " + Permesso, "Message_Target", function () {
+            window.location = href;
+        }, null);
+    }
+
+</script>
+
+
+@section HeaderTitle
+    {
+    ACL
+}
+
+    <div class="Page">
+    <div class="MainPanel ListMenu InsidePanel">
+            <ul class="nav nav-list">
+                <li codice="" class="">
+                    <a class="left-icon px-2" href="/Admin/Permessi/Index">
+                        <span class="list-item-title-icon-wrapper me-0">
+                            <i class="fa fa-lg fa-plus-circle"></i>
+                            <span class="m-0">
+                                Aggiungi Permesso
+                            </span>
+                        </span>
+                    </a>
+                </li>
+                <li class="nav-separator"></li>
+
+                @foreach (var mb in Model.ACLs)
+                {
+                    <li codice="@mb.Id" class="">
+                        <a class="left-icon px-2" href="/Admin/Permessi/Index?Id=@mb.Id" >
+                            <span class="list-item-title-icon-wrapper me-0">
+                                <i class="fa fa-lg fa-unlock-alt"></i>
+                                <span class="m-0">
+                                    @mb.Name
+                                </span>
+                            </span>
+                        </a>
+                    </li>
+                }
+
+            </ul>
+        </div>
+        <div class="Panel">
+            <div id="Message_Target"></div>
+            <div class="row">
+                <div class="col-8">
+                    <h2>
+                        @if (!String.IsNullOrEmpty(Model.Id))
+                        {
+                                @Html.Raw("ACL:"+Model.Name)
+                        }
+                        else
+                        {
+                                @Html.Raw("Nuova ACL")
+                        }
+                    </h2>
+                </div>
+                <div class="col-4">
+                    <div class="pull-right">
+                    @{
+                        if (!String.IsNullOrEmpty(Model.Id))
+                        {
+                            <a href="#" onclick="return EliminaAcl('@Model.Description')" class="btn btn-link">
+                                <i class="fa fa-trash-o"></i>
+                            </a>
+                        }
+                    }
+                        <a href="?Id=@Model.Id" class="btn btn-link">
+                            <i class="fa fa-refresh"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @if (String.IsNullOrEmpty(@Model.Id))
+            {
+                <form class="MainPanel" asp-controller="Permessi" asp-action="Memorizza" method="post">
+                    <div class="row">
+                        <div class="form-group col-md-10">
+                            <input name="Name" type="text" class="form-control" id="formNome" placeholder="Inserisci un nome" required>
+                            <span class="text-danger" asp-validation-for="Name"></span>
+                        </div>
+                        <div class="form-group col-md-2 pull-right">
+                            <button type="submit" class="btn btn-xs btn-primary">Crea ACL</button>
+                        </div>
+                    </div>
+                </form>
+
+            }
+            else
+            {
+                <div class="MainPanel border rounded border-primary border-2 my-2  table-overflow-y bg-white MainPanel">
+                    <table class="table table-responsive table-condensed table-hover row-fluid">
+                        <thead>
+                            <tr>
+                                <th style="width:50%">Profilo</th>
+                                <th nowrap style="min-width:80px">Tipo</th>
+                                <th style="width:50%">Permesso</th>
+                                <th nowrap style="min-width:130px">Autorizzazione</th>
+                                <th nowrap style="width:20px"></th>
+                            </tr>
+                    </thead>
+                    <tbody>
+                        <form asp-controller="Permessi" asp-action="AggiungiAutorizzazione">
+                        <tr>
+
+                                <td colspan=2 >
+                                <input type="hidden" value="@Model.Id" name="ACLId" />
+                                <input id="ProfileId"
+                                            placeholder="Indica un utente/ruolo/struttura"
+                                            name="ProfileId"
+                                            type="lookup"
+                                            value=""
+                                            tableid="$ug"
+                                            tag="false"
+                                            visible="true"
+                                            required />
+                                </td>
+                                <td>
+                                    <div class="select-wrapper">
+                                        <select style="width:100%" name="PermissionId" required id="defaultSelect2" asp-items="@((List<SelectListItem>)ViewBag.PermessiList)"></select>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="select-wrapper">
+                                    <select name="Authorization" required id="defaultSelect3" >
+                                        <option value=1>Concesso</option>
+                                        <option value=2>Negato</option>
+                                    </select>
+                                    </div>
+                                </td>
+                                <td>
+                                    <button type="submit" class="btn btn-primary btn-xs">
+                                        <i class="fa fa-plus"></i>
+                                    </button>
+                                </td>
+
+                            </tr>
+                    </form>
+                            @{
+                                for (int i = 0; i < Model.Authorizations.Count; i++)
+                                {
+                                    if (Model.Authorizations[i].Authorization != AuthorizationType.None)
+                                    {
+                                        //richiama la view in Shared/EditorTemplates/{nome del viewmodel}.cshtml(in questo caso: "ACLPermission_DTO.cshtml")
+                                        @Html.EditorFor(model => model.Authorizations[i],null,null,new { index = i, isGlobal = ""})
+                                        ;
+                                    }
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+            
+        </div>
+    </div>

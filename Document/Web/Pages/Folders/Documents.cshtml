@@ -1,0 +1,51 @@
+﻿@page
+@using OpenDMS.Domain.Constants;
+@model DocumentsModel
+@{
+    ViewData["Title"] = "Archivio @Model.DocumentType.Name";
+    Layout = "_FolderLayout";
+}
+@section Icon       {    <i class="fa @Model.Icon"></i>    }
+@section Header     {    @Model.DocumentTypeName }
+@section SubHeader  {    @Web.Constant.Labels.Category: @Model.GroupName }
+@section Folders
+{
+    <div class="FolderPathPanel Background">
+        <a href="#" class="" onclick="return ShowDocument(0)"><i class="fa fa-folder divider"></i> @Web.Constant.Labels.Folders</a>
+        <a href="#" class="" onclick="return ShowView('Categories')"><i class="fa fa-folder divider"></i> @Web.Constant.Labels.Categories</a>
+        @if (!String.IsNullOrEmpty(Model.GroupType))
+        {
+            <a href="#" class="" onclick="return ShowView('DocumentTypes?GroupType=@Model.GroupType')"><i class="fa fa-folder divider"></i> @Model.GroupName</a>
+        }
+        <i class="fa fa-folder divider"></i> @Model.DocumentTypeName
+    </div>
+}
+
+<div class="Page">
+    <div class="MainPanel Background">
+        @await  Component.InvokeAsync("FileExplorer", Model.FileFilters)
+    </div>
+
+</div>
+<script>
+    $(document).ready(() => {
+        $(".Folders").addClass("active");
+    });
+</script>
+
+
+<script>
+    window.addEventListener("message", (event) => {
+        if (event.data.op == "newdocument" && event.data.type == "@Model.DocumentTypeId") {
+            window.location.reload();
+        } else
+        if (event.data.op == "delete") {
+            window.location.reload(true);
+        } else
+                if (event.data.op == "close") {
+                    $(window.Modal).find("#PopupWindow").attr("src", "");
+                    $(window.Modal).addClass("hidden");
+                }
+
+    })
+</script>

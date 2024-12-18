@@ -1,0 +1,64 @@
+@page "{handler?}"
+@model IndexModel
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@{
+    ViewData["Title"] = "Home page";
+}
+<div class="row" style="height:100%">
+
+    <div class="col-lg-7 col-md-12" style="height:100%;border-right:1px dashed #eee">
+
+<div style="position:relative">
+    <table width="100%" class="table table-hover">
+        <thead>
+            <tr>
+                <th nowrap>Id</th>
+                <th style="width:100%">Descrizione</th>
+                <th class="mobile" nowrap style="min-width:200px">URL</th>
+                <th class="mobile" nowrap>Status</th>
+                <th class="mobile" nowrap>Realm</th>
+                <th nowrap style="min-width:30px"></th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var m in Model.tenants)
+        {
+            <tr onclick="Load('@m.Id')" style="vertical-align:middle">
+                <td>@m.Id</td>
+                <td><b>@m.Description</b></td>
+                <td class="mobile"><a target="_blank" class="btn btn-link btn-sm" href="@m.URL">@m.URL</a></td>
+                <td class="mobile"><i class="@(m.Offline ? "fa fa-warning" : "fa fa-check")"></i></td>
+                <td class="mobile">@m.OpenIdConnectAuthority</td>
+                <td nowrap>
+                    @*<a href="/Edit?id=@m.Id" class="btn btn-light btn-sm"><i class="fa fa-pencil"></i> Modifica</a>*@
+                    <a onclick="Delete('@m.Id')" href="#" class="btn btn-light btn-sm"><i class="fa fa-trash"></i></a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+</div>
+
+<div class="col-lg-5 col-md-12" style="height:100%">
+    <iframe frameborder="0" id="detail" style="width:100%;height:100%">
+
+    </iframe>
+</div>
+</div>
+
+<script>
+    function Load(id) {
+        if (id)
+            document.getElementById("detail").src = "@($"{Configuration["PATH_BASE"]}")" + "/Edit?id=" + id;
+            else
+            document.getElementById("detail").src = "@($"{Configuration["PATH_BASE"]}")" + "/NewTenant";
+    }
+    function Delete(id) {
+        document.getElementById("detail").src = "@($"{Configuration["PATH_BASE"]}")" + "/Delete?id=" + id;
+            event.stopPropagation();
+            return false;
+    }   
+    Load("");
+</script>
