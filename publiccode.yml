@@ -1,0 +1,83 @@
+publiccodeYmlVersion: "0.4"
+name: Open DMS
+applicationSuite: ""
+url: https://github.com/unipa/open-dms
+softwareVersion: "1.0"
+releaseDate: 2024-12-18
+platforms:
+  - web
+  - linux
+  - windows
+categories:
+  - business-process-management
+  - collaboration
+  - document-management
+  - e-signature
+  - task-management
+  - workflow-management
+usedBy:
+  - Università degli Studi di Palermo
+developmentStatus: stable
+softwareType: standalone/web
+description:
+  it-IT:
+    localisedName: ""
+    shortDescription: Piattaforma per la digitalizzazione di processi, atti e documenti della PA
+    longDescription: >+
+      La piattaforma **OpenDMS** è uno strumento per la gestione di un nuovo
+      modello organizzativo e tecnologico, finalizzato alla **digitalizzazione
+      di processi** propri di una Pubblica Amministrazione e in particolare di
+      un Ateno come l'Università degli Studi di Palermo.
+
+
+      Il progetto è composto da:
+
+
+      -un **sistema di gestione documentale** per una gestione archivistica dei
+      documenti avanzata nel rispetto delle linee guida AgID
+
+      -un **Designer Web BPMN 2.0** per la progettazione di processi 
+
+      -una integrazione con l'engine **BPM Camunda** per l'orchestrazione dei
+      processi
+
+      -integrazione con **sistemi di protocollo** quali ad esempio il protocollo
+      CINECA in uso presso l'Ateneo Palermitano
+
+      -**scrivania virtuale** fruibile dal web per la gestione delle attività in
+      carico agli utenti e per la consultazione dei documenti condivisi
+
+      -**console di posta** per la gestione condivisa e integrata delle caselle
+      PEC o PEO, integrata con il protocollo informatico
+
+    features:
+      - Gestione Documentale
+      - Protocollo Informatico
+      - Business Process Management
+      - Scrivania virtuale pr la gestione dei flussi di documentali
+        dell'organizzazione
+      - Portale dei servizi On-Line
+      - Designer BPM 2.0
+      - Digitalizzazione processi
+    screenshots:
+      - /img/01_Home.png
+      - /img/02_Attivita.png
+      - /img/03_Gestione_Attivita.png
+      - /img/04_Mail.png
+      - /img/05_Dashboard.png
+      - /img/06_Creazione_Documenti.png
+      - /img/07_Forms.png
+      - /img/08_Modelli_PDF.png
+      - /img/09_Processi.png
+      - /img/10_Modellazione_Processi.png
+      - /img/11_Amministrazione.png
+      - /img/12_Definizione Tipologie Documentali.png
+      - /img/13_Firma.png
+legal:
+  license: GPL-3.0-or-later
+maintenance:
+  type: internal
+localisation:
+  localisationReady: true
+  availableLanguages:
+    - it-IT
